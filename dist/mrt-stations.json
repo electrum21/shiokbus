@@ -1,0 +1,1062 @@
+[
+  {
+    "stn_code": "NS1",
+    "mrt_station": "Jurong East",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS2",
+    "mrt_station": "Bukit Batok",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS3",
+    "mrt_station": "Bukit Gombak",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS4",
+    "mrt_station": "Choa Chu Kang",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS5",
+    "mrt_station": "Yew Tee",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS7",
+    "mrt_station": "Kranji",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS8",
+    "mrt_station": "Marsiling",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS9",
+    "mrt_station": "Woodlands",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS10",
+    "mrt_station": "Admiralty",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS11",
+    "mrt_station": "Sembawang",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS12",
+    "mrt_station": "Canberra",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS13",
+    "mrt_station": "Yishun",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS14",
+    "mrt_station": "Khatib",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS15",
+    "mrt_station": "Yio Chu Kang",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS16",
+    "mrt_station": "Ang Mo Kio",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS17",
+    "mrt_station": "Bishan",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS18",
+    "mrt_station": "Braddell",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS19",
+    "mrt_station": "Toa Payoh",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS20",
+    "mrt_station": "Novena",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS21",
+    "mrt_station": "Newton",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS22",
+    "mrt_station": "Orchard",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS23",
+    "mrt_station": "Somerset",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS24",
+    "mrt_station": "Dhoby Ghaut",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS25",
+    "mrt_station": "City Hall",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS26",
+    "mrt_station": "Raffles Place",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS27",
+    "mrt_station": "Marina Bay",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "NS28",
+    "mrt_station": "Marina South Pier",
+    "mrt_line": "North South Line"
+  },
+  {
+    "stn_code": "EW1",
+    "mrt_station": "Pasir Ris",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW2",
+    "mrt_station": "Tampines",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW3",
+    "mrt_station": "Simei",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW4",
+    "mrt_station": "Tanah Merah",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW5",
+    "mrt_station": "Bedok",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW6",
+    "mrt_station": "Kembangan",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW7",
+    "mrt_station": "Eunos",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW8",
+    "mrt_station": "Paya Lebar",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW9",
+    "mrt_station": "Aljunied",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW10",
+    "mrt_station": "Kallang",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW11",
+    "mrt_station": "Lavender",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW12",
+    "mrt_station": "Bugis",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW13",
+    "mrt_station": "City Hall",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW14",
+    "mrt_station": "Raffles Place",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW15",
+    "mrt_station": "Tanjong Pagar",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW16",
+    "mrt_station": "Outram Park",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW17",
+    "mrt_station": "Tiong Bahru",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW18",
+    "mrt_station": "Redhill",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW19",
+    "mrt_station": "Queenstown",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW20",
+    "mrt_station": "Commonwealth",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW21",
+    "mrt_station": "Buona Vista",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW22",
+    "mrt_station": "Dover",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW23",
+    "mrt_station": "Clementi",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW24",
+    "mrt_station": "Jurong East",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW25",
+    "mrt_station": "Chinese Garden",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW26",
+    "mrt_station": "Lakeside",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW27",
+    "mrt_station": "Boon Lay",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW28",
+    "mrt_station": "Pioneer",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW29",
+    "mrt_station": "Joo Koon",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW30",
+    "mrt_station": "Gul Circle",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW31",
+    "mrt_station": "Tuas Crescent",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW32",
+    "mrt_station": "Tuas West Road",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "EW33",
+    "mrt_station": "Tuas Link",
+    "mrt_line": "East West Line"
+  },
+  {
+    "stn_code": "CG1",
+    "mrt_station": "Expo",
+    "mrt_line": "Changi Airport Branch Line"
+  },
+  {
+    "stn_code": "CG2",
+    "mrt_station": "Changi Airport",
+    "mrt_line": "Changi Airport Branch Line"
+  },
+  {
+    "stn_code": "NE1",
+    "mrt_station": "HarbourFront",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE3",
+    "mrt_station": "Outram Park",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE4",
+    "mrt_station": "Chinatown",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE5",
+    "mrt_station": "Clarke Quay",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE6",
+    "mrt_station": "Dhoby Ghaut",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE7",
+    "mrt_station": "Little India",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE8",
+    "mrt_station": "Farrer Park",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE9",
+    "mrt_station": "Boon Keng",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE10",
+    "mrt_station": "Potong Pasir",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE11",
+    "mrt_station": "Woodleigh",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE12",
+    "mrt_station": "Serangoon",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE13",
+    "mrt_station": "Kovan",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE14",
+    "mrt_station": "Hougang",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE15",
+    "mrt_station": "Buangkok",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE16",
+    "mrt_station": "Sengkang",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE17",
+    "mrt_station": "Punggol",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "NE18",
+    "mrt_station": "Punggol Coast",
+    "mrt_line": "North East Line"
+  },
+  {
+    "stn_code": "CC1",
+    "mrt_station": "Dhoby Ghaut",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC2",
+    "mrt_station": "Bras Basah",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC3",
+    "mrt_station": "Esplanade",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC4",
+    "mrt_station": "Promenade",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC5",
+    "mrt_station": "Nicoll Highway",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC6",
+    "mrt_station": "Stadium",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC7",
+    "mrt_station": "Mountbatten",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC8",
+    "mrt_station": "Dakota",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC9",
+    "mrt_station": "Paya Lebar",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC10",
+    "mrt_station": "MacPherson",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC11",
+    "mrt_station": "Tai Seng",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC12",
+    "mrt_station": "Bartley",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC13",
+    "mrt_station": "Serangoon",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC14",
+    "mrt_station": "Lorong Chuan",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC15",
+    "mrt_station": "Bishan",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC16",
+    "mrt_station": "Marymount",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC17",
+    "mrt_station": "Caldecott",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC19",
+    "mrt_station": "Botanic Gardens",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC20",
+    "mrt_station": "Farrer Road",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC21",
+    "mrt_station": "Holland Village",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC22",
+    "mrt_station": "Buona Vista",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC23",
+    "mrt_station": "one-north",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC24",
+    "mrt_station": "Kent Ridge",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC25",
+    "mrt_station": "Haw Par Villa",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC26",
+    "mrt_station": "Pasir Panjang",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC27",
+    "mrt_station": "Labrador Park",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC28",
+    "mrt_station": "Telok Blangah",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC29",
+    "mrt_station": "HarbourFront",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CE1",
+    "mrt_station": "Bayfront",
+    "mrt_line": "Circle Line Extension"
+  },
+  {
+    "stn_code": "CE2",
+    "mrt_station": "Marina Bay",
+    "mrt_line": "Circle Line Extension"
+  },
+  {
+    "stn_code": "DT1",
+    "mrt_station": "Bukit Panjang",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT2",
+    "mrt_station": "Cashew",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT3",
+    "mrt_station": "Hillview",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT4",
+    "mrt_station": "Hume",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT5",
+    "mrt_station": "Beauty World",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT6",
+    "mrt_station": "King Albert Park",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT7",
+    "mrt_station": "Sixth Avenue",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT8",
+    "mrt_station": "Tan Kah Kee",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT9",
+    "mrt_station": "Botanic Gardens",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT10",
+    "mrt_station": "Stevens",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT11",
+    "mrt_station": "Newton",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT12",
+    "mrt_station": "Little India",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT13",
+    "mrt_station": "Rochor",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT14",
+    "mrt_station": "Bugis",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT15",
+    "mrt_station": "Promenade",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT16",
+    "mrt_station": "Bayfront",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT17",
+    "mrt_station": "Downtown",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT18",
+    "mrt_station": "Telok Ayer",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT19",
+    "mrt_station": "Chinatown",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT20",
+    "mrt_station": "Fort Canning",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT21",
+    "mrt_station": "Bencoolen",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT22",
+    "mrt_station": "Jalan Besar",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT23",
+    "mrt_station": "Bendemeer",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT24",
+    "mrt_station": "Geylang Bahru",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT25",
+    "mrt_station": "Mattar",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT26",
+    "mrt_station": "MacPherson",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT27",
+    "mrt_station": "Ubi",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT28",
+    "mrt_station": "Kaki Bukit",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT29",
+    "mrt_station": "Bedok North",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT30",
+    "mrt_station": "Bedok Reservoir",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT31",
+    "mrt_station": "Tampines West",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT32",
+    "mrt_station": "Tampines",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT33",
+    "mrt_station": "Tampines East",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT34",
+    "mrt_station": "Upper Changi",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "DT35",
+    "mrt_station": "Expo",
+    "mrt_line": "Downtown Line"
+  },
+  {
+    "stn_code": "TE1",
+    "mrt_station": "Woodlands North",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE2",
+    "mrt_station": "Woodlands",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE3",
+    "mrt_station": "Woodlands South",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE4",
+    "mrt_station": "Springleaf",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE5",
+    "mrt_station": "Lentor",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE6",
+    "mrt_station": "Mayflower",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE7",
+    "mrt_station": "Bright Hill",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE8",
+    "mrt_station": "Upper Thomson",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE9",
+    "mrt_station": "Caldecott",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE11",
+    "mrt_station": "Stevens",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE12",
+    "mrt_station": "Napier",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE13",
+    "mrt_station": "Orchard Boulevard",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE14",
+    "mrt_station": "Orchard",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE15",
+    "mrt_station": "Great World",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE16",
+    "mrt_station": "Havelock",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE17",
+    "mrt_station": "Outram Park",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE18",
+    "mrt_station": "Maxwell",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE19",
+    "mrt_station": "Shenton Way",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE20",
+    "mrt_station": "Marina Bay",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE22",
+    "mrt_station": "Gardens by the Bay",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE23",
+    "mrt_station": "Tanjong Rhu",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE24",
+    "mrt_station": "Katong Park",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE25",
+    "mrt_station": "Tanjong Katong",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE26",
+    "mrt_station": "Marine Parade",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE27",
+    "mrt_station": "Marine Terrace",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE28",
+    "mrt_station": "Siglap",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "TE29",
+    "mrt_station": "Bayshore",
+    "mrt_line": "Thomson-East Coast Line"
+  },
+  {
+    "stn_code": "BP1",
+    "mrt_station": "Choa Chu Kang",
+    "mrt_line": "Bukit Panjang LRT"
+  },
+  {
+    "stn_code": "BP2",
+    "mrt_station": "South View",
+    "mrt_line": "Bukit Panjang LRT"
+  },
+  {
+    "stn_code": "BP3",
+    "mrt_station": "Keat Hong",
+    "mrt_line": "Bukit Panjang LRT"
+  },
+  {
+    "stn_code": "BP4",
+    "mrt_station": "Teck Whye",
+    "mrt_line": "Bukit Panjang LRT"
+  },
+  {
+    "stn_code": "BP5",
+    "mrt_station": "Phoenix",
+    "mrt_line": "Bukit Panjang LRT"
+  },
+  {
+    "stn_code": "BP6",
+    "mrt_station": "Bukit Panjang",
+    "mrt_line": "Bukit Panjang LRT"
+  },
+  {
+    "stn_code": "BP7",
+    "mrt_station": "Petir",
+    "mrt_line": "Bukit Panjang LRT"
+  },
+  {
+    "stn_code": "BP8",
+    "mrt_station": "Pending",
+    "mrt_line": "Bukit Panjang LRT"
+  },
+  {
+    "stn_code": "BP9",
+    "mrt_station": "Bangkit",
+    "mrt_line": "Bukit Panjang LRT"
+  },
+  {
+    "stn_code": "BP10",
+    "mrt_station": "Fajar",
+    "mrt_line": "Bukit Panjang LRT"
+  },
+  {
+    "stn_code": "BP11",
+    "mrt_station": "Segar",
+    "mrt_line": "Bukit Panjang LRT"
+  },
+  {
+    "stn_code": "BP12",
+    "mrt_station": "Jelapang",
+    "mrt_line": "Bukit Panjang LRT"
+  },
+  {
+    "stn_code": "BP13",
+    "mrt_station": "Senja",
+    "mrt_line": "Bukit Panjang LRT"
+  },
+  {
+    "stn_code": "STC",
+    "mrt_station": "Sengkang",
+    "mrt_line": "Sengkang LRT"
+  },
+  {
+    "stn_code": "SE1",
+    "mrt_station": "Compassvale",
+    "mrt_line": "Sengkang LRT"
+  },
+  {
+    "stn_code": "SE2",
+    "mrt_station": "Rumbian",
+    "mrt_line": "Sengkang LRT"
+  },
+  {
+    "stn_code": "SE3",
+    "mrt_station": "Bakau",
+    "mrt_line": "Sengkang LRT"
+  },
+  {
+    "stn_code": "SE4",
+    "mrt_station": "Kangkar",
+    "mrt_line": "Sengkang LRT"
+  },
+  {
+    "stn_code": "SE5",
+    "mrt_station": "Ranggung",
+    "mrt_line": "Sengkang LRT"
+  },
+  {
+    "stn_code": "SW1",
+    "mrt_station": "Cheng Lim",
+    "mrt_line": "Sengkang LRT"
+  },
+  {
+    "stn_code": "SW2",
+    "mrt_station": "Farmway",
+    "mrt_line": "Sengkang LRT"
+  },
+  {
+    "stn_code": "SW3",
+    "mrt_station": "Kupang",
+    "mrt_line": "Sengkang LRT"
+  },
+  {
+    "stn_code": "SW4",
+    "mrt_station": "Thanggam",
+    "mrt_line": "Sengkang LRT"
+  },
+  {
+    "stn_code": "SW5",
+    "mrt_station": "Fernvale",
+    "mrt_line": "Sengkang LRT"
+  },
+  {
+    "stn_code": "SW6",
+    "mrt_station": "Layar",
+    "mrt_line": "Sengkang LRT"
+  },
+  {
+    "stn_code": "SW7",
+    "mrt_station": "Tongkang",
+    "mrt_line": "Sengkang LRT"
+  },
+  {
+    "stn_code": "SW8",
+    "mrt_station": "Renjong",
+    "mrt_line": "Sengkang LRT"
+  },
+  {
+    "stn_code": "PTC",
+    "mrt_station": "Punggol",
+    "mrt_line": "Punggol LRT"
+  },
+  {
+    "stn_code": "PE1",
+    "mrt_station": "Cove",
+    "mrt_line": "Punggol LRT"
+  },
+  {
+    "stn_code": "PE2",
+    "mrt_station": "Meridian",
+    "mrt_line": "Punggol LRT"
+  },
+  {
+    "stn_code": "PE3",
+    "mrt_station": "Coral Edge",
+    "mrt_line": "Punggol LRT"
+  },
+  {
+    "stn_code": "PE4",
+    "mrt_station": "Riviera",
+    "mrt_line": "Punggol LRT"
+  },
+  {
+    "stn_code": "PE5",
+    "mrt_station": "Kadaloor",
+    "mrt_line": "Punggol LRT"
+  },
+  {
+    "stn_code": "PE6",
+    "mrt_station": "Oasis",
+    "mrt_line": "Punggol LRT"
+  },
+  {
+    "stn_code": "PE7",
+    "mrt_station": "Damai",
+    "mrt_line": "Punggol LRT"
+  },
+  {
+    "stn_code": "PW1",
+    "mrt_station": "Sam Kee",
+    "mrt_line": "Punggol LRT"
+  },
+  {
+    "stn_code": "PW3",
+    "mrt_station": "Punggol Point",
+    "mrt_line": "Punggol LRT"
+  },
+  {
+    "stn_code": "PW4",
+    "mrt_station": "Samudera",
+    "mrt_line": "Punggol LRT"
+  },
+  {
+    "stn_code": "PW5",
+    "mrt_station": "Nibong",
+    "mrt_line": "Punggol LRT"
+  },
+  {
+    "stn_code": "PW6",
+    "mrt_station": "Sumang",
+    "mrt_line": "Punggol LRT"
+  },
+  {
+    "stn_code": "PW7",
+    "mrt_station": "Soo Teck",
+    "mrt_line": "Punggol LRT"
+  }
+]

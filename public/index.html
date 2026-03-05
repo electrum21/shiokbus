@@ -1,0 +1,2977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Shiok Bus – Ride Comfortable</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚌</text></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:#D7181C; --yellow:#FFD000; --blue:#0B1F5F; --blue-mid:#1A3399;
+  --cyan:#00C8E0; --green:#00E07A; --white:#FFFEF5; --ink:#08101A;
+  --card-bg:#0F1E3A; --card-border:#1E3560; --muted:#6A85B0;
+}
+footer {
+  text-align: center;
+  padding: 24px 20px 12px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+footer a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+footer a:hover { color: var(--yellow); }
+body.light {
+  --card-bg:#F4F6FA; --card-border:#D8DEF0; --muted:#6A7A9A;
+  --white:#08101A; --ink:#FFFEF5;
+  --green:#007A40; --yellow:#B8860B;
+  background:#FFFFFF; color:#08101A;
+}
+body.light::before{display:none}
+body.light .logo-name { color:#D7181C; text-shadow:3px 3px 0 #FFD000; }
+body.light .logo-sub { color:#6A7A9A; }
+body.light .live-clock { color:#08101A; }
+body.light .live-date { color:#6A7A9A; }
+body.light .sun-card { background:linear-gradient(135deg,#FFF8E0,#FFF0C0 50%,#EEF4FF); border-color:#E0C060; }
+body.light .sun-label { color:#8A6A00; }
+body.light .sun-azimuth { color:#C08000; }
+body.light .sun-alt { color:#A07020; }
+body.light .compass-mini { border-color:#C0C8D8; }
+body.light .search-tabs { background:#E0E8F8; border-color:#C8D4EE; }
+body.light .search-tab:not(.active) { color:#000000; }
+body.light .search-tab:not(.active):hover { color:#D7181C; }
+body.light .search-tab.active { color:#FFFFFF; }
+body.light .stop-input { background:#FFFFFF; border-color:#C8D4EE; color:#08101A; }
+body.light .stop-input:focus { border-color:#D7181C; box-shadow:0 0 0 3px #D7181C15; }
+body.light .stop-input::placeholder { color:#9AAAC0; }
+body.light .stop-name-results { background:#FFFFFF; border-color:#C8D4EE; }
+body.light .sn-item { border-color:#E8EDF8; }
+body.light .sn-item:hover,.light .sn-item.highlighted { background:#EEF4FF; }
+body.light .sn-name { color:#08101A; }
+body.light .sn-road { color:#6A7A9A; }
+body.light .sn-arrow { color:#9AAAC0; }
+body.light .sn-empty { color:#9AAAC0; }
+body.light .near-me-btn { background:linear-gradient(135deg,#1A3399,#0B2F7F); border-color:#2A4A99; color:#FFFFFF; }
+body.light .near-me-btn .btn-sub { color:rgba(255,255,255,.7); }
+body.light .interchange-header { color:#0B6080; }
+body.light .int-card { background:#FFFFFF; border-color:#C8D4EE; }
+body.light .int-card:hover { background:#FFF8E0; border-color:#FFD000; }
+body.light .int-name { color:#08101A; }
+body.light .int-code { color:#6A7A9A; }
+body.light .nearby-stop { background:#FFFFFF; border-color:#C8D4EE; }
+body.light .nearby-stop:hover { background:#EEF4FF; border-color:#00C8E0; }
+body.light .nearby-rank { color:#C8D4EE; }
+body.light .nearby-stop:hover .nearby-rank { color:#00C8E0; }
+body.light .nearby-stop-name { color:#08101A; }
+body.light .nearby-title { color:#0B6080; }
+body.light .bus-card { background:#FFFFFF; border-color:#C8D4EE; }
+body.light .bus-card:hover { box-shadow:0 8px 32px #00000018; }
+body.light .card-middle { background:#FFFFFF; }
+body.light .mins-big { color:#08101A; }
+body.light .mins-unit { color:#6A7A9A; }
+body.light .next-pill { color:#08101A; }
+body.light .sun-panel { border-color:#C8D4EE; }
+body.light .sun-inner { background:#F8FAFF; }
+body.light .bus-shell { background:#E8EDF8; border-color:#C8D4EE; }
+body.light .bus-windshield { background:#D0DAEA; border-color:#C8D4EE; }
+body.light .s { background:#E8EDF8; border-color:#C8D4EE; }
+body.light .diagram-legend { color:#6A7A9A; }
+body.light .leg-row { color:#6A7A9A; }
+body.light .rec-banner.good { background:linear-gradient(135deg,#00E07A12,#00E07A06); border-color:#00E07A40; }
+body.light .rec-banner.any { background:linear-gradient(135deg,#00C8E012,#00C8E006); border-color:#00C8E040; }
+body.light .rec-banner.hot { background:linear-gradient(135deg,#FFD00012,#FFD00006); border-color:#FFD00040; }
+body.light .stop-hero .stop-title { color:#08101A; }
+body.light .stop-road-inline { color:#6A7A9A; }
+body.light .stop-road-block { color:#6A7A9A; }
+body.light .results-label { color:#6A7A9A; }
+body.light .refresh-btn { border-color:#C8D4EE; color:#6A7A9A; }
+body.light .refresh-btn:hover { border-color:#D7181C; color:#D7181C; }
+body.light .route-stop-card { background:#FFFFFF; border-color:#C8D4EE; }
+body.light .route-stop-card:hover { background:#EEF4FF; border-color:#00C8E0; }
+body.light .route-connector { background:#C8D4EE; }
+body.light .route-dot { background:#C8D4EE; border-color:#9AAAC0; }
+body.light .route-stop-name { color:#08101A; }
+body.light .route-stop-code { color:#6A7A9A; }
+body.light .route-dist-km { color:#08101A; }
+body.light .route-seq { color:#C8D4EE; }
+body.light .dir-btn { background:#FFFFFF; border-color:#C8D4EE; color:#6A7A9A; }
+body.light .dir-btn.active { background:#D7181C15; border-color:#D7181C; color:#08101A; }
+body.light .dir-btn:hover:not(.active) { border-color:#9AAAC0; color:#08101A; }
+body.light .rsp-card { background:linear-gradient(135deg,#FFF8E0,#FFF4D0 50%,#EEF4FF); border-color:#E0C060; }
+body.light .rsp-title { color:#8A6A00; }
+body.light .rsp-rec { color:#08101A; }
+body.light .rsp-sub { color:#8A6A00; }
+body.light .rsp-strip { background:#00000008; }
+body.light .rsp-any { background:#00000010; }
+body.light .rsp-leg-item { color:#6A7A9A; }
+body.light .plan-trip-wrap { background:#F0F4FF; }
+body.light .plan-stop-input { background:#FFFFFF; border-color:#C8D4EE; color:#08101A; }
+body.light .plan-stop-input:focus { border-color:#00C8E0; }
+body.light .plan-stop-dropdown { background:#FFFFFF; border-color:#C8D4EE; }
+body.light .plan-drop-item { border-color:#E8EDF8; color:#08101A; }
+body.light .plan-drop-item:hover { background:#EEF4FF; }
+body.light .plan-drop-name { color:#08101A; }
+body.light .trip-result-card { background:linear-gradient(135deg,#E8FFF4,#EEF4FF); border-color:#00E07A50; }
+body.light .trip-result-card.sunny { background:linear-gradient(135deg,#FFF4E8,#EEF4FF); border-color:#FF444450; }
+body.light .trip-result-map-wrap { border-color:#C8D4EE; }
+body.light .trip-rec-side { color:#08101A; }
+body.light .trip-seg-strip { background:#00000008; }
+body.light .trip-stops-row { color:#6A7A9A; }
+body.light .rs-arrival-row { border-color:#E8EDF8; }
+body.light .rs-arrivals-placeholder { color:#6A7A9A; }
+body.light .rs-timing-grid { border-color:#E8EDF8; }
+body.light .rs-timing-val { color:#08101A; }
+body.light .stop-timing-panel { border-color:#C8D4EE; }
+body.light .error-card { background:#FF22271A; border-color:#FF222740; color:#AA0000; }
+body.light .loading-txt { color:#6A7A9A; }
+body.light .empty-p { color:#6A7A9A; }
+body.light .panel-title { color:#C08000; }
+body.light .panel-title::after { background:#C8D4EE; }
+body.light .map-instruction { background:rgba(240,244,255,.92); color:#6A7A9A; border-color:#C8D4EE; }
+body.light .map-ba-pill { background:rgba(240,244,255,.92); border-color:#C8D4EE; color:#6A7A9A; }
+body.light .map-ba-pill.set { border-color:#00C060; color:#08101A; }
+body.light #map-legend-box { background:rgba(255,255,255,.95); border-color:#D8DEF0; }
+body.light .legend-label { color:#08101A; }
+body.light .legend-title { color:#6A7A9A; }
+body.light #jt-map, body.light #jt-plan { color:#000000; }
+#jt-map, #jt-plan { color:#FFFFFF; }
+body.light footer { color:#9AAAC0; }
+body.light .clear-nearby { border-color:#C8D4EE; color:#9AAAC0; }
+body.light .rs-action-btn { background:#E8EDF8; border-color:#C8D4EE; color:#08101A; }
+body.light .sun-toggle-btn { background:#FFD00020; border-color:#FFD00050; color:#9A7000; }
+body.light .sun-toggle-btn:hover { background:#FFD00035; border-color:#FFD000; }
+/* Route stop arrivals */
+body.light .rs-time-main { color:#08101A; }
+body.light .rs-time-main.arriving { color:#08101A; }
+body.light .rs-time-next { color:#6A7A9A; }
+body.light .rs-svc-col { color:#FFFFFF; }
+body.light .rs-timing-day { color:#6A7A9A; }
+body.light .rs-timing-head { color:#9AAAC0; }
+/* Route hero & service info */
+body.light .route-meta { color:#6A7A9A; }
+body.light .route-stops-label { color:#6A7A9A; }
+body.light .route-dist-tag { color:#6A7A9A; }
+body.light .rs-chevron { color:#9AAAC0; }
+body.light .rs-chevron.rotated { color:#00A0B0; }
+body.light .route-stop-item:hover .route-stop-card { background:#EEF4FF; border-color:#00C8E0; }
+/* Journey panel tabs */
+body.light #journey-details-wrap { border-color:#D8DEF0; }
+body.light #journey-details-wrap button:not(.plan-go-btn) { color:#6A7A9A; }
+body.light .plan-go-btn { color:#FFFFFF !important; }
+/* Freq pills */
+body.light .svc-freq-pill { background:#00000008; border-color:#D8DEF0; color:#08101A; }
+body.light .svc-freq-pill-label { color:#6A7A9A; }
+body.light .svc-freq-cell { background:#00000008; border-color:#D8DEF0; }
+body.light .svc-freq-val { color:#08101A; }
+body.light .svc-freq-label { color:#6A7A9A; }
+/* Stop timing */
+body.light .stop-timing-inner { background:#FFFFFF; }
+/* Nearby extras */
+body.light .nearby-sub { color:#9AAAC0; }
+body.light .nearby-stop-code { color:#6A7A9A; }
+body.light .nearby-dist-lbl { color:#9AAAC0; }
+body.light .nearby-walk { color:#9AAAC0; }
+/* Route view tabs (map/sun/plan) */
+body.light .route-view-tab { background:#F4F6FA; color:#6A7A9A; border-color:#D8DEF0; }
+body.light .route-view-tab.active { background:#FFFFFF; color:#08101A; border-bottom-color:#00C8E0; }
+body.light .route-view-panel { border-color:#D8DEF0; }
+/* Plan trip */
+body.light .plan-stop-label { color:#6A7A9A; }
+body.light .plan-drop-seq { color:#9AAAC0; }
+body.light .plan-drop-code { color:#9AAAC0; }
+/* Trip result */
+body.light .trip-rec-detail { color:#6A7A9A; }
+body.light .rsp-trip-rec { color:#08101A; }
+body.light .rsp-trip-sub { color:#6A7A9A; }
+body.light .rsp-trip-banner { background:linear-gradient(135deg,#E8FFF4,#EEF4FF); border-color:#00E07A40; }
+body.light .rsp-trip-banner.sunny { background:linear-gradient(135deg,#FFF4E8,#EEF4FF); border-color:#FF333340; }
+/* Empty state */
+body.light .empty-h { color:#C08000; }
+/* Stop badge */
+body.light .stop-badge { background:#08101A; color:#FFFFFF; }
+/* Dir btn dest */
+body.light .dir-btn-dest { color:#08101A; }
+body.light .dir-btn-loop { color:#007A90; }
+/* Route svc badge */
+body.light .route-svc-badge { background:#D7181C; color:#FFFFFF; }
+/* rec-strong, rec-dir in light banners */
+body.light .rec-banner { color:#08101A; }
+/* Bus type tag opacity */
+body.light .bus-type-tag { opacity:1; }
+/* Card right */
+body.light .bus-num { color:#FFFFFF; }
+body.light .bus-num-from { color:#FFFFFF; }
+body.light .bus-num-to { color:#FFFFFF; }
+/* Search eyebrow */
+body.light .search-eyebrow { color:#08101A; }
+/* Interchange sub */
+body.light .interchange-header { color:#007A90; }
+/* Theme toggle in light */
+body.light .theme-toggle { border-color:#D8DEF0; color:#6A7A9A; }
+body.light .theme-toggle:hover { border-color:#D7181C; color:#D7181C; }
+
+/* Theme toggle button */
+.theme-toggle{background:none;border:1.5px solid var(--card-border);border-radius:20px;padding:5px 12px;font-size:13px;cursor:pointer;color:var(--muted);font-family:'Barlow',sans-serif;font-weight:600;transition:all .2s;display:flex;align-items:center;gap:5px}
+.theme-toggle:hover{border-color:var(--yellow);color:var(--yellow)}
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 480px) {
+  .logo-name { font-size:40px; }
+  .live-clock { font-size:26px; }
+  header { padding:16px 14px 0; gap:8px; }
+  .search-zone { margin:14px 14px 0; }
+  .results-area { margin:18px 14px 0; }
+  .stop-input { font-size:18px; padding:12px 14px; letter-spacing:1px; }
+  .stop-input.text-mode { font-size:14px; }
+  .go-btn { width:50px; min-height:50px; }
+  /* Shrink service-number column on mobile */
+  .bus-num-col { width:100px !important; max-width:100px !important; min-width:100px !important; padding:8px 6px !important; }
+  .bus-num-from,.bus-num-to { display:block !important; font-size:7px !important; max-width:88px !important; }
+  .bus-num { font-size:20px; }
+  /* Tighten timing middle */
+  .card-middle { padding:6px 2px 6px 6px !important; gap:1px; }
+  .arrival-row { gap:0; }
+  .first-timing { min-width:0 !important; width:58px; flex-shrink:0; gap:0; }
+  .mins-big { font-size:20px !important; }
+  .mins-unit { font-size:10px; margin-right:0; }
+  /* next-pill: tight fixed width */
+  .next-pill { min-width:0 !important; width:52px !important; padding:2px 2px !important; font-size:10px !important; gap:0 !important; }
+  /* Shrink card-right buttons */
+  .card-right { padding:6px 4px 6px 0 !important; gap:3px; min-width:0; flex-shrink:0; width:auto; }
+  .sun-toggle-btn { font-size:9px; padding:4px 5px; white-space:nowrap; }
+  .load-chip { padding:3px 5px; font-size:8px; }
+  .bus-card { margin-bottom:8px; }
+  /* Road name: hide inline, show as block below stop name */
+  .stop-road-inline { display:none; }
+  .stop-road-block { display:block; }
+  /* Other layout */
+  .interchange-grid { grid-template-columns:repeat(2,1fr); gap:6px; }
+  .route-stop-card { padding:8px 10px; }
+  .route-stop-name { font-size:13px; }
+  .stop-title { font-size:21px; }
+  .sun-inner { padding:14px 14px 16px; }
+  .diagram-wrap { gap:10px; }
+  .s { width:22px; height:18px; }
+  .rs-arrival-row { grid-template-columns:42px 1fr 1fr 1fr; }
+  .rs-time-main { font-size:15px; }
+  .rs-svc-col { font-size:11px; padding:3px 4px; min-width:60px; }
+  .search-eyebrow { font-size:30px; }
+  .near-me-btn { font-size:15px; padding:11px 14px; }
+  .int-card { padding:9px 7px; }
+  .int-name { font-size:12px; }
+}
+@media (max-width: 360px) {
+  .bus-num-col { width:90px !important; max-width:90px !important; min-width:90px !important; padding:6px 5px !important; }
+  .bus-num { font-size:17px; }
+  .bus-num-from,.bus-num-to { font-size:6.5px !important; }
+  .first-timing { width:52px; }
+  .mins-big { font-size:18px !important; }
+  .next-pill { width:46px !important; font-size:9px !important; }
+  .card-middle { padding:5px 2px 5px 5px !important; }
+  .card-right { padding:5px 3px 5px 0 !important; }
+  .sun-toggle-btn { font-size:8px; padding:3px 4px; }
+  .stop-input { font-size:16px; }
+  .logo-name { font-size:34px; }
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-y:scroll}
+body{background:#000000;color:var(--white);font-family:'Barlow',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,208,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,208,0,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.hero-stripe{position:fixed;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,var(--red) 0%,var(--yellow) 40%,var(--cyan) 70%,var(--green) 100%);z-index:100}
+.app{position:relative;z-index:1;max-width:500px;margin:0 auto;padding:0 0 100px}
+
+/* HEADER */
+header{padding:16px 20px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.logo-tag{display:inline-block;background:var(--red);color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;padding:3px 8px;border-radius:3px;margin-bottom:4px}
+.logo-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:38px;line-height:1;letter-spacing:-1px;color:var(--yellow);text-shadow:3px 3px 0 var(--red)}
+.logo-sub{font-size:12px;color:var(--muted);letter-spacing:.5px;margin-top:4px}
+.header-right{text-align:right;padding-top:6px}
+.live-clock{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:32px;color:var(--white);line-height:1;letter-spacing:1px}
+.live-date{font-size:11px;color:var(--muted);margin-top:2px}
+.live-dot{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:4px;box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+
+/* SUN CARD */
+.sun-card{margin:18px 20px 0;background:linear-gradient(135deg,#1A1200,#2A1F00 50%,#0F1E3A);border:1.5px solid #5A4000;border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden}
+.sun-card::after{content:'';position:absolute;right:-20px;top:-20px;width:100px;height:100px;background:radial-gradient(circle,#FFD00030,transparent 70%);pointer-events:none}
+.sun-orb{width:48px;height:48px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFEF80,#FFD000,#FF8800);box-shadow:0 0 24px #FFD00060,0 0 48px #FF880030;flex-shrink:0;animation:sunPulse 4s ease-in-out infinite;position:relative}
+@keyframes sunPulse{0%,100%{box-shadow:0 0 24px #FFD00060,0 0 48px #FF880030}50%{box-shadow:0 0 36px #FFD00090,0 0 72px #FF880050}}
+.sun-rays{position:absolute;inset:-8px;border-radius:50%;border:2px dashed #FFD00040;animation:rotateSlow 20s linear infinite}
+@keyframes rotateSlow{to{transform:rotate(360deg)}}
+.sun-text{flex:1;min-width:0}
+.sun-label{font-size:10px;color:#A08040;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px}
+.sun-azimuth{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:var(--yellow)}
+.sun-alt{font-size:12px;color:#C09050;margin-top:1px}
+.compass-mini{width:44px;height:44px;border:1.5px solid #3A4060;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+.c-n{position:absolute;top:2px;font-size:8px;color:var(--red);font-weight:700}
+.c-s{position:absolute;bottom:2px;font-size:8px;color:var(--muted);font-weight:600}
+.c-e{position:absolute;right:3px;font-size:8px;color:var(--muted);font-weight:600}
+.c-w{position:absolute;left:3px;font-size:8px;color:var(--muted);font-weight:600}
+.c-needle{position:absolute;width:0;height:0;left:50%;top:50%}
+.c-needle::before{content:'';position:absolute;width:2px;height:12px;background:linear-gradient(to top,var(--red),#FF6060);top:-12px;left:-1px;border-radius:1px}
+.c-needle::after{content:'';position:absolute;width:2px;height:8px;background:var(--muted);top:0;left:-1px;border-radius:1px}
+
+/* removed api-panel + cors-note */
+
+/* SEARCH */
+.search-zone{margin:20px 20px 0}
+.search-eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:38px;line-height:.95;letter-spacing:-.5px;margin-bottom:14px;text-transform:uppercase}
+.search-eyebrow .accent{color:var(--yellow)}
+.search-eyebrow .red{color:var(--red)}
+
+/* SEARCH TABS */
+.search-tabs{display:flex;gap:0;margin-bottom:12px;background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:14px;padding:4px;overflow:hidden}
+.search-tab{flex:1;padding:9px 6px;border:none;background:none;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:10px;transition:all .2s;white-space:nowrap}
+.search-tab.active{background:var(--red);color:var(--white);box-shadow:0 2px 12px #D7181C40}
+.search-tab:not(.active):hover{color:var(--yellow)}
+
+.search-bar{display:flex;gap:10px}
+.stop-input{flex:1;background:var(--card-bg);border:2px solid var(--card-border);border-radius:14px;padding:10px 16px;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;letter-spacing:2px;outline:none;transition:border-color .2s,box-shadow .2s}
+.stop-input:focus{border-color:var(--yellow);box-shadow:0 0 0 3px #FFD00020}
+.stop-input::placeholder{color:var(--muted);letter-spacing:1px;font-size:18px}
+.stop-input.text-mode{font-size:16px;letter-spacing:.5px;font-weight:600}
+.go-btn{background:var(--red);border:none;border-radius:14px;width:50px;min-height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 20px #D7181C50;flex-shrink:0}
+.go-btn:hover{transform:scale(1.07);box-shadow:0 6px 28px #D7181C80}
+.go-btn:active{transform:scale(.95)}
+.go-btn svg{width:26px;height:26px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* STOP NAME LIVE RESULTS DROPDOWN */
+.stop-name-results{background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:14px;margin-top:8px;overflow:hidden;display:none;animation:cardIn .2s ease}
+.stop-name-results.open{display:block}
+.sn-item{padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--card-border);transition:background .15s}
+.sn-item:last-child{border-bottom:none}
+.sn-item:hover,.sn-item.highlighted{background:#1A3070}
+.sn-code{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--yellow);min-width:52px}
+.sn-info{flex:1;min-width:0}
+.sn-name{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sn-road{font-size:11px;color:var(--muted);margin-top:1px}
+.sn-arrow{color:var(--muted);font-size:14px}
+.sn-empty{padding:20px;text-align:center;color:var(--muted);font-size:13px}
+
+/* BUS ROUTE RESULTS */
+.route-hero{margin-bottom:16px}
+.route-svc-badge{background:var(--red);color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;letter-spacing:-1px;padding:8px 18px;border-radius:12px;line-height:1}
+.route-meta{font-size:12px;color:var(--muted);margin-top:4px}
+.route-stops-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.route-stop-item{display:flex;align-items:stretch;gap:0;margin-bottom:0;position:relative;cursor:pointer;transition:all .15s}
+.route-stop-item:hover .route-stop-card{border-color:var(--cyan);background:#0F2040}
+.route-line{display:flex;flex-direction:column;align-items:center;width:32px;flex-shrink:0;padding:0}
+.route-dot{width:12px;height:12px;border-radius:50%;background:var(--card-border);border:2px solid var(--muted);flex-shrink:0;margin-top:14px;z-index:1;transition:all .2s}
+.route-stop-item:first-child .route-dot{background:var(--green);border-color:var(--green);box-shadow:0 0 8px #00E07A60}
+.route-stop-item:last-child .route-dot{background:var(--red);border-color:var(--red);box-shadow:0 0 8px #D7181C60}
+.route-stop-item:hover .route-dot{background:var(--cyan);border-color:var(--cyan)}
+.route-connector{flex:1;width:2px;background:var(--card-border);margin-top:0;min-height:8px}
+.route-stop-card{flex:1;background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:12px;padding:10px 14px;margin-bottom:6px;margin-top:6px;display:flex;align-items:center;gap:10px;transition:all .2s}
+.route-seq{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--card-border);min-width:22px}
+.route-stop-info{flex:1;min-width:0}
+.route-stop-name{font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.route-stop-code{font-size:12px;color:var(--muted);margin-top:2px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px}
+.route-dist-tag{font-size:11px;color:var(--muted);text-align:right;flex-shrink:0}
+.route-dist-km{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--white)}
+
+/* STOP CODE TAB — TIMING PANEL */
+.stop-timing-panel{border-top:1.5px solid var(--card-border);padding:14px 16px}
+.stop-timing-inner{}
+
+/* ROUTE STOP EXPAND */
+.rs-chevron{color:var(--muted);font-size:18px;transition:transform .25s;display:inline-block;line-height:1}
+.rs-chevron.rotated{transform:rotate(90deg);color:var(--cyan)}
+.route-stop-card{cursor:pointer}
+.rs-expand{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.rs-expand.open{max-height:3000px}
+.rs-expand-inner{padding:0 0 10px 0;margin-top:-4px}
+.rs-actions{padding:8px 0 10px}
+.rs-action-btn{background:var(--blue-mid);border:1.5px solid #2A4A99;border-radius:10px;padding:7px 16px;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;cursor:pointer;transition:all .2s}
+.rs-action-btn:hover{background:#2040AA;border-color:#4060BB}
+.rs-arrivals{margin-bottom:10px}
+.rs-arrivals-placeholder{font-size:12px;color:var(--muted);padding:6px 0}
+.rs-arrival-row{display:grid;grid-template-columns:100px 1fr 1fr 1fr;align-items:center;gap:0;padding:5px 0;border-bottom:1px solid var(--card-border)}
+.rs-arrival-row:last-child{border-bottom:none}
+.rs-svc-col{background:var(--red);color:var(--white);font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;padding:3px 2px;border-radius:6px;min-width:100px;text-align:center;cursor:pointer;transition:filter .15s}
+.rs-svc-col:hover{filter:brightness(1.2)}
+.rs-svc-col.op-gas{background:#9A7000}
+.rs-svc-col.op-tts{background:#1A6B2A}
+.rs-svc-col.op-sbs{background:#5B2D8E}
+.rs-svc-col.op-smrt{background:var(--red)}
+.rs-time-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 2px}
+.rs-arrival-row .rs-time-cell:first-of-type{padding-left:10px}
+.rs-time-main{font-family:'Barlow Condensed',sans-serif;font-weight:650;font-size:17px;line-height:1;color:var(--white)}
+.rs-time-main.arriving{color:var(--white)}
+.rs-time-next{font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--muted)}
+.rs-time-meta{display:flex;align-items:center;gap:3px;margin-top:1px}
+.rs-timing-panel{margin-top:8px}
+.rs-timing-grid{display:grid;grid-template-columns:auto 1fr 1fr;gap:4px 10px;margin-top:6px;padding-top:10px;border-top:1px solid var(--card-border)}
+.rs-timing-head{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700}
+.rs-timing-day{font-size:11px;color:var(--muted)}
+.rs-timing-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;color:var(--white)}
+
+/* DIR BTN DEST */
+.dir-btn{flex:1;background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:10px;padding:8px 10px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;cursor:pointer;transition:all .2s;text-align:center}
+.dir-btn-arrow{font-size:12px;letter-spacing:1px;text-transform:uppercase}
+.dir-btn-dest{font-size:11px;font-weight:600;white-space:normal;overflow:visible;text-overflow:unset;margin-top:3px;font-family:'Barlow',sans-serif;letter-spacing:0;text-transform:none;opacity:.85;line-height:1.3}
+.dir-btn-loop{font-size:10px;color:var(--cyan);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Barlow',sans-serif;opacity:.9}
+.dir-btn.active .dir-btn-dest{opacity:1;color:var(--white)}
+
+
+/* ROUTE SUN PANEL */
+.rsp-card{background:linear-gradient(135deg,#1A1200,#1A0A00 50%,#0F1E3A);border:1.5px solid #5A3000;border-radius:18px;padding:16px 18px;margin-bottom:16px;position:relative;overflow:hidden}
+.rsp-card::after{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:radial-gradient(circle,#FFD00020,transparent 70%);pointer-events:none}
+.rsp-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#A08040;margin-bottom:12px}
+.rsp-banner{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.rsp-emoji{font-size:28px;flex-shrink:0}
+.rsp-rec{font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;color:var(--white);line-height:1.2}
+.rsp-rec strong{color:var(--green)}
+.rsp-sub{font-size:12px;color:#A08040;margin-top:3px}
+.rsp-strip-wrap{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.rsp-strip{flex:1;height:10px;border-radius:5px;display:flex;overflow:hidden;background:#FFFFFF08}
+.rsp-seg{height:100%;min-width:1px;transition:opacity .2s}
+.rsp-any{background:#FFFFFF10}
+.rsp-strip-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;white-space:nowrap}
+.rsp-legend{display:flex;gap:12px}
+.rsp-leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
+.rsp-leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+
+
+/* PLAN MY TRIP TAB */
+.route-view-tabs{display:flex;gap:0;margin-bottom:0;border-radius:12px 12px 0 0;overflow:hidden;border:1.5px solid var(--card-border);border-bottom:none}
+.route-view-tab{flex:1;padding:10px 0;font-family:'Barlow',sans-serif;font-weight:600;font-size:12px;text-align:center;cursor:pointer;background:var(--card-bg);color:var(--muted);border:none;transition:all .2s;letter-spacing:.5px;text-transform:uppercase}
+.route-view-tab.active{background:#0F2040;color:var(--white);border-bottom:2px solid var(--cyan)}
+.route-view-panel{border:1.5px solid var(--card-border);border-radius:0 0 12px 12px;overflow:hidden;margin-bottom:16px}
+
+/* PLAN TRIP PANEL */
+.plan-trip-wrap{background:var(--card-bg);padding:16px;position:relative;z-index:10}
+.plan-stop-group{margin-bottom:12px}
+.plan-stop-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;font-weight:600}
+.plan-stop-select{width:100%;background:#0a1628;border:1.5px solid var(--card-border);border-radius:10px;color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;padding:10px 12px;outline:none;appearance:none;cursor:pointer;transition:border-color .2s}
+.plan-stop-select:focus{border-color:var(--cyan)}
+.plan-stop-input-wrap{position:relative}
+.plan-stop-input{width:100%;background:#0a1628;border:1.5px solid var(--card-border);border-radius:10px;color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;padding:10px 12px;outline:none;transition:border-color .2s}
+.plan-stop-input:focus{border-color:var(--cyan)}
+.plan-stop-dropdown{position:absolute;top:100%;left:0;right:0;background:#0d1e3a;border:1.5px solid var(--card-border);border-top:none;border-radius:0 0 10px 10px;z-index:9999;min-height:200px;max-height:320px;overflow-y:auto;display:none}
+.plan-stop-dropdown.open{display:block}
+.plan-drop-item{padding:10px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--card-border);transition:background .15s}
+.plan-drop-item:last-child{border-bottom:none}
+.plan-drop-item:hover{background:#1A3070}
+.plan-drop-seq{font-size:10px;color:var(--muted);margin-right:8px;font-family:'Barlow Condensed',sans-serif}
+.plan-drop-name{color:var(--white);font-weight:600}
+.plan-drop-code{font-size:10px;color:var(--muted);margin-top:1px}
+.plan-go-btn{width:100%;padding:12px;background:var(--red);border:none;border-radius:10px;color:#FFFFFF;font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;cursor:pointer;margin-top:4px;transition:filter .2s;letter-spacing:.5px}
+.plan-go-btn:hover{filter:brightness(1.15)}
+.plan-go-btn:disabled{background:var(--red);color:#FFFFFF !important;cursor:not-allowed}
+
+/* TRIP RESULT CARD */
+.trip-result-card{background:linear-gradient(135deg,#001A0A,#0a1628);border:1.5px solid #00E07A40;border-radius:14px;padding:16px;margin-top:14px}
+.trip-result-card.sunny{border-color:#FF444440;background:linear-gradient(135deg,#1A0800,#0a1628)}
+.trip-result-map-wrap{border-radius:12px;overflow:hidden;margin-bottom:12px;border:1px solid var(--card-border)}
+#trip-map{height:260px;width:100%}
+.trip-rec-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.trip-rec-emoji{font-size:32px}
+.trip-rec-side{font-family:'Barlow',sans-serif;font-weight:700;font-size:18px;color:var(--white)}
+.trip-rec-side strong{color:var(--green)}
+.trip-rec-side.sunny strong{color:#FF8800}
+.trip-rec-detail{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.6}
+.trip-seg-strip{height:8px;border-radius:4px;display:flex;overflow:hidden;background:#FFFFFF08;margin-bottom:8px}
+.trip-seg{height:100%;min-width:1px}
+.trip-stops-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+
+/* ROUTE MAP */
+.route-map-wrap{margin-bottom:16px;border-radius:18px;overflow:hidden;border:1.5px solid var(--card-border);position:relative}
+#route-map{height:320px;width:100%;background:#0a0a0a}
+.map-board-alight{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;gap:8px;pointer-events:none}
+.map-ba-pill{background:rgba(10,20,50,.92);border:1.5px solid var(--card-border);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;pointer-events:all;cursor:default}
+.map-ba-pill.set{border-color:var(--green);color:var(--white)}
+.map-ba-pill.set-alight{border-color:var(--red);color:var(--white)}
+.map-instruction{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:1000;background:rgba(10,20,50,.92);border:1.5px solid var(--card-border);border-radius:20px;padding:6px 16px;font-size:11px;color:var(--muted);white-space:nowrap;pointer-events:none}
+/* SEATING UPDATE PANEL */
+.rsp-trip-banner{background:linear-gradient(135deg,#001A0A,#0F1E3A);border:1.5px solid #00E07A40;border-radius:14px;padding:14px 16px;margin-top:12px;display:flex;align-items:center;gap:12px}
+.rsp-trip-banner.sunny{border-color:#FF333340;background:linear-gradient(135deg,#1A0500,#0F1E3A)}
+.rsp-trip-emoji{font-size:26px;flex-shrink:0}
+.rsp-trip-rec{font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;color:var(--white)}
+.rsp-trip-rec strong{color:var(--green)}
+.rsp-trip-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* SERVICE FREQ GRID */
+.svc-freq-grid{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.svc-freq-cell{background:#FFFFFF08;border:1px solid var(--card-border);border-radius:8px;padding:5px 10px;text-align:center;min-width:68px}
+.svc-freq-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.svc-freq-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--white)}
+.svc-freq-pill{background:#FFFFFF08;border:1px solid var(--card-border);border-radius:8px;padding:4px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;color:var(--white);display:inline-flex;flex-direction:column;align-items:center;gap:1px;white-space:nowrap;flex-shrink:0}
+.svc-freq-pill-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600;font-family:'Barlow',sans-serif}
+
+/* DIRECTION TOGGLE */
+.dir-toggle{display:flex;gap:8px;margin-bottom:14px}
+.dir-btn.active{background:#D7181C20;border-color:var(--red);color:var(--white)}
+.dir-btn:hover:not(.active){border-color:var(--muted);color:var(--white)}
+
+/* NEAR ME BUTTON */
+.near-me-btn{width:100%;margin-top:10px;background:linear-gradient(135deg,var(--blue-mid),#0B2F7F);border:1.5px solid #2A4A99;border-radius:14px;padding:13px 20px;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;text-transform:uppercase}
+.near-me-btn:hover{background:linear-gradient(135deg,#2040AA,#1035A0);border-color:#4060BB;transform:translateY(-1px)}
+.near-me-btn:active{transform:scale(.98)}
+.near-me-btn.loading{opacity:.7;pointer-events:none}
+.near-me-btn .btn-icon{font-size:20px}
+.near-me-btn .btn-sub{font-size:10px;color:#8AAAD0;font-weight:400;letter-spacing:.5px;font-family:'Barlow',sans-serif;margin-top:1px}
+
+/* INTERCHANGE GRID */
+.interchange-header{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-top:16px;margin-bottom:10px}
+.interchange-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.int-card{background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:12px;padding:11px 10px;cursor:pointer;transition:all .2s;text-align:center}
+.int-card:hover{border-color:var(--yellow);background:#FFD00008;transform:translateY(-2px)}
+.int-card:active{transform:scale(.96)}
+.int-name{font-weight:600;font-size:13px;line-height:1.2;margin-bottom:4px}
+.int-code{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--muted);letter-spacing:.5px}
+
+/* NEARBY STOPS LIST */
+.nearby-section{margin-top:16px}
+.nearby-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.nearby-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan)}
+.nearby-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.clear-nearby{background:none;border:1px solid var(--card-border);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--muted);cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s}
+.clear-nearby:hover{border-color:var(--red);color:#FF9999}
+
+.nearby-stop{background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:16px;padding:14px 16px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all .2s;animation:cardIn .3s cubic-bezier(.34,1.56,.64,1) both}
+.nearby-stop:hover{border-color:var(--cyan);transform:translateX(3px);background:#0F2040}
+.nearby-rank{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;color:var(--card-border);min-width:28px;text-align:center}
+.nearby-stop:hover .nearby-rank{color:var(--cyan)}
+.nearby-stop-info{flex:1;min-width:0}
+.nearby-stop-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nearby-stop-code{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:.5px}
+.nearby-dist{text-align:right;flex-shrink:0}
+.nearby-dist-m{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:var(--white);line-height:1}
+.nearby-dist-lbl{font-size:10px;color:var(--muted);margin-top:1px}
+.nearby-walk{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* RESULTS */
+.results-area{margin:24px 20px 0}
+.route-sticky-header{position:sticky;top:0;z-index:100;background:var(--card-bg, #0F1E3A);padding:12px 14px 10px;margin-bottom:4px;border-bottom:1px solid var(--card-border)}
+body.light .route-sticky-header{background:#FFFFFF}
+.stops-scroll-wrap{overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--card-border) transparent;padding-right:8px}
+.svc-drop-item{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background .15s;font-family:'Barlow',sans-serif}
+.svc-drop-item:hover{background:var(--card-border)}
+.svc-drop-item:last-child{border-radius:0 0 10px 10px}
+.svc-drop-num{font-weight:700;font-size:13px;padding:3px 10px;border-radius:6px;color:#fff;min-width:42px;text-align:center;flex-shrink:0}
+.svc-drop-cat{font-size:12px;color:var(--muted);font-family:'Barlow',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.light .svc-drop-cat{color:#4A5A7A}
+body.light .svc-drop-num{color:#000000}
+body.light .svc-drop-item:hover{background:#EEF4FF}
+body.light #svc-dropdown{background:#FFFFFF}
+.stop-hero{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px;gap:10px}
+.stop-title{font-family:'Barlow',sans-serif;font-weight:700;font-size:26px;line-height:1;}
+.stop-road-inline{font-size:16px;font-weight:500;color:var(--muted);margin-left:6px}
+.stop-road-block{display:none;font-size:14px;font-weight:500;color:var(--muted);margin-top:3px}
+.stop-badge{background:#FFFFFF;color:#08101A;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:1px;padding:6px 14px;border-radius:10px;white-space:nowrap}
+.mock-warning{background:#FFD00015;border:1.5px solid #FFD00040;border-radius:12px;padding:10px 14px;font-size:12px;color:var(--yellow);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.refresh-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.results-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.refresh-btn{background:none;border:1.5px solid var(--card-border);color:var(--muted);border-radius:20px;padding:5px 14px;font-size:12px;cursor:pointer;font-family:'Barlow',sans-serif;font-weight:600;transition:all .2s;display:flex;align-items:center;gap:6px}
+.refresh-btn:hover{border-color:var(--yellow);color:var(--yellow)}
+
+/* BUS CARD */
+.bus-card{background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:20px;margin-bottom:12px;overflow:hidden;animation:cardIn .4s cubic-bezier(.34,1.56,.64,1) both;transition:transform .2s,box-shadow .2s}
+.bus-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px #00000060}
+@keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.card-top{display:flex;align-items:stretch;cursor:pointer}
+.bus-num-col{background:var(--red);padding:10px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:140px;min-width:140px;max-width:140px;flex-shrink:0;position:relative;overflow:hidden;cursor:pointer}
+.bus-num-col::after{content:'';position:absolute;right:-10px;top:0;bottom:0;width:20px;background:inherit;clip-path:polygon(0 0,0 100%,100% 50%)}
+.bus-num-col:hover{filter:brightness(1.2)}
+.bus-num-col.op-gas{background:#9A7000}
+.bus-num-col.op-tts{background:#1A6B2A}
+.bus-num-col.op-sbs{background:#5B2D8E}
+.bus-num-col.op-smrt{background:var(--red)}
+.bus-num{font-family:'Barlow',sans-serif;font-weight:700;font-size:26px;line-height:1;color:#FFFFFF}
+.bus-num-from{font-size:9px;color:#FFFFFF;text-transform:uppercase;letter-spacing:.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;margin-bottom:2px;text-align:center}
+.bus-num-to{font-size:9px;color:#FFFFFF;text-transform:uppercase;letter-spacing:.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;margin-top:2px;text-align:center}
+.card-middle{flex:1;padding:10px 14px 10px 18px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.arrival-row{display:flex;align-items:center;gap:0;flex-wrap:nowrap}
+.mins-big{font-family:'Barlow',sans-serif;font-weight:700;font-size:32px;line-height:1;color:var(--white)}
+.mins-unit{font-size:13px;color:var(--muted);font-weight:500;margin-right:2px}
+.first-timing{display:flex;align-items:baseline;gap:4px;min-width:78px;flex-shrink:0}
+.next-pill{padding:4px 6px 3px;font-size:13px;color:var(--white);font-family:'Barlow',sans-serif;font-weight:600;display:inline-flex;flex-direction:column;align-items:center;gap:3px;min-width:72px}
+.bus-type-tag{display:flex;align-items:center;margin-top:3px;opacity:.8}
+.card-right{padding:10px 12px 10px 0;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:8px}
+.load-chip{padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.load-SEA{background:#00E07A20;color:var(--green);border:1px solid #00E07A40}
+.load-SDA{background:#FFD00020;color:var(--yellow);border:1px solid #FFD00040}
+.load-LSD{background:#FF222725;color:#FF8888;border:1px solid #FF222740}
+.sun-toggle-btn{background:#FFD00015;border:1px solid #FFD00030;border-radius:10px;padding:6px 10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px;color:var(--yellow);font-size:13px;font-weight:600}
+.sun-toggle-btn:hover{background:#FFD00025;border-color:#FFD00060}
+
+/* SUN PANEL */
+.sun-panel{max-height:0;overflow:hidden;transition:max-height .4s ease;border-top:0 solid var(--card-border)}
+.sun-panel.open{max-height:420px;border-top-width:1.5px}
+.sun-inner{padding:18px 18px 20px}
+.panel-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--yellow);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.panel-title::after{content:'';flex:1;height:1px;background:var(--card-border)}
+
+/* DIAGRAM */
+.diagram-wrap{display:flex;gap:16px;align-items:flex-start}
+.bus-map{flex:1}
+.bus-shell{background:#060F20;border:2px solid var(--card-border);border-radius:24px 24px 16px 16px;padding:10px 10px 12px;position:relative}
+.bus-windshield{background:#0B2040;border-bottom:1.5px solid var(--card-border);margin:-10px -10px 10px;border-radius:22px 22px 0 0;height:22px;display:flex;align-items:center;justify-content:center;gap:20px}
+.ws-light{width:8px;height:8px;background:var(--yellow);border-radius:50%;box-shadow:0 0 6px var(--yellow)}
+.seat-row-d{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.seat-pair{display:flex;gap:5px}
+.s{width:26px;height:22px;border-radius:5px;border:1.5px solid #1E3560;background:#0F1E3A;transition:all .3s ease}
+.s.rec{background:var(--green);border-color:var(--green);box-shadow:0 0 10px #00E07A50}
+.s.hot{background:#FF222715;border-color:#FF222740}
+.s.very-hot{background:#FF222730;border-color:#FF222270}
+.bus-aisle{width:16px}
+.diagram-legend{min-width:88px;display:flex;flex-direction:column;gap:8px;padding-top:4px}
+.legend-label{color:#ccc}
+.legend-title{color:var(--muted)}
+#map-legend-box{background:#0a0e1aee;border:1px solid var(--card-border)}
+.map-legend-inline{position:absolute;top:8px;right:8px;z-index:1000;background:#0a0e1aee;border:1px solid var(--card-border);border-radius:10px;padding:7px 9px;font-size:10px;line-height:1.8;backdrop-filter:blur(4px)}
+body.light .map-legend-inline{background:rgba(255,255,255,.95);border-color:#D8DEF0;color:#08101A}
+body.light .map-legend-inline span{color:#08101A !important}
+.leg-row{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);line-height:1.3}
+.leg-swatch{width:14px;height:12px;border-radius:3px;flex-shrink:0}
+.rec-banner{margin-top:14px;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;font-size:13px;line-height:1.5;font-weight:500}
+.rec-banner.good{background:linear-gradient(135deg,#00E07A18,#00E07A08);border:1.5px solid #00E07A30}
+.rec-banner.any{background:linear-gradient(135deg,#00C8E018,#00C8E008);border:1.5px solid #00C8E030}
+.rec-banner.hot{background:linear-gradient(135deg,#FFD00018,#FFD00008);border:1.5px solid #FFD00030}
+.rec-emoji{font-size:26px;flex-shrink:0}
+.rec-strong{color:var(--green);font-weight:700}
+.rec-dir{color:var(--yellow);font-weight:700}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px}
+.empty-bus{font-size:64px;margin-bottom:16px;animation:bobBus 3s ease-in-out infinite}
+@keyframes bobBus{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.empty-h{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;text-transform:uppercase;letter-spacing:-.5px;color:var(--yellow);margin-bottom:8px}
+.empty-p{font-size:14px;color:var(--muted);line-height:1.6;max-width:280px;margin:0 auto}
+
+/* LOADING */
+.loading-state{text-align:center;padding:50px 20px}
+.bus-loader{font-size:40px;animation:busRide 1s ease-in-out infinite;display:inline-block}
+@keyframes busRide{0%{transform:translateX(-10px)}50%{transform:translateX(10px)}100%{transform:translateX(-10px)}}
+.loading-txt{margin-top:12px;color:var(--muted);font-size:14px}
+
+
+/* FAVOURITES */
+.auth-btn{display:flex;align-items:center;background:none;border:1.5px solid var(--card-border);border-radius:20px;padding:5px 12px;font-size:13px;cursor:pointer;color:var(--muted);font-family:'Barlow',sans-serif;font-weight:600;transition:all .2s;white-space:nowrap}
+.auth-btn:hover{border-color:var(--yellow);color:var(--yellow)}
+.fav-btn{background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:2px 4px;transition:transform .2s;flex-shrink:0}
+.fav-btn:hover{transform:scale(1.3)}
+.fav-section{margin:16px 20px 0}
+.fav-header{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--yellow);margin-bottom:10px}
+.fav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.fav-card{background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:12px;padding:10px 12px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:3px;position:relative}
+.fav-card:hover{border-color:var(--yellow);transform:translateY(-2px)}
+.fav-card-type{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:600}
+.fav-card-name{font-weight:700;font-size:14px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fav-card-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fav-remove{position:absolute;top:6px;right:8px;font-size:13px;opacity:.5;cursor:pointer;line-height:1}
+.fav-remove:hover{opacity:1}
+.fav-empty{font-size:13px;color:var(--muted);padding:8px 0}
+body.light .fav-card-name{color:#08101A}
+body.light .fav-section .fav-header{color:#C08000}
+
+
+/* CONFIRM MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .15s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:20px;padding:24px 24px 20px;max-width:320px;width:100%;box-shadow:0 20px 60px #00000080;animation:slideUp .2s cubic-bezier(.34,1.56,.64,1)}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-icon{font-size:36px;text-align:center;margin-bottom:12px}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--white);text-align:center;margin-bottom:6px}
+.modal-body{font-size:13px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:20px}
+.modal-name{color:var(--white);font-weight:700}
+.modal-btns{display:flex;gap:10px}
+.modal-btn{flex:1;padding:11px;border-radius:12px;font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;cursor:pointer;border:none;transition:all .2s}
+.modal-btn.cancel{background:var(--card-border);color:var(--muted)}
+.modal-btn.cancel:hover{background:#2A3A60;color:var(--white)}
+.modal-btn.confirm{background:var(--red);color:#fff}
+.modal-btn.confirm:hover{filter:brightness(1.15)}
+body.light .modal-box{background:#FFFFFF;border-color:#C8D4EE}
+body.light .modal-title{color:#08101A}
+body.light .modal-name{color:#08101A}
+body.light .modal-btn.cancel{background:#E8EDF8;color:#6A7A9A}
+
+/* ERROR */
+.error-card{background:#FF222715;border:1.5px solid #FF222740;border-radius:14px;padding:16px 18px;color:#FF9999;font-size:14px;line-height:1.5}
+
+
+
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--green);color:var(--ink);padding:11px 22px;border-radius:24px;font-weight:700;font-size:13px;z-index:999;animation:toastIn .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap}
+@keyframes toastIn{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+</style>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { initializeAppCheck, ReCaptchaV3Provider, getToken } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-check.js';
+
+  // ── FIREBASE CONFIG ──
+  const firebaseConfig = {
+    apiKey: "AIzaSyBkGVV3gU9j6x32xjgZ-eyB5oaJz1wajZs",
+    authDomain: "shiokbus.firebaseapp.com",
+    projectId: "shiokbus",
+    storageBucket: "shiokbus.firebasestorage.app",
+    messagingSenderId: "626804206073",
+    appId: "1:626804206073:web:7340d05ab8e0b332703528",
+    measurementId: "G-XH58G4RZQ6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  // ── APP CHECK ──
+  const appCheck = initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider('6LfBpH8sAAAAADSSj5Pr5gqikD5isRnqcFfKhLQx'),
+    isTokenAutoRefreshEnabled: true
+  });
+
+  // Expose getToken so the main script can use it for Worker requests
+  window._getAppCheckToken = (() => {
+    let cachedToken = null;
+    let tokenExpiry = 0;
+
+    return async () => {
+      const now = Date.now();
+      // Reuse token if it's less than 50 minutes old
+      if (cachedToken && now < tokenExpiry) return cachedToken;
+      try {
+        const { token } = await getToken(appCheck, false);
+        cachedToken = token;
+        tokenExpiry = now + 50 * 60 * 1000; // 50 minutes
+        return token;
+      } catch(e) {
+        console.warn('App Check token failed:', e);
+        return null;
+      }
+    };
+  })();
+
+  let currentUser = null;
+  let unsubFavs = null;
+
+  // Expose to global scope
+  window._fbAuth = auth;
+  window._fbDb = db;
+  window._fbProvider = provider;
+  window._fbSignInWithPopup = signInWithPopup;
+  window._fbSignOut = signOut;
+  window._fbDoc = doc;
+  window._fbSetDoc = setDoc;
+  window._fbDeleteDoc = deleteDoc;
+  window._fbOnSnapshot = onSnapshot;
+  window._fbCollection = collection;
+
+  // Auth state listener
+  onAuthStateChanged(auth, user => {
+    currentUser = user;
+    window._currentUser = user;
+    if (user) {
+      document.getElementById('auth-btn').innerHTML = `<img src="${user.photoURL}" style="width:26px;height:26px;border-radius:50%;margin-right:6px;vertical-align:middle">${user.displayName.split(' ')[0]}`;
+      document.getElementById('auth-btn').title = 'Sign out';
+      // Show favourites tab
+      const favTabBtn = document.getElementById('tab-favs');
+      if (favTabBtn) favTabBtn.style.display = '';
+      // Subscribe to favourites
+      if (unsubFavs) unsubFavs();
+      unsubFavs = onSnapshot(collection(db, 'users', user.uid, 'favourites'), snap => {
+        window._favs = {};
+        snap.forEach(d => { window._favs[d.id] = d.data(); });
+        renderFavourites();
+        updateFavButtons();
+      });
+    } else {
+      document.getElementById('auth-btn').innerHTML = '<span style="font-size:16px;margin-right:4px">👤</span> Sign in';
+      document.getElementById('auth-btn').title = 'Sign in with Google';
+      // Hide favourites tab and switch away if currently on it
+      const favTabBtn2 = document.getElementById('tab-favs');
+      if (favTabBtn2) favTabBtn2.style.display = 'none';
+      if (currentTab === 'favs') switchTab('service');
+      window._favs = {};
+      if (unsubFavs) { unsubFavs(); unsubFavs = null; }
+      updateFavButtons();
+    }
+  });
+
+  window.authAction = async () => {
+    if (window._currentUser) {
+      await signOut(auth);
+      toast('Signed out');
+    } else {
+      try {
+        await signInWithPopup(auth, provider);
+      } catch(e) {
+        console.error('Sign-in error:', e);
+        const msg = {
+          'auth/configuration-not-found': 'Firebase not configured. Check your config keys.',
+          'auth/unauthorized-domain': 'This domain is not authorised in Firebase Console → Authentication → Authorised domains.',
+          'auth/popup-blocked': 'Popup was blocked by your browser. Please allow popups for this site.',
+          'auth/popup-closed-by-user': 'Sign-in cancelled.',
+          'auth/invalid-api-key': 'Invalid API key — check your Firebase config.',
+          'auth/network-request-failed': 'Network error. Check your internet connection.',
+        }[e.code] || `Error: ${e.code || e.message}`;
+        toast('⚠️ ' + msg, 5000);
+      }
+    }
+  };
+
+  window.toggleFav = async (key, data) => {
+    if (!window._currentUser) { toast('Sign in to save favourites'); return; }
+    const ref = doc(db, 'users', window._currentUser.uid, 'favourites', key);
+    if (window._favs && window._favs[key]) {
+      await deleteDoc(ref);
+      toast('Removed from favourites');
+    } else {
+      await setDoc(ref, data);
+      toast('Added to favourites ⭐');
+    }
+  };
+</script>
+</head>
+<body>
+<div class="hero-stripe"></div>
+<div class="app">
+
+  <header>
+    <div>
+      <div class="logo-name">SHIOK BUS</div>
+      <div class="logo-sub">Ride comfortable, every time</div>
+    </div>
+    <div class="header-right">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div>
+          <div class="live-clock" id="clock">--:--</div>
+          <div class="live-date" id="dateStr">---</div>
+        </div>
+        <button class="auth-btn" id="auth-btn" onclick="authAction()"><span style="font-size:16px;margin-right:4px">👤</span> Sign in</button>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀ Light</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="search-zone">
+
+    <!-- SEARCH TABS -->
+    <div class="search-tabs">
+      <button class="search-tab active" id="tab-service" onclick="switchTab('service')">🚌 Bus Service</button>
+      <button class="search-tab" id="tab-stop" onclick="switchTab('stop')">🔍 Bus Stop</button>
+      <button class="search-tab" id="tab-favs" onclick="switchTab('favs')" style="display:none">⭐ Favourites</button>
+    </div>
+
+    <!-- BUS STOP MODE (unified name + code search) -->
+    <div id="mode-stop" style="display:none">
+      <div class="search-bar" style="position:relative">
+        <input class="stop-input text-mode" type="text" id="stopInput"
+          placeholder="Stop name, road or 5-digit code…"
+          oninput="onUnifiedInput()"
+          onkeydown="if(event.key==='Enter'&&unifiedHighlight>=0)selectUnifiedStop(unifiedHighlight);else if(event.key==='ArrowDown')moveUnified(1);else if(event.key==='ArrowUp')moveUnified(-1);else if(event.key==='Escape')closeUnified()"
+          autocomplete="off" />
+        <button class="go-btn" onclick="clearSearch()">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="stop-name-results" id="unifiedResults"></div>
+      <!-- NEAR ME BUTTON -->
+      <button class="near-me-btn" id="nearMeBtn" onclick="findNearby()">
+        <span class="btn-icon">📍</span>
+        <div>
+          <div>Near Me</div>
+          
+        </div>
+      </button>
+      <!-- NEARBY STOPS (shown after GPS) -->
+      <div id="nearbySection" style="display:none">
+        <div class="nearby-section">
+          <div class="nearby-header">
+            <div>
+              <div class="nearby-title">📍 Nearby Stops</div>
+              <div class="nearby-sub" id="nearbySubtitle"></div>
+            </div>
+            <button class="clear-nearby" onclick="clearNearby()">✕ Clear</button>
+          </div>
+          <div id="nearbyList"></div>
+        </div>
+      </div>
+      <div id="quickChips">
+        <div class="interchange-header">🚉 Popular Interchanges</div>
+        <div class="interchange-grid">
+          <div class="int-card" onclick="quickLoad('54009')"><div class="int-name">Ang Mo Kio</div><div class="int-code">54009</div></div>
+          <div class="int-card" onclick="quickLoad('22009')"><div class="int-name">Boon Lay</div><div class="int-code">22009</div></div>
+          <div class="int-card" onclick="quickLoad('43009')"><div class="int-name">Bukit Batok</div><div class="int-code">43009</div></div>
+          <div class="int-card" onclick="quickLoad('44009')"><div class="int-name">Choa Chu Kang</div><div class="int-code">44009</div></div>
+          <div class="int-card" onclick="quickLoad('17009')"><div class="int-name">Clementi</div><div class="int-code">17009</div></div>
+          <div class="int-card" onclick="quickLoad('28009')"><div class="int-name">Jurong East</div><div class="int-code">28009</div></div>
+          <div class="int-card" onclick="quickLoad('77009')"><div class="int-name">Pasir Ris</div><div class="int-code">77009</div></div>
+          <div class="int-card" onclick="quickLoad('65009')"><div class="int-name">Punggol Temp</div><div class="int-code">65009</div></div>
+          <div class="int-card" onclick="quickLoad('75009')"><div class="int-name">Tampines</div><div class="int-code">75009</div></div>
+          <div class="int-card" onclick="quickLoad('46009')"><div class="int-name">Woodlands</div><div class="int-code">46009</div></div>
+          <div class="int-card" onclick="quickLoad('55509')"><div class="int-name">Yio Chu Kang</div><div class="int-code">55509</div></div>
+          <div class="int-card" onclick="quickLoad('59009')"><div class="int-name">Yishun</div><div class="int-code">59009</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUS SERVICE MODE -->
+    <div id="mode-service">
+      <div class="search-bar" style="position:relative">
+        <input class="stop-input" type="text" id="serviceInput" placeholder="65" maxlength="6"
+          oninput="onServiceInput()" onkeydown="if(event.key==='Enter'){closeServiceDropdown();doServiceSearch()}" style="letter-spacing:3px" autocomplete="off" />
+        <button class="go-btn" onclick="doServiceSearch()">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <div id="svc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:9999;background:var(--card-bg);border:1.5px solid var(--card-border);border-top:none;border-radius:0 0 12px 12px;max-height:240px;overflow-y:auto;scrollbar-width:thin"></div>
+      </div>
+
+    </div>
+
+    <div id="mode-favs" style="display:none">
+      <div style="margin-top:12px">
+        <div class="fav-header">🚌 Services</div>
+        <div class="fav-grid" id="fav-grid-services"><div class="fav-empty">No favourite services yet.</div></div>
+      </div>
+      <div style="margin-top:20px">
+        <div class="fav-header">🚏 Bus Stops</div>
+        <div class="fav-grid" id="fav-grid-stops"><div class="fav-empty">No favourite stops yet.</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="results-area" id="results-service" style="display:none"></div>
+  <div class="results-area" id="results-stop" style="display:none"></div>
+
+
+<!-- REMOVE FAVOURITE MODAL -->
+<div class="modal-overlay" id="fav-remove-modal" style="display:none" onclick="if(event.target===this)closeFavModal()">
+  <div class="modal-box">
+    <div class="modal-icon">⭐</div>
+    <div class="modal-title">Remove Favourite?</div>
+    <div class="modal-body">Remove <span class="modal-name" id="fav-modal-name"></span> from your favourites?</div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeFavModal()">Cancel</button>
+      <button class="modal-btn confirm" onclick="confirmRemoveFav()">Remove</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<footer style="text-align:center;padding:24px 20px 40px;font-size:11px;color:var(--muted);line-height:1.8;max-width:500px;margin:0 auto">
+  Bus data from <a href="https://datamall.lta.gov.sg" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:underline;text-underline-offset:2px">LTA DataMall</a>
+  &nbsp;·&nbsp;
+  <a href="https://datamall.lta.gov.sg/content/datamall/en/SingaporeOpenDataLicence.html" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:underline;text-underline-offset:2px">Singapore Open Data Licence v1.0</a>
+</footer>
+
+<script>
+// ── STATE ──
+const PROXY_URL = 'https://lta-proxy-worker.shiokbus.workers.dev';
+// App Check token is fetched dynamically - no secret stored in HTML
+async function getProxyHeaders() {
+  const token = window._getAppCheckToken ? await window._getAppCheckToken() : null;
+  return token ? { 'X-Firebase-AppCheck': token } : {};
+}
+let SUN_AZ = 180, SUN_ALT = 45;
+let ALL_STOPS = null;
+let ALL_SERVICES = null; // cache of BusServices keyed by "ServiceNo-Direction"
+let userLat = null, userLng = null;
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', () => {
+  // Restore cached stops from localStorage
+  const cachedSvcs = localStorage.getItem('lahbus_services');
+  if (cachedSvcs) { try { ALL_SERVICES = JSON.parse(cachedSvcs); } catch(e) {} }
+  const cached = localStorage.getItem('lahbus_stops');
+  if (cached) {
+    try { ALL_STOPS = JSON.parse(cached); } catch(e) {}
+  }
+  // Preload services silently for instant dropdown
+  if (!ALL_SERVICES) fetchAllServices().catch(() => {});
+  if (!ALL_STOPS) fetchAllStops().catch(() => {});
+  loadMrtData().then(() => {
+    // Re-render any visible stop results with MRT pills now that lookup is ready
+    const lastCode = document.querySelector('[id^="stop-title-"]')?.id?.replace('stop-title-', '');
+    if (lastCode && window._lastRenderCode) doSearch(window._lastRenderCode);
+  }).catch(() => {});
+
+  tick(); setInterval(tick, 1000);
+  calcSun(); setInterval(calcSun, 60000);
+});
+
+// ── CLOCK ──
+function tick() {
+  const n = new Date();
+  document.getElementById('clock').textContent =
+    String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('dateStr').textContent = `${DAYS[n.getDay()]}, ${n.getDate()} ${MONTHS[n.getMonth()]}`;
+}
+
+// ── SUN POSITION ──
+// getSunAtTime: returns {az, alt} for a given Date at Singapore coords.
+// Replace this function body with an API call when ready.
+function getSunAtTime(date) {
+  const LAT = 1.3521 * Math.PI / 180, LNG = 103.8198;
+  const doy = Math.floor((date - new Date(date.getFullYear(),0,0)) / 86400000);
+  const decl = 23.45 * Math.PI/180 * Math.sin(2*Math.PI*(284+doy)/365);
+  const utcH = date.getUTCHours() + date.getUTCMinutes()/60 + date.getUTCSeconds()/3600;
+  const lst = utcH + (LNG-120)/15 + 8;
+  const ha = (lst-12)*15*Math.PI/180;
+  const sinAlt = Math.sin(LAT)*Math.sin(decl) + Math.cos(LAT)*Math.cos(decl)*Math.cos(ha);
+  const alt = Math.asin(Math.max(-1,Math.min(1,sinAlt))) * 180/Math.PI;
+  const cosAz = (Math.sin(decl)-Math.sin(LAT)*sinAlt) / (Math.cos(LAT)*Math.cos(Math.asin(sinAlt)));
+  let az = Math.acos(Math.max(-1,Math.min(1,cosAz))) * 180/Math.PI;
+  if (Math.sin(ha)>0) az = 360-az;
+  return { az: isNaN(az) ? 180 : az, alt };
+}
+
+function calcSun() {
+  const { az, alt } = getSunAtTime(new Date());
+  SUN_AZ = az; SUN_ALT = alt;
+}
+
+function card(az) { return ['N','NE','E','SE','S','SW','W','NW'][Math.round(az/45)%8]; }
+
+// ── SEARCH MODE ──
+let currentTab = 'service';
+let lastStopCode = null; // tracks the actual stop code regardless of input display text
+function switchTab(tab) {
+  currentTab = tab;
+  ['stop','service'].forEach(t => {
+    document.getElementById('mode-'+t).style.display = t===tab ? 'block' : 'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('results-'+t).style.display = t===tab ? 'block' : 'none';
+  });
+  const favMode = document.getElementById('mode-favs');
+  const favTab = document.getElementById('tab-favs');
+  if (favMode) favMode.style.display = tab==='favs' ? 'block' : 'none';
+  if (favTab) favTab.classList.toggle('active', tab==='favs');
+  closeUnified();
+}
+
+// ── STOP CODE SEARCH ──
+function quickLoad(code) { switchTab('stop'); document.getElementById('stopInput').value = code; lastStopCode = code; document.getElementById('nearbySection').style.display = 'none'; closeUnified(); doSearch(); }
+function quickService(svc) { document.getElementById('serviceInput').value = svc; doServiceSearch(); }
+
+function onServiceInput() {
+  const val = document.getElementById('serviceInput').value.trim().toUpperCase().replace(/E$/, 'e');
+  const dd = document.getElementById('svc-dropdown');
+  if (!val || !ALL_SERVICES) { dd.style.display = 'none'; return; }
+
+  const keys = Object.keys(ALL_SERVICES);
+  const seen = new Set();
+  const matches = [];
+  keys.forEach(k => {
+    const svcNo = k.split('-')[0];
+    if (!seen.has(svcNo) && svcNo.toUpperCase().startsWith(val.toUpperCase())) {
+      seen.add(svcNo);
+      matches.push(svcNo);
+    }
+  });
+  matches.sort((a, b) => {
+    const aNum = parseInt(a), bNum = parseInt(b);
+    if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+    return a.localeCompare(b);
+  });
+
+  if (!matches.length) { dd.style.display = 'none'; return; }
+
+  dd.innerHTML = matches.slice(0, 20).map(svc => {
+    const key1 = Object.keys(ALL_SERVICES).find(k => k.startsWith(svc + '-1') || k.startsWith(svc.toUpperCase() + '-1'));
+    const key2 = Object.keys(ALL_SERVICES).find(k => k.startsWith(svc + '-2') || k.startsWith(svc.toUpperCase() + '-2'));
+    const info1 = key1 ? ALL_SERVICES[key1] : null;
+    const info2 = key2 ? ALL_SERVICES[key2] : null;
+    const op = (info1?.Operator || info2?.Operator || '').toUpperCase();
+    const opCls = op==='TTS'?'op-tts':(op==='SBST'||op==='SBS'||op.includes('SBS'))?'op-sbs':op==='GAS'?'op-gas':'op-smrt';
+    const orig = info1?.OriginCode ? (stopName(info1.OriginCode) || info1.OriginCode) : '';
+    const dest = info1?.DestinationCode ? (stopName(info1.DestinationCode) || info1.DestinationCode) : '';
+    const isLoop = info1 && !info2 && info1.OriginCode === info1.DestinationCode;
+    const isBidi = !!info2;
+    const loopDesc = info1?.LoopDesc || '';
+    let route = '';
+    if (orig) {
+      if (isBidi) route = `${orig} ↔ ${dest}`;
+      else if (isLoop) route = loopDesc ? `${orig} ↻ via ${loopDesc}` : `${orig} ↻`;
+      else route = `${orig} → ${dest}`;
+    }
+    return `<div class="svc-drop-item" onclick="selectService('${svc}')">
+      <span class="svc-drop-num ${opCls}">${svc}</span>
+      <span class="svc-drop-cat">${route}</span>
+    </div>`;
+  }).join('');
+  dd.style.display = 'block';
+}
+
+function selectService(svc) {
+  document.getElementById('serviceInput').value = svc;
+  closeServiceDropdown();
+  doServiceSearch();
+}
+
+function closeServiceDropdown() {
+  document.getElementById('svc-dropdown').style.display = 'none';
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#mode-service')) closeServiceDropdown();
+});
+
+async function doSearch() {
+  const raw = document.getElementById('stopInput').value.trim();
+  // Use lastStopCode if input matches the display name we set (i.e. not a raw code typed by user)
+  const digits = raw.replace(/\D/g,'');
+  const code = (lastStopCode && raw !== digits) ? lastStopCode : digits;
+  if (!code) return;
+  lastStopCode = code;
+  closeUnified();
+  document.getElementById('quickChips').style.display = 'none';
+  document.getElementById('results-stop').style.display = 'block';
+  document.getElementById('results-stop').innerHTML =
+    `<div class="loading-state"><div class="bus-loader">🚌</div><div class="loading-txt">Fetching arrivals…</div></div>`;
+  try {
+    const data = await fetchLTA(code);
+    render(code, data);
+    updateFavButtons();
+    if (!ALL_STOPS?.find(s => s.BusStopCode === code)) {
+      fetchAllStops().then(() => {
+        const desc = ALL_STOPS?.find(s => s.BusStopCode === code)?.Description;
+        if (desc) {
+          const el = document.getElementById('stop-title-' + code);
+          if (el) el.textContent = desc;
+        }
+      }).catch(() => {});
+    }
+  } catch(e) {
+    document.getElementById('results-stop').innerHTML = `<div class="error-card">⚠️ ${e.message}</div>`;
+  }
+}
+
+// ── BUS SERVICE SEARCH ──
+let routeData = null; // { directions: [{dir, stops}], currentDir: 0 }
+let routeMap = null;       // Leaflet map instance
+let _currentRouteData = null; // stored for addSvcFavFromRoute
+let tripMap = null;        // Leaflet map for plan trip tab
+let planStops = [];        // stops array for current route/dir
+let planStopMap = {};      // stopMap for current route/dir
+let planSunAnalysis = null;// sun analysis for current route/dir
+let planBoardIdx = -1;
+let planAlightIdx = -1;
+let boardStop = null;      // { code, idx }
+let alightStop = null;     // { code, idx }
+let routeSegLayers = [];   // coloured polyline segments
+let stopMarkers = [];       // circle markers
+
+async function doServiceSearch() {
+  closeServiceDropdown();
+  const svc = document.getElementById('serviceInput').value.trim().toUpperCase().replace(/E$/, 'e');
+  if (!svc) return;
+
+  document.getElementById('results-service').style.display = 'block';
+  document.getElementById('results-service').innerHTML =
+    `<div class="loading-state"><div class="bus-loader">🚌</div><div class="loading-txt">Fetching route for ${svc}…</div></div>`;
+
+  try {
+    // Fetch route, stop names, and service metadata all in parallel
+    const [routes, stops, svcMap] = await Promise.all([
+      fetchBusRoute(svc),
+      fetchAllStops().catch(() => ALL_STOPS || null),
+      fetchAllServices().catch(() => ALL_SERVICES || null)
+    ]);
+
+    if (!routes || routes.length === 0) {
+      document.getElementById('results-service').innerHTML = `<div class="error-card" style="text-align:center">⚠️ No route found for service <strong>${svc}</strong>.</div>`;
+      return;
+    }
+
+    // Group by Direction
+    const byDir = {};
+    routes.forEach(r => {
+      if (!byDir[r.Direction]) byDir[r.Direction] = [];
+      byDir[r.Direction].push(r);
+    });
+    const directions = Object.keys(byDir).map(d => ({
+      dir: d,
+      stops: byDir[d].sort((a,b) => a.StopSequence - b.StopSequence)
+    }));
+
+    routeData = { svc, directions, currentDir: 0, svcMap };
+    renderRoute(routeData, stops);
+    updateFavButtons();
+  } catch(e) {
+    document.getElementById('results-service').innerHTML = `<div class="error-card">⚠️ ${e.message}</div>`;
+  }
+}
+
+// Cache routes.json in memory (it's ~8MB, only load once per session)
+let ALL_ROUTES = null;
+
+async function fetchBusRoute(svc) {
+  if (!ALL_ROUTES) {
+    const res = await fetch(`${PROXY_URL}?endpoint=static&file=bus-routes.json`, { headers: await getProxyHeaders() });
+    if (!res.ok) throw new Error('Failed to load routes. Check your Worker URL.');
+    ALL_ROUTES = await res.json();
+  }
+  const svcNorm = svc.replace(/^0+/, '').toUpperCase();
+  // Find matching key (handles leading zeros, case)
+  const key = Object.keys(ALL_ROUTES).find(k =>
+    k.replace(/^0+/, '').toUpperCase() === svcNorm
+  );
+  if (!key) return [];
+  const dirs = ALL_ROUTES[key]; // { "1": [...stops], "2": [...stops] }
+  // Flatten back to the array format the rest of the code expects
+  return Object.entries(dirs).flatMap(([dir, stops]) =>
+    stops.map(s => ({ ...s, Direction: parseInt(dir) }))
+  );
+}
+
+
+// ── ROUTE SUN ANALYSIS ──
+// AVG_SPEED_MPS: ~18 km/h in Singapore traffic = 5 m/s
+const AVG_SPEED_MPS = 5;
+
+function bearingBetween(lat1, lng1, lat2, lng2) {
+  const φ1 = lat1*Math.PI/180, φ2 = lat2*Math.PI/180;
+  const dλ = (lng2-lng1)*Math.PI/180;
+  const y = Math.sin(dλ)*Math.cos(φ2);
+  const x = Math.cos(φ1)*Math.sin(φ2) - Math.sin(φ1)*Math.cos(φ2)*Math.cos(dλ);
+  let b = Math.atan2(y,x)*180/Math.PI;
+  return (b+360)%360;
+}
+
+function distMetres(lat1,lng1,lat2,lng2) {
+  const R=6371000, φ1=lat1*Math.PI/180, φ2=lat2*Math.PI/180;
+  const dφ=(lat2-lat1)*Math.PI/180, dλ=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dφ/2)**2+Math.cos(φ1)*Math.cos(φ2)*Math.sin(dλ/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function computeRouteSeating(stops, stopMap) {
+  // Build segments with lat/lng, bearing, distance, estimated time offset
+  const segments = [];
+  let elapsed = 0; // seconds from now
+  for (let i = 0; i < stops.length - 1; i++) {
+    const a = stopMap[stops[i].BusStopCode];
+    const b = stopMap[stops[i+1].BusStopCode];
+    if (!a?.Latitude || !b?.Latitude) continue;
+    const lat1=parseFloat(a.Latitude), lng1=parseFloat(a.Longitude);
+    const lat2=parseFloat(b.Latitude), lng2=parseFloat(b.Longitude);
+    const dist = distMetres(lat1,lng1,lat2,lng2);
+    const bear = bearingBetween(lat1,lng1,lat2,lng2);
+    const segTime = dist / AVG_SPEED_MPS; // seconds
+    const midTime = elapsed + segTime/2;
+    // Sun position at mid-segment time
+    const t = new Date(Date.now() + midTime*1000);
+    const sun = getSunAtTime(t);
+    segments.push({ bear, dist, sun, elapsed, segTime, lat1,lng1,lat2,lng2 });
+    elapsed += segTime;
+  }
+
+  if (!segments.length) return null;
+
+  // Tally weighted sun exposure per side
+  let leftSun=0, rightSun=0, totalDist=0;
+  const segResults = segments.map(seg => {
+    const { bear, dist, sun } = seg;
+    if (sun.alt < 3) return { ...seg, side:'any', score:0, exposure:'none' };
+    const rel = (sun.az - bear + 360) % 360;
+    const sunOnRight = rel < 180;
+    const perp = Math.abs(Math.sin(rel*Math.PI/180));
+    const altF = Math.sin(Math.abs(sun.alt)*Math.PI/180);
+    const score = perp * altF;
+    const exposure = score>.65?'high':score>.3?'medium':'low';
+    if (sunOnRight) rightSun += score * dist;
+    else leftSun += score * dist;
+    totalDist += dist;
+    return { ...seg, side: sunOnRight?'right':'left', score, exposure };
+  });
+
+  // Overall recommendation
+  const leftPct  = Math.round(leftSun  / (totalDist||1) * 100);
+  const rightPct = Math.round(rightSun / (totalDist||1) * 100);
+  const recSide = leftPct <= rightPct ? 'left' : 'right';
+  const sunSide = recSide === 'left' ? 'right' : 'left';
+  const avoidPct = Math.max(leftPct, rightPct);
+  const totalMins = Math.round(elapsed/60);
+
+  return { recSide, sunSide, leftPct, rightPct, avoidPct, totalMins, segResults };
+}
+
+function buildRouteSeatingPanel(analysis) {
+  if (!analysis) return '';
+  const { recSide, sunSide, avoidPct, totalMins, segResults } = analysis;
+
+  // Mini route strip — each segment coloured by sun exposure
+  const stripSegs = segResults.map(seg => {
+    if (seg.side==='any' || seg.exposure==='none') return `<div class="rsp-seg rsp-any" style="flex:${Math.round(seg.dist)}"></div>`;
+    const sunIsOnRecSide = seg.side === analysis.recSide;
+    return `<div class="rsp-seg" style="flex:${Math.round(seg.dist)};background:${sunIsOnRecSide?'#FF880050':'#00E07A30'}"></div>`;
+  }).join('');
+
+  const oppSide = recSide === 'left' ? 'right' : 'left';
+  const shade = avoidPct > 60 ? 'most of' : avoidPct > 30 ? 'part of' : 'a bit of';
+  const timeStr = totalMins > 0 ? `~${totalMins} min ride` : 'this ride';
+
+  let headline, sub, emoji;
+  if (avoidPct < 10) {
+    emoji = '😎';
+    headline = `Any seat is fine`;
+    sub = `The sun is low or behind the bus — no direct glare expected during this ride.`;
+  } else {
+    emoji = recSide === 'left' ? '⬅️' : '➡️';
+    headline = `Sit on the <strong>${recSide} side</strong> of the bus`;
+    sub = `The sun will shine through the <strong style="color:#FFD000">${oppSide} windows</strong> for ${shade} the ${timeStr}. The ${recSide} side stays shaded.`;
+  }
+
+  return `
+  <div class="rsp-card">
+    <div class="rsp-title">☀ Best Seat for This Journey</div>
+    <div class="rsp-banner">
+      <div class="rsp-emoji">${emoji}</div>
+      <div>
+        <div class="rsp-rec">${headline}</div>
+        <div class="rsp-sub" style="margin-top:4px;line-height:1.5">${sub}</div>
+      </div>
+    </div>
+    <div style="margin-bottom:6px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Sun exposure along the route</div>
+    <div class="rsp-strip-wrap">
+      <div class="rsp-strip-label">Boarding</div>
+      <div class="rsp-strip">${stripSegs}</div>
+      <div class="rsp-strip-label">Alighting</div>
+    </div>
+    <div class="rsp-legend">
+      <div class="rsp-leg-item"><div class="rsp-leg-dot" style="background:#00E07A50;border:1px solid #00E07A80"></div>Shaded stretch</div>
+      <div class="rsp-leg-item"><div class="rsp-leg-dot" style="background:#FF880050;border:1px solid #FF888890"></div>Sunny stretch</div>
+    </div>
+  </div>`;
+}
+
+function formatFreq(freq) {
+  if (!freq || freq === '-' || freq === '0') return null;
+  // Reject zero-range values like "0-0", "00-00"
+  if (/^0+[-–]0+$/.test(freq.trim())) return null;
+  // Collapse "15-15" or "15–15" to just "15"
+  const rangeMatch = freq.trim().match(/^(\d+)[-–](\d+)$/);
+  if (rangeMatch) {
+    const lo = parseInt(rangeMatch[1]), hi = parseInt(rangeMatch[2]);
+    return (lo === hi ? `${lo}` : `${lo}-${hi}`) + ' min';
+  }
+  return freq + ' min';
+}
+
+function renderRoute(rd, allStops) {
+  const dir = rd.directions[rd.currentDir];
+  const stopMap = {};
+  if (allStops) allStops.forEach(s => stopMap[s.BusStopCode] = s);
+
+  const firstStop = dir.stops[0];
+  const lastStop = dir.stops[dir.stops.length - 1];
+  const fromName = stopMap[firstStop?.BusStopCode]?.Description || firstStop?.BusStopCode || '—';
+  const toName = stopMap[lastStop?.BusStopCode]?.Description || lastStop?.BusStopCode || '—';
+
+  // Look up service metadata for this direction
+  const svcKey = rd.svc + '-' + dir.dir;
+  const svcInfo = rd.svcMap ? (
+    rd.svcMap[svcKey] ||
+    rd.svcMap[svcKey.toLowerCase()] ||
+    rd.svcMap[Object.keys(rd.svcMap).find(k => k.toLowerCase() === svcKey.toLowerCase())] ||
+    null
+  ) : null;
+  const category = svcInfo?.Category || null;
+  const operator = svcInfo?.Operator || null;
+  const loopDesc = svcInfo?.LoopDesc || null;
+  const amPeak   = formatFreq(svcInfo?.AM_Peak_Freq);
+  const amOff    = formatFreq(svcInfo?.AM_Offpeak_Freq);
+  const pmPeak   = formatFreq(svcInfo?.PM_Peak_Freq);
+  const pmOff    = formatFreq(svcInfo?.PM_Offpeak_Freq);
+
+  const opLabel = operator === 'SBST' ? 'SBS Transit' : operator === 'SMRT' ? 'SMRT Buses' : operator === 'TTS' ? 'Tower Transit' : operator === 'GAS' ? 'Go-Ahead' : operator || '';
+  const catColor = 'var(--white)';
+  const catLabel = category === 'CITY_LINK' ? 'CITY DIRECT' : category;
+  function opToColor(op) {
+    const u = (op||'').toUpperCase();
+    if (u === 'TTS') return '#1A6B2A';
+    if (u === 'SBST' || u === 'SBS' || u.includes('SBS')) return '#5B2D8E';
+    if (u === 'GAS') return '#9A7000';
+    return '#D7181C';
+  }
+  const opBg = opToColor(operator);
+
+  const freqPills = [
+    amPeak ? `<span class="svc-freq-pill"><span class="svc-freq-pill-label">AM</span>${amPeak}</span>` : '',
+    amOff  ? `<span class="svc-freq-pill"><span class="svc-freq-pill-label">Off-peak</span>${amOff}</span>` : '',
+    pmPeak ? `<span class="svc-freq-pill"><span class="svc-freq-pill-label">PM</span>${pmPeak}</span>` : '',
+    pmOff  ? `<span class="svc-freq-pill"><span class="svc-freq-pill-label">Eve</span>${pmOff}</span>` : '',
+  ].filter(Boolean).join('');
+
+  // Compute sun seating recommendation for the whole route
+  const routeSunAnalysis = computeRouteSeating(dir.stops, stopMap);
+  const routeSunPanel = buildRouteSeatingPanel(routeSunAnalysis);
+
+  // Store for addSvcFavFromRoute
+  _currentRouteData = { rd, stopMap, isLoop: rd.directions.length === 1, loopDesc };
+
+  let html = `
+    <div class="route-sticky-header">
+    <div class="route-hero" style="display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;white-space:nowrap">
+        <div style="display:inline-flex;align-items:center;gap:6px;background:${opBg};color:#fff;padding:6px 16px;border-radius:12px;flex-shrink:0"><span class="stop-title" style="font-size:inherit">Bus ${rd.svc}</span></div>
+        ${freqPills}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${category ? `<span style="color:${catColor};font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px;flex-shrink:0">${catLabel}</span>` : ''}
+        ${category && opLabel ? `<span style="color:var(--card-border);flex-shrink:0">·</span>` : ''}
+        ${opLabel ? `<span style="color:var(--muted);font-size:11px;flex-shrink:0">${opLabel}</span>` : ''}
+        <div style="flex:1"></div>
+        <button onclick="toggleJourneyDetails()" id="journey-details-btn" style="padding:4px 10px;border:1.5px solid var(--card-border);border-radius:8px;background:none;color:var(--muted);font-family:'Barlow',sans-serif;font-weight:600;font-size:11px;cursor:pointer;letter-spacing:.5px;transition:all .2s;white-space:nowrap;flex-shrink:0">✳ More Details ›</button>
+        <button id="svc-fav-btn-${rd.svc}" onclick="addSvcFavFromRoute('${rd.svc}')" style="background:none;border:1.5px solid var(--card-border);border-radius:8px;padding:4px 10px;font-size:18px;cursor:pointer;line-height:1;transition:all .2s;flex-shrink:0;color:${(window._favs||{})['svc_'+rd.svc]?'var(--yellow)':'var(--muted)'}" title="Favourite this service">${(window._favs||{})['svc_'+rd.svc]?'★':'☆'}</button>
+      </div>
+    </div>
+    <div id="journey-details-here"></div>
+    <div class="dir-toggle">`;
+
+  const isLoop = rd.directions.length === 1;
+  rd.directions.forEach((d, i) => {
+    const dFirst = stopMap[d.stops[0]?.BusStopCode]?.Description || d.stops[0]?.BusStopCode || '?';
+    const dLast = stopMap[d.stops[d.stops.length-1]?.BusStopCode]?.Description || d.stops[d.stops.length-1]?.BusStopCode || '?';
+    const loopLine = (isLoop && loopDesc) ? `<div class="dir-btn-loop">via ${loopDesc}</div>` : '';
+    const label = isLoop
+      ? `<div class="dir-btn-dest">${dFirst} → ${dLast}</div>${loopLine}`
+      : `<div class="dir-btn-dest">${dFirst} → ${dLast}</div>`;
+    html += `<button class="dir-btn${i===rd.currentDir?' active':''}" onclick="switchDir(${i})">${label}</button>`;
+  });
+
+  html += `</div>`; // close dir-toggle
+
+  html += `</div>`; // close route-sticky-header
+  html += `<div class="stops-scroll-wrap"><div>`; // start scrollable stops
+
+  dir.stops.forEach((s, i) => {
+    const info = stopMap[s.BusStopCode];
+    const name = info?.Description || s.BusStopCode;
+    const road = info?.RoadName || '';
+    const dist = s.Distance ? (s.Distance >= 1 ? s.Distance.toFixed(1)+'km' : Math.round(s.Distance*1000)+'m') : '';
+    const isFirst = i === 0, isLast = i === dir.stops.length - 1;
+    const wdFirst = s.WD_FirstBus && s.WD_FirstBus !== '-' ? s.WD_FirstBus : null;
+    const wdLast  = s.WD_LastBus  && s.WD_LastBus  !== '-' ? s.WD_LastBus  : null;
+    const satFirst= s.SAT_FirstBus && s.SAT_FirstBus !== '-' ? s.SAT_FirstBus : null;
+    const satLast = s.SAT_LastBus  && s.SAT_LastBus  !== '-' ? s.SAT_LastBus  : null;
+    const sunFirst= s.SUN_FirstBus && s.SUN_FirstBus !== '-' ? s.SUN_FirstBus : null;
+    const sunLast = s.SUN_LastBus  && s.SUN_LastBus  !== '-' ? s.SUN_LastBus  : null;
+    const fmtTime = t => t ? t.slice(0,2)+':'+t.slice(2) : '—';
+    const timingRows = (wdFirst||satFirst||sunFirst) ? `
+      <div class="rs-timing-grid">
+        <div class="rs-timing-head"></div><div class="rs-timing-head">First</div><div class="rs-timing-head">Last</div>
+        <div class="rs-timing-day">Weekday</div><div class="rs-timing-val">${fmtTime(wdFirst)}</div><div class="rs-timing-val">${fmtTime(wdLast)}</div>
+        ${satFirst ? `<div class="rs-timing-day">Saturday</div><div class="rs-timing-val">${fmtTime(satFirst)}</div><div class="rs-timing-val">${fmtTime(satLast)}</div>` : ''}
+        ${sunFirst ? `<div class="rs-timing-day">Sunday</div><div class="rs-timing-val">${fmtTime(sunFirst)}</div><div class="rs-timing-val">${fmtTime(sunLast)}</div>` : ''}
+      </div>` : '';
+    html += `
+      <div class="route-stop-item">
+        <div class="route-line">
+          <div class="route-dot" style="${isFirst?'margin-top:20px':''}"></div>
+          ${!isLast ? '<div class="route-connector"></div>' : ''}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div class="route-stop-card" onclick="toggleRouteStop('rs-${s.BusStopCode}-${i}', '${s.BusStopCode}', this)">
+            <div class="route-seq">${s.StopSequence}</div>
+            <div class="route-stop-info">
+              <div class="route-stop-name">${stopLabel(name)}</div>
+              <div class="route-stop-code">${s.BusStopCode}${road?' · '+road:''}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+              ${dist ? `<div class="route-dist-tag"><div class="route-dist-km">${dist}</div><div>from start</div></div>` : ''}
+              <button class="fav-btn" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();addStopFav('${s.BusStopCode}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')" style="font-size:16px;color:var(--muted)">${(window._favs||{})['stop_'+s.BusStopCode]?'★':'☆'}</button>
+              <div class="rs-chevron">›</div>
+            </div>
+          </div>
+          <div class="rs-expand" id="rs-${s.BusStopCode}-${i}">
+            <div class="rs-expand-inner">
+              ${timingRows ? `<div class="rs-actions"><button class="rs-action-btn" style="color:var(--cyan);background:#00C8E015;border-color:#00C8E030" onclick="toggleRouteTiming('rtp-${s.BusStopCode}-${i}', this)">🕐 First / Last</button></div>` : ''}
+              <div class="rs-arrivals" id="ra-${s.BusStopCode}-${i}">
+                <div class="rs-arrivals-placeholder">Loading…</div>
+              </div>
+              ${timingRows ? `<div class="rs-timing-panel" id="rtp-${s.BusStopCode}-${i}" style="display:none">${timingRows}</div>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  html += `</div></div>`; // close inner div and stops-scroll-wrap
+  // Store for plan trip use
+  planStops = dir.stops;
+  planStopMap = stopMap;
+  planSunAnalysis = routeSunAnalysis;
+  planBoardIdx = -1; planAlightIdx = -1;
+
+  const tabsHtml = `
+    <div id="journey-details-wrap" style="display:none;margin-bottom:12px;border:1.5px solid var(--card-border);border-radius:16px;overflow:visible">
+      <div style="display:flex;border-bottom:1.5px solid var(--card-border);border-radius:14px 14px 0 0;overflow:hidden">
+        <button onclick="switchJourneyTab('map')"  id="jt-map"  style="flex:1;padding:9px 0;border:none;background:#0F2040;color:#FFFFFF;font-family:'Barlow',sans-serif;font-weight:600;font-size:11px;cursor:pointer;letter-spacing:.5px;border-right:1px solid var(--card-border);transition:all .2s">🗺 Map</button>
+        <button onclick="switchJourneyTab('plan')" id="jt-plan" style="flex:1;padding:9px 0;border:none;background:none;color:inherit;font-family:'Barlow',sans-serif;font-weight:600;font-size:11px;cursor:pointer;letter-spacing:.5px;transition:all .2s">📍 Plan Trip</button>
+      </div>
+      <div id="jp-sun" style="display:none">${routeSunPanel}</div>
+      <div id="jp-map" style="display:none">
+        <div class="route-map-wrap" style="border-radius:0;border:none;margin-bottom:0;position:relative">
+          <div id="route-map"></div>
+          <div class="map-instruction" id="map-instruction" style="display:none">Tap a stop on the map to select</div>
+          <div id="map-legend-box" style="position:absolute;top:10px;right:10px;z-index:1000;border-radius:10px;padding:8px 10px;font-size:10px;line-height:1.8;backdrop-filter:blur(4px)">
+            <div class="legend-title" style="font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;font-size:9px">Sun on route</div>
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#4A6090;flex-shrink:0"></div><span class="legend-label">No direct sun</span></div>
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FFD000;flex-shrink:0"></div><span class="legend-label">Mild sun</span></div>
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FF8800;flex-shrink:0"></div><span class="legend-label">Moderate sun</span></div>
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FF3333;flex-shrink:0"></div><span class="legend-label">Strong sun</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="jp-plan" style="display:none">
+        <div class="plan-trip-wrap">
+          <div style="display:flex;gap:10px">
+            <div class="plan-stop-group" style="flex:1;min-width:0">
+              <div class="plan-stop-label">🟢 Board at</div>
+              <div class="plan-stop-input-wrap">
+                <input class="plan-stop-input" id="plan-board-input" placeholder="Search stop name…" oninput="filterPlanStops('board')" onfocus="openPlanDrop('board')" onblur="closePlanDropDelay('board')" autocomplete="off"/>
+                <div class="plan-stop-dropdown" id="plan-board-drop"></div>
+              </div>
+            </div>
+            <div class="plan-stop-group" style="flex:1;min-width:0">
+              <div class="plan-stop-label">🔴 Alight at</div>
+              <div class="plan-stop-input-wrap">
+                <input class="plan-stop-input" id="plan-alight-input" placeholder="Search stop name…" oninput="filterPlanStops('alight')" onfocus="openPlanDrop('alight')" onblur="closePlanDropDelay('alight')" autocomplete="off"/>
+                <div class="plan-stop-dropdown" id="plan-alight-drop"></div>
+              </div>
+            </div>
+          </div>
+          <div id="plan-trip-result"></div>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('results-service').innerHTML = html;
+  const detailsSlot = document.getElementById('journey-details-here');
+  if (detailsSlot) detailsSlot.outerHTML = tabsHtml;
+
+  // Reset board/alight selection when route re-renders
+  boardStop = null; alightStop = null;
+  initRouteMap(dir.stops, stopMap, routeSunAnalysis);
+  populatePlanDropdowns();
+}
+
+function toggleJourneyDetails() {
+  const wrap = document.getElementById('journey-details-wrap');
+  const btn  = document.getElementById('journey-details-btn');
+  if (!wrap) return;
+  const isOpen = wrap.style.display !== 'none';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  if (btn) {
+    btn.style.color = isOpen ? 'var(--muted)' : 'var(--white)';
+    btn.style.borderColor = isOpen ? 'var(--card-border)' : 'var(--cyan)';
+    btn.textContent = isOpen ? '✳ More Details ›' : '✳ More Details ∨';
+  }
+  if (!isOpen) { setTimeout(() => routeMap?.invalidateSize(), 100); switchJourneyTab('map'); }
+}
+
+function switchJourneyTab(tab) {
+  const isLight = document.body.classList.contains('light');
+  ['map','plan'].forEach(t => {
+    const panel = document.getElementById('jp-'+t);
+    const btn   = document.getElementById('jt-'+t);
+    const active = t === tab;
+    if (panel) panel.style.display = active ? 'block' : 'none';
+    if (btn) {
+      btn.style.background = active ? '#0F2040' : 'none';
+      btn.style.color = active ? '#FFFFFF' : '';
+    }
+  });
+  if (tab === 'map') setTimeout(() => {
+    if (routeMap) {
+      routeMap.invalidateSize();
+      const markers = stopMarkers.map(m => m.coords).filter(Boolean);
+      if (markers.length) routeMap.fitBounds(markers, { padding: [24, 24] });
+    }
+  }, 100);
+}
+
+function populatePlanDropdowns() {
+  // Pre-build option list for both dropdowns
+  renderPlanDrop('board', '');
+  renderPlanDrop('alight', '');
+}
+
+function renderPlanDrop(which, query) {
+  const drop = document.getElementById(`plan-${which}-drop`);
+  const q = query.toLowerCase().trim();
+  const minIdx = (which === 'alight' && planBoardIdx >= 0) ? planBoardIdx + 1 : 0;
+  const filtered = planStops.map((s, i) => ({ s, i })).filter(({ s, i }) => {
+    if (i < minIdx) return false;
+    const info = planStopMap[s.BusStopCode];
+    const name = (info?.Description || s.BusStopCode).toLowerCase();
+    const road = (info?.RoadName || '').toLowerCase();
+    return !q || name.includes(q) || road.includes(q) || s.BusStopCode.includes(q);
+  }).slice(0, 200);
+
+  drop.innerHTML = filtered.map(({ s, i }) => {
+    const info = planStopMap[s.BusStopCode];
+    const name = info?.Description || s.BusStopCode;
+    const road = info?.RoadName || '';
+    return `<div class="plan-drop-item" onmousedown="selectPlanStop('${which}', ${i}, '${name.replace(/'/g,"\'")}')">
+      <span class="plan-drop-seq">${s.StopSequence}</span>
+      <span class="plan-drop-name">${name}</span>
+      <div class="plan-drop-code">${s.BusStopCode}${road ? ' · ' + road : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+function filterPlanStops(which) {
+  const q = document.getElementById(`plan-${which}-input`).value;
+  renderPlanDrop(which, q);
+  document.getElementById(`plan-${which}-drop`).classList.add('open');
+}
+
+function openPlanDrop(which) {
+  renderPlanDrop(which, document.getElementById(`plan-${which}-input`).value);
+  document.getElementById(`plan-${which}-drop`).classList.add('open');
+}
+
+function closePlanDropDelay(which) {
+  setTimeout(() => document.getElementById(`plan-${which}-drop`).classList.remove('open'), 200);
+}
+
+function selectPlanStop(which, idx, name) {
+  document.getElementById(`plan-${which}-input`).value = name;
+  document.getElementById(`plan-${which}-drop`).classList.remove('open');
+  if (which === 'board') {
+    planBoardIdx = idx;
+    // Reset alight if it's now before board
+    if (planAlightIdx >= 0 && planAlightIdx <= planBoardIdx) {
+      planAlightIdx = -1;
+      document.getElementById('plan-alight-input').value = '';
+    }
+    renderPlanDrop('alight', document.getElementById('plan-alight-input').value);
+  } else planAlightIdx = idx;
+  if (planBoardIdx >= 0 && planAlightIdx >= 0) runPlanTrip();
+}
+
+function runPlanTrip() {
+  if (planBoardIdx < 0 || planAlightIdx < 0) return;
+  if (planAlightIdx <= planBoardIdx) {
+    alert('Alighting stop must be after boarding stop.');
+    return;
+  }
+  const sliced = planStops.slice(planBoardIdx, planAlightIdx + 1);
+  const boardElapsed = planSunAnalysis?.segResults?.slice(0, planBoardIdx).reduce((a, s) => a + s.segTime, 0) || 0;
+  const analysis = computeRouteSeatingSlice(sliced, planStopMap, boardElapsed);
+  renderPlanTripResult(analysis, sliced, planBoardIdx, planAlightIdx);
+}
+
+function renderPlanTripResult(analysis, sliced, boardIdx, alightIdx) {
+  const container = document.getElementById('plan-trip-result');
+  if (!analysis) { container.innerHTML = '<div class="rs-arrivals-placeholder">Not enough location data for this segment.</div>'; return; }
+
+  const { recSide, sunSide, avoidPct, totalMins } = analysis;
+  const noSun = avoidPct < 10;
+  const emoji = noSun ? '😎' : recSide === 'left' ? '⬅️' : '➡️';
+  const intensity = avoidPct > 60 ? 'strongly' : avoidPct > 30 ? 'moderately' : 'slightly';
+  const isSunny = avoidPct > 40;
+
+  // Build per-segment strip for sliced route
+  const segResults = planSunAnalysis?.segResults?.slice(boardIdx, alightIdx) || [];
+  const stripHtml = segResults.map(seg => {
+    if (!seg || seg.exposure === 'none' || seg.side === 'any')
+      return `<div class="trip-seg" style="flex:${Math.round(seg?.dist||1)};background:#FFFFFF10"></div>`;
+    const sunOnRec = seg.side === recSide;
+    const col = sunOnRec ? '#FF880060' : seg.exposure==='high'?'#FF333370':seg.exposure==='medium'?'#FF880050':'#00E07A40';
+    return `<div class="trip-seg" style="flex:${Math.round(seg.dist)};background:${col}"></div>`;
+  }).join('');
+
+  const boardName = planStopMap[planStops[boardIdx].BusStopCode]?.Description || planStops[boardIdx].BusStopCode;
+  const alightName = planStopMap[planStops[alightIdx].BusStopCode]?.Description || planStops[alightIdx].BusStopCode;
+
+  container.innerHTML = `
+    <div class="trip-result-card${isSunny?' sunny':''}">
+      <div class="trip-result-map-wrap" style="position:relative"><div id="trip-map"></div>
+        <div class="map-legend-inline">
+          <div style="font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;font-size:9px">Sun on route</div>
+          <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#4A6090;flex-shrink:0"></div><span style="color:#ccc">No direct sun</span></div>
+          <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FFD000;flex-shrink:0"></div><span style="color:#ccc">Mild sun</span></div>
+          <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FF8800;flex-shrink:0"></div><span style="color:#ccc">Moderate sun</span></div>
+          <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FF3333;flex-shrink:0"></div><span style="color:#ccc">Strong sun</span></div>
+        </div>
+      </div>
+      <div class="trip-rec-row">
+        <div class="trip-rec-emoji">${emoji}</div>
+        <div>
+          <div class="trip-rec-side${isSunny?' sunny':''}">${noSun ? 'Any seat is fine' : `Sit on the <strong>${recSide.toUpperCase()} side</strong>`}</div>
+          <div class="trip-rec-detail">
+            ${noSun ? 'No direct sun expected — sit anywhere you like.' : `Sun hits the ${sunSide} windows ${intensity}`}<br>
+            ~${totalMins} min · ${sliced.length - 1} stops
+          </div>
+        </div>
+      </div>
+      <div class="trip-seg-strip">${stripHtml}</div>
+      <div class="trip-stops-row">
+        <span>🟢 ${boardName}</span>
+        <span>🔴 ${alightName}</span>
+      </div>
+    </div>`;
+
+  // Init trip map
+  setTimeout(() => initTripMap(sliced, boardIdx, alightIdx), 50);
+}
+
+function initTripMap(sliced, boardIdx, alightIdx) {
+  if (tripMap) { tripMap.remove(); tripMap = null; }
+  const stopCoords = sliced.map(s => {
+    const info = planStopMap[s.BusStopCode];
+    return info?.Latitude ? [parseFloat(info.Latitude), parseFloat(info.Longitude)] : null;
+  });
+  const validCoords = stopCoords.filter(Boolean);
+  if (validCoords.length < 2) return;
+
+  tripMap = L.map('trip-map', { zoomControl: false, attributionControl: false });
+  L.tileLayer(document.body.classList.contains('light') ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png' : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(tripMap);
+
+  const segResults = planSunAnalysis?.segResults?.slice(boardIdx, alightIdx) || [];
+  function segColor(i) {
+    const seg = segResults[i];
+    if (!seg || seg.exposure === 'none' || seg.side === 'any') return '#4A6090';
+    return seg.exposure === 'high' ? '#FF3333' : seg.exposure === 'medium' ? '#FF8800' : '#FFD000';
+  }
+
+  // Draw stop markers immediately
+  sliced.forEach((s, i) => {
+    const info = planStopMap[s.BusStopCode];
+    if (!info?.Latitude) return;
+    const isBoard = i === 0, isAlight = i === sliced.length - 1;
+    const color = isBoard ? '#00E07A' : isAlight ? '#FF3333' : '#FFFEF580';
+    L.circleMarker([parseFloat(info.Latitude), parseFloat(info.Longitude)], {
+      radius: isBoard || isAlight ? 9 : 4,
+      fillColor: color, color: '#000', weight: 1.5, fillOpacity: 1, zIndexOffset: 100
+    }).addTo(tripMap);
+  });
+
+  tripMap.fitBounds(validCoords, { padding: [28, 28] });
+  setTimeout(() => { if (tripMap) { tripMap.invalidateSize(); tripMap.fitBounds(validCoords, { padding: [28, 28] }); } }, 150);
+
+  // Fetch road-snapped geometry from OSRM in chunks of 25 waypoints
+  (async () => {
+    const pairs = stopCoords.map((c, i) => ({ c, i })).filter(x => x.c);
+    const CHUNK = 25;
+    for (let start = 0; start < pairs.length - 1; start += CHUNK - 1) {
+      const chunk = pairs.slice(start, start + CHUNK);
+      if (chunk.length < 2) break;
+      const coordStr = chunk.map(p => `${p.c[1]},${p.c[0]}`).join(';');
+      const url = `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=false&geometries=geojson&annotations=false&steps=true`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.code !== 'Ok' || !data.routes?.[0]?.legs) throw new Error('no route');
+        data.routes[0].legs.forEach((leg, j) => {
+          const color = segColor(chunk[j].i);
+          const legCoords = leg.steps.flatMap(step =>
+            step.geometry.coordinates.map(([lng, lat]) => [lat, lng])
+          );
+          if (legCoords.length >= 2) {
+            if (tripMap) L.polyline(legCoords, { color, weight: 5, opacity: 0.9 }).addTo(tripMap);
+          } else {
+            const a = chunk[j].c, b = chunk[j + 1].c;
+            if (tripMap) L.polyline([a, b], { color, weight: 5, opacity: 0.7, dashArray: '6 4' }).addTo(tripMap);
+          }
+        });
+      } catch {
+        chunk.slice(0, -1).forEach((a, j) => {
+          const b = chunk[j + 1];
+          const color = segColor(a.i);
+          if (tripMap) L.polyline([a.c, b.c], { color, weight: 5, opacity: 0.7, dashArray: '6 4' }).addTo(tripMap);
+        });
+      }
+    }
+  })();
+}
+
+function initRouteMap(stops, stopMap, sunAnalysis) {
+  // Destroy previous map instance
+  if (routeMap) { routeMap.remove(); routeMap = null; }
+  stopMarkers = []; routeSegLayers = [];
+
+  // Collect valid coords
+  const coords = stops.map(s => {
+    const info = stopMap[s.BusStopCode];
+    return info?.Latitude ? [parseFloat(info.Latitude), parseFloat(info.Longitude)] : null;
+  });
+
+  const validCoords = coords.filter(Boolean);
+  if (!validCoords.length) return;
+
+  // Tile layer (theme-aware)
+  routeMap = L.map('route-map', { zoomControl: true, attributionControl: false });
+  L.tileLayer(document.body.classList.contains('light') ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png' : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19
+  }).addTo(routeMap);
+
+  // Draw stop markers first (they appear while road geometry loads)
+  stops.forEach((s, i) => {
+    if (!coords[i]) return;
+    const info = stopMap[s.BusStopCode];
+    const name = info?.Description || s.BusStopCode;
+    const isFirst = i === 0, isLast = i === stops.length - 1;
+    const baseColor = isFirst ? '#00E07A' : isLast ? '#FF3333' : '#FFFEF5';
+    const marker = L.circleMarker(coords[i], {
+      radius: isFirst || isLast ? 8 : 5,
+      fillColor: baseColor,
+      color: '#000',
+      weight: 1.5,
+      fillOpacity: 1,
+      zIndexOffset: 100
+    }).addTo(routeMap);
+    marker.on('click', () => selectRouteStop(s.BusStopCode, i, name, stops, stopMap, sunAnalysis));
+    stopMarkers.push({ marker, code: s.BusStopCode, idx: i, coords: coords[i] });
+  });
+
+  routeMap.fitBounds(validCoords, { padding: [24, 24] });
+  // Re-fit after a tick in case the container was hidden when first rendered
+  setTimeout(() => {
+    if (routeMap) {
+      routeMap.invalidateSize();
+      routeMap.fitBounds(validCoords, { padding: [24, 24] });
+    }
+  }, 150);
+
+  // Fetch road-snapped geometry from OSRM in chunks of 90 stops
+  drawRoadSnappedRoute(coords, sunAnalysis);
+}
+
+async function drawRoadSnappedRoute(coords, sunAnalysis) {
+  const validPairs = coords.map((c, i) => ({ c, i })).filter(x => x.c);
+  if (validPairs.length < 2) return;
+
+  function segColor(i) {
+    const seg = sunAnalysis?.segResults?.[i];
+    if (!seg || seg.exposure === 'none' || seg.side === 'any') return '#4A6090';
+    return seg.exposure === 'high' ? '#FF3333' : seg.exposure === 'medium' ? '#FF8800' : '#FFD000';
+  }
+
+  const CHUNK = 25;
+  for (let start = 0; start < validPairs.length - 1; start += CHUNK - 1) {
+    const chunk = validPairs.slice(start, start + CHUNK);
+    if (chunk.length < 2) break;
+    const coordStr = chunk.map(p => `${p.c[1]},${p.c[0]}`).join(';');
+    const url = `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=false&geometries=geojson&annotations=false&steps=true`;
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timer);
+      const data = await res.json();
+      if (data.code !== 'Ok' || !data.routes?.[0]?.legs) throw new Error('no route');
+      data.routes[0].legs.forEach((leg, j) => {
+        const color = segColor(chunk[j].i);
+        const legCoords = leg.steps.flatMap(step =>
+          step.geometry.coordinates.map(([lng, lat]) => [lat, lng])
+        );
+        if (legCoords.length >= 2) {
+          const line = L.polyline(legCoords, { color, weight: 4, opacity: 0.9 });
+          if (routeMap) { line.addTo(routeMap); routeSegLayers.push(line); }
+        } else {
+          const a = chunk[j].c, b = chunk[j + 1].c;
+          const line = L.polyline([a, b], { color, weight: 4, opacity: 0.7, dashArray: '6 4' });
+          if (routeMap) { line.addTo(routeMap); routeSegLayers.push(line); }
+        }
+      });
+    } catch {
+      chunk.slice(0, -1).forEach((a, j) => {
+        const b = chunk[j + 1];
+        const color = segColor(a.i);
+        const line = L.polyline([a.c, b.c], { color, weight: 4, opacity: 0.7, dashArray: '6 4' });
+        if (routeMap) { line.addTo(routeMap); routeSegLayers.push(line); }
+      });
+    }
+  }
+}
+
+function selectRouteStop(code, idx, name, stops, stopMap, sunAnalysis) {
+  if (!boardStop) {
+    // Set board stop
+    boardStop = { code, idx, name };
+    document.getElementById('pill-board').textContent = '🟢 Board: ' + name;
+    document.getElementById('pill-board').className = 'map-ba-pill set';
+    // document.getElementById('map-instruction').textContent = 'Now tap your alighting stop';
+    // Highlight selected marker
+    stopMarkers.forEach(m => {
+      if (m.code === code && m.idx === idx) {
+        m.marker.setStyle({ fillColor: '#00E07A', radius: 9, color: '#00E07A', weight: 2 });
+      }
+    });
+    return;
+  }
+
+  if (idx === boardStop.idx) {
+    // Deselect board stop
+    boardStop = null; alightStop = null;
+    document.getElementById('pill-board').textContent = '🟢 Board: —';
+    document.getElementById('pill-board').className = 'map-ba-pill';
+    document.getElementById('pill-alight').textContent = '🔴 Alight: —';
+    document.getElementById('pill-alight').className = 'map-ba-pill';
+    // document.getElementById('map-instruction').textContent = 'Tap a stop to board · tap another to alight';
+    const existing = document.getElementById('rsp-trip-result');
+    if (existing) existing.remove();
+    resetMarkerStyles(stops, stopMap);
+    return;
+  }
+
+  // Ensure alight is after board
+  if (idx < boardStop.idx) {
+    toast('⚠️ Alighting stop must be after boarding stop');
+    return;
+  }
+
+  alightStop = { code, idx, name };
+  document.getElementById('pill-alight').textContent = '🔴 Alight: ' + name;
+  document.getElementById('pill-alight').className = 'map-ba-pill set-alight';
+  // document.getElementById('map-instruction').textContent = 'Tap any stop to change selection';
+
+  // Highlight alight marker
+  stopMarkers.forEach(m => {
+    if (m.code === code && m.idx === idx) {
+      m.marker.setStyle({ fillColor: '#FF3333', radius: 9, color: '#FF3333', weight: 2 });
+    }
+  });
+
+  // Compute seating for just the selected portion
+  const slicedStops = stops.slice(boardStop.idx, alightStop.idx + 1);
+  // Re-compute sun analysis for this slice, with time offset from boarding stop
+  const boardElapsed = sunAnalysis?.segResults?.slice(0, boardStop.idx).reduce((acc, s) => acc + s.segTime, 0) || 0;
+  const tripAnalysis = computeRouteSeatingSlice(slicedStops, stopMap, boardElapsed);
+  updateTripSeatingPanel(tripAnalysis, boardStop.name, alightStop.name);
+}
+
+function computeRouteSeatingSlice(stops, stopMap, startElapsed) {
+  const segments = [];
+  let elapsed = startElapsed;
+  for (let i = 0; i < stops.length - 1; i++) {
+    const a = stopMap[stops[i].BusStopCode];
+    const b = stopMap[stops[i+1].BusStopCode];
+    if (!a?.Latitude || !b?.Latitude) continue;
+    const lat1=parseFloat(a.Latitude), lng1=parseFloat(a.Longitude);
+    const lat2=parseFloat(b.Latitude), lng2=parseFloat(b.Longitude);
+    const dist = distMetres(lat1,lng1,lat2,lng2);
+    const bear = bearingBetween(lat1,lng1,lat2,lng2);
+    const segTime = dist / AVG_SPEED_MPS;
+    const t = new Date(Date.now() + (elapsed + segTime/2)*1000);
+    const sun = getSunAtTime(t);
+    segments.push({ bear, dist, sun, segTime });
+    elapsed += segTime;
+  }
+  if (!segments.length) return null;
+  let leftSun=0, rightSun=0, totalDist=0;
+  segments.forEach(seg => {
+    if (seg.sun.alt < 3) return;
+    const rel = (seg.sun.az - seg.bear + 360) % 360;
+    const sunOnRight = rel < 180;
+    const score = Math.abs(Math.sin(rel*Math.PI/180)) * Math.sin(Math.abs(seg.sun.alt)*Math.PI/180);
+    if (sunOnRight) rightSun += score * seg.dist;
+    else leftSun += score * seg.dist;
+    totalDist += seg.dist;
+  });
+  const totalMins = Math.round(segments.reduce((a,s)=>a+s.segTime,0)/60);
+  const leftPct = Math.round(leftSun/(totalDist||1)*100);
+  const rightPct = Math.round(rightSun/(totalDist||1)*100);
+  const recSide = leftPct <= rightPct ? 'left' : 'right';
+  const sunSide = recSide === 'left' ? 'right' : 'left';
+  const avoidPct = Math.max(leftPct, rightPct);
+  return { recSide, sunSide, avoidPct, totalMins };
+}
+
+function updateTripSeatingPanel(analysis, fromName, toName) {
+  const existing = document.getElementById('rsp-trip-result');
+  if (existing) existing.remove();
+  if (!analysis) return;
+  const { recSide, sunSide, avoidPct, totalMins } = analysis;
+  const emoji = recSide==='left'?'⬅️':'➡️';
+  const intensity = avoidPct>60?'strongly':avoidPct>30?'moderately':'slightly';
+  const isSunny = avoidPct > 40;
+  const div = document.createElement('div');
+  div.id = 'rsp-trip-result';
+  div.className = 'rsp-trip-banner' + (isSunny?' sunny':'');
+  div.innerHTML = `
+    <div class="rsp-trip-emoji">${emoji}</div>
+    <div>
+      <div class="rsp-trip-rec">Sit <strong>${recSide.toUpperCase()}</strong> from ${fromName}</div>
+      <div class="rsp-trip-sub">Sun hits ${sunSide} ${intensity} · ~${totalMins} min · to ${toName}</div>
+    </div>`;
+  // Insert after the map wrap
+  const mapWrap = document.querySelector('.route-map-wrap');
+  if (mapWrap) mapWrap.insertAdjacentElement('afterend', div);
+}
+
+function resetMarkerStyles(stops, stopMap) {
+  stopMarkers.forEach((m, i) => {
+    const isFirst = i === 0, isLast = i === stops.length - 1;
+    const baseColor = isFirst ? '#00E07A' : isLast ? '#FF3333' : '#FFFEF5';
+    m.marker.setStyle({ fillColor: baseColor, radius: isFirst||isLast?8:5, color:'#000', weight:1.5 });
+  });
+}
+
+function switchDir(i) {
+  if (!routeData) return Promise.resolve();
+  routeData.currentDir = i;
+  return fetchAllStops()
+    .then(stops => renderRoute(routeData, stops))
+    .catch(() => renderRoute(routeData, ALL_STOPS || null));
+}
+
+function loadStopFromRoute(code) {
+  switchTab('stop');
+  document.getElementById('stopInput').value = code;
+  lastStopCode = code;
+  doSearch();
+}
+
+// ── UNIFIED STOP SEARCH ──
+let unifiedTimer = null;
+let unifiedMatches = [];
+let unifiedHighlight = -1;
+
+function onUnifiedInput() {
+  clearTimeout(unifiedTimer);
+  unifiedTimer = setTimeout(runUnifiedSearch, 150);
+}
+
+function runUnifiedSearch() {
+  const raw = document.getElementById('stopInput').value.trim();
+  const box = document.getElementById('unifiedResults');
+  if (!raw) { closeUnified(); return; }
+
+  // Pure digits → code search
+  const isCode = /^\d+$/.test(raw);
+
+  if (!ALL_STOPS) {
+    // Load stops in background, show loading state
+    box.className = 'stop-name-results open';
+    box.innerHTML = '<div class="sn-empty">Loading stop database…</div>';
+    fetchAllStops().then(() => runUnifiedSearch()).catch(() => {});
+    return;
+  }
+
+  const q = raw.toLowerCase();
+  const words = q.split(/\s+/);
+  unifiedMatches = ALL_STOPS.filter(s => {
+    if (isCode) return s.BusStopCode.startsWith(raw);
+    const haystack = (s.Description + ' ' + s.RoadName + ' ' + s.BusStopCode).toLowerCase();
+    return words.every(w => haystack.includes(w));
+  }).slice(0, 10);
+
+  if (!unifiedMatches.length) {
+    box.className = 'stop-name-results open';
+    box.innerHTML = `<div class="sn-empty">No stops found for "<strong>${raw}</strong>"</div>`;
+    unifiedHighlight = -1;
+    return;
+  }
+
+  unifiedHighlight = -1;
+  box.className = 'stop-name-results open';
+  renderUnifiedResults();
+
+  // If exact 5-digit code match, auto-load immediately
+  if (isCode && raw.length === 5 && unifiedMatches.length === 1 && unifiedMatches[0].BusStopCode === raw) {
+    selectUnifiedStop(0);
+  }
+}
+
+function renderUnifiedResults() {
+  const box = document.getElementById('unifiedResults');
+  box.innerHTML = unifiedMatches.map((s, i) => `
+    <div class="sn-item${i===unifiedHighlight?' highlighted':''}" onclick="selectUnifiedStop(${i})">
+      <div class="sn-code">${s.BusStopCode}</div>
+      <div class="sn-info">
+        <div class="sn-name">${stopLabel(s.Description)}</div>
+        <div class="sn-road">${s.RoadName}</div>
+      </div>
+      <div class="sn-arrow">›</div>
+    </div>`).join('');
+}
+
+function selectUnifiedStop(i) {
+  const s = unifiedMatches[i];
+  if (!s) return;
+  document.getElementById('stopInput').value = s.Description;
+  lastStopCode = s.BusStopCode;
+  closeUnified();
+  document.getElementById('quickChips').style.display = 'none';
+  document.getElementById('nearbySection').style.display = 'none';
+  document.getElementById('results-stop').innerHTML =
+    `<div class="loading-state"><div class="bus-loader">🚌</div><div class="loading-txt">Fetching arrivals…</div></div>`;
+  fetchLTA(s.BusStopCode).then(data => render(s.BusStopCode, data)).catch(e => {
+    document.getElementById('results-stop').innerHTML = `<div class="error-card">⚠️ ${e.message}</div>`;
+  });
+}
+
+function moveUnified(dir) {
+  unifiedHighlight = Math.max(-1, Math.min(unifiedMatches.length-1, unifiedHighlight + dir));
+  renderUnifiedResults();
+}
+
+function closeUnified() {
+  const box = document.getElementById('unifiedResults');
+  if (box) { box.className = 'stop-name-results'; box.innerHTML = ''; }
+  unifiedHighlight = -1;
+}
+
+function clearSearch() {
+  document.getElementById('stopInput').value = '';
+  lastStopCode = null;
+  closeUnified();
+  document.getElementById('results-stop').innerHTML = '';
+  document.getElementById('quickChips').style.display = 'block';
+  document.getElementById('nearbySection').style.display = 'none';
+}
+
+function loadFromName(code) {
+  switchTab('stop');
+  const s = ALL_STOPS?.find(s => s.BusStopCode === code);
+  if (s) document.getElementById('stopInput').value = s.Description;
+  lastStopCode = code;
+  closeUnified();
+  document.getElementById('quickChips').style.display = 'none';
+  document.getElementById('results-stop').innerHTML =
+    `<div class="loading-state"><div class="bus-loader">🚌</div><div class="loading-txt">Fetching arrivals…</div></div>`;
+  fetchLTA(code).then(data => render(code, data)).catch(e => {
+    document.getElementById('results-stop').innerHTML = `<div class="error-card">⚠️ ${e.message}</div>`;
+  });
+}
+
+function closeNameResults() { closeUnified(); }
+
+// ── LTA FETCH ──
+async function fetchLTA(code) {
+  const url = PROXY_URL + '?endpoint=BusArrival&BusStopCode=' + code;
+  let res;
+  try { res = await fetch(url, { headers: await getProxyHeaders() }); } catch(e) {
+    throw new Error('Could not reach proxy. Check your Cloudflare Worker URL.');
+  }
+  if (!res.ok) throw new Error('Proxy error ' + res.status);
+  const json = await res.json();
+  if (json.error) throw new Error('LTA error: ' + json.error);
+  if (!json.Services) throw new Error('Unexpected response from proxy.');
+  return { Services: json.Services };
+}
+
+// ── FETCH ALL BUS STOPS (paginated, cached) ──
+function setNearMeSub(text) {
+  const el = document.getElementById('nearMeSub');
+  if (el) el.textContent = text;
+}
+
+async function fetchAllStops() {
+  if (ALL_STOPS) return ALL_STOPS;
+  // Try localStorage cache first
+  try {
+    const cached = localStorage.getItem('lahbus_stops_v2');
+    if (cached) { ALL_STOPS = JSON.parse(cached); return ALL_STOPS; }
+  } catch(e) {}
+  setNearMeSub('Loading stop database…');
+  const res = await fetch(`${PROXY_URL}?endpoint=static&file=stops.json`, { headers: await getProxyHeaders() });
+  if (!res.ok) throw new Error('Failed to load stops.');
+  ALL_STOPS = await res.json();
+  try { localStorage.setItem('lahbus_stops_v2', JSON.stringify(ALL_STOPS)); } catch(e) {}
+  setNearMeSub(`${ALL_STOPS.length.toLocaleString()} stops loaded`);
+  return ALL_STOPS;
+}
+
+// ── FETCH ALL BUS SERVICES (paginated, cached) ──
+async function fetchAllServices() {
+  if (ALL_SERVICES) return ALL_SERVICES;
+  try {
+    const cached = localStorage.getItem('lahbus_services_v2');
+    if (cached) { ALL_SERVICES = JSON.parse(cached); return ALL_SERVICES; }
+  } catch(e) {}
+  const res = await fetch(`${PROXY_URL}?endpoint=static&file=bus-services.json`, { headers: await getProxyHeaders() });
+  if (!res.ok) throw new Error('Failed to load services.');
+  ALL_SERVICES = await res.json();
+  try { localStorage.setItem('lahbus_services_v2', JSON.stringify(ALL_SERVICES)); } catch(e) {}
+  return ALL_SERVICES;
+}
+
+// ── NEAR ME ──
+async function findNearby() {
+  const btn = document.getElementById('nearMeBtn');
+  const sub = document.getElementById('nearMeSub');
+
+  // Get GPS
+  if (!navigator.geolocation) {
+    toast('❌ Geolocation not supported by your browser');
+    return;
+  }
+
+  btn.classList.add('loading');
+  if (sub) sub.textContent = 'Getting your location…';
+
+  let pos;
+  try {
+    pos = await new Promise((resolve, reject) =>
+      navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 })
+    );
+  } catch(e) {
+    btn.classList.remove('loading');
+    
+    toast('❌ Location access denied. Allow location in your browser settings.');
+    return;
+  }
+
+  userLat = pos.coords.latitude;
+  userLng = pos.coords.longitude;
+  if (sub) sub.textContent = `📍 ${userLat.toFixed(4)}, ${userLng.toFixed(4)}`;
+
+  // Fetch/use cached stop list
+  let stops;
+  try {
+    stops = await fetchAllStops();
+  } catch(e) {
+    btn.classList.remove('loading');
+    
+    toast('❌ ' + e.message);
+    return;
+  }
+
+  // Compute distances and sort
+  const withDist = stops.map(s => ({
+    ...s,
+    dist: haversine(userLat, userLng, parseFloat(s.Latitude), parseFloat(s.Longitude))
+  }));
+  withDist.sort((a,b) => a.dist - b.dist);
+  const top10 = withDist.slice(0, 10);
+
+  btn.classList.remove('loading');
+  if (sub) sub.textContent = `${stops.length.toLocaleString()} stops searched`;
+
+  renderNearby(top10);
+}
+
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 6371000; // metres
+  const φ1 = lat1*Math.PI/180, φ2 = lat2*Math.PI/180;
+  const dφ = (lat2-lat1)*Math.PI/180;
+  const dλ = (lng2-lng1)*Math.PI/180;
+  const a = Math.sin(dφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(dλ/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function renderNearby(stops) {
+  document.getElementById('quickChips').style.display = 'none';
+  document.getElementById('nearbySection').style.display = 'block';
+  document.getElementById('nearbySubtitle').textContent =
+    `10 closest stops · your location updated now`;
+
+  let html = '';
+  stops.forEach((s, i) => {
+    const dist = Math.round(s.dist);
+    const walkMins = Math.ceil(dist / 80); // ~80m per min walking
+    const distLabel = dist >= 1000 ? (dist/1000).toFixed(1)+'km' : dist+'m';
+    html += `
+      <div class="nearby-stop" style="animation-delay:${i*0.05}s" onclick="quickLoad('${s.BusStopCode}')">
+        <div class="nearby-rank">${i+1}</div>
+        <div class="nearby-stop-info">
+          <div class="nearby-stop-name">${stopLabel(s.Description)}</div>
+          <div class="nearby-stop-code">${s.BusStopCode} · ${s.RoadName}</div>
+        </div>
+        <div class="nearby-dist">
+          <div class="nearby-dist-m">${distLabel}</div>
+          <div class="nearby-dist-lbl">away</div>
+          <div class="nearby-walk">~${walkMins} min walk</div>
+        </div>
+        <button class="fav-btn" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();addStopFav('${s.BusStopCode}','${s.Description}','${s.RoadName}')" style="font-size:18px;flex-shrink:0;color:${(window._favs||{})['stop_'+s.BusStopCode]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['stop_'+s.BusStopCode]?'★':'☆'}</button>
+      </div>`;
+  });
+
+  document.getElementById('nearbyList').innerHTML = html;
+}
+
+function clearNearby() {
+  document.getElementById('nearbySection').style.display = 'none';
+  // Only show interchanges if no stop has been searched yet
+  const results = document.getElementById('results-stop');
+  if (!results.innerHTML.trim()) {
+    document.getElementById('quickChips').style.display = 'block';
+  }
+  
+}
+
+// ── RENDER ARRIVALS ──
+function render(code, data) {
+  window._lastRenderCode = code;
+  const svcs = data.Services || [];
+  const stopInfo = ALL_STOPS?.find(s=>s.BusStopCode===code);
+  const name = stopInfo?.Description || 'Bus Stop ' + code;
+  const road = stopInfo?.RoadName || '';
+
+  if (!svcs.length) {
+    document.getElementById('results-stop').innerHTML =
+      `<div class="error-card">No bus services found for stop ${code}.</div>`;
+    return;
+  }
+
+  svcs.sort((a,b) => parseInt(a.ServiceNo) - parseInt(b.ServiceNo) || a.ServiceNo.localeCompare(b.ServiceNo));
+
+  const loadLabels = {SEA:'Seats Avail',SDA:'Standing',LSD:'Crowded'};
+  let html = `
+    <div class="stop-hero">
+      <div style="min-width:0;flex:1">
+        <div class="stop-title" id="stop-title-${code}">${stopLabel(name)}${road ? `<span class="stop-road-inline">(${road})</span>` : ''}</div>
+        ${road ? `<div class="stop-road-block">(${road})</div>` : ''}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <button class="fav-btn" data-key="stop_${code}" title="Favourite this stop" onclick="addStopFav('${code}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')" style="font-size:20px;color:${(window._favs||{})['stop_'+code]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['stop_'+code]?'★':'☆'}</button>
+        <div class="stop-badge">${code}</div>
+      </div>
+    </div>
+    <div class="refresh-row">
+      <div class="results-label">${svcs.length} services</div>
+      <button class="refresh-btn" onclick="doSearch()">↻ Refresh</button>
+    </div>`;
+
+  svcs.forEach((s,i) => {
+    const nb=s.NextBus, nb2=s.NextBus2, nb3=s.NextBus3;
+    if (!nb.EstimatedArrival) return; // no bus data at all — skip card
+    const m1=minsFrom(nb.EstimatedArrival);
+    const m2=nb2.EstimatedArrival ? minsFrom(nb2.EstimatedArrival) : null;
+    const m3=nb3.EstimatedArrival ? minsFrom(nb3.EstimatedArrival) : null;
+    const arrCls = '';
+    const label = m1<=0?'ARR':`${m1}`, unit = m1<=0?'':'min';
+    const rec = seatRec(nb.Latitude,nb.Longitude,nb2?.Latitude,nb2?.Longitude);
+    const loadColor = {SEA:'var(--green)', SDA:'#FF8C00', LSD:'#FF3333'};
+    const nextPills = [[m2,nb2],[m3,nb3]].filter(([m])=>m!==null).map(([m,nb])=>`<div class="next-pill"><span>${m} min</span>${busTypeIcon(nb.Type,true,loadColor[nb.Load]||'var(--muted)')}</div>`).join('');
+    const op = (s.Operator||'').toUpperCase();
+    const opCls = op==='GAS'?'op-gas':op==='TTS'?'op-tts':(op==='SBST'||op==='SBS'||op.includes('SBS'))?'op-sbs':'op-smrt';
+    // Use origin/destination directly from the live arrival data (per-bus, correct direction)
+    const originName = stopName(nb.OriginCode);
+    const destName   = stopName(nb.DestinationCode);
+    html += `
+    <div class="bus-card" style="animation-delay:${i*.09}s">
+      <div class="card-top">
+        <div class="bus-num-col ${opCls}" onclick="goToService('${s.ServiceNo}', '${code}')" style="position:relative">
+
+          ${originName ? `<div class="bus-num-from">${originName}</div>` : ''}
+          <div class="bus-num">${s.ServiceNo}</div>
+          ${destName ? `<div class="bus-num-to">${destName}</div>` : ''}
+        </div>
+        <div class="card-middle" onclick="togglePanel(${i})">
+          <div class="arrival-row">
+            <div class="first-timing">
+            <div class="mins-big ${arrCls}">${label}</div>
+            <div class="mins-unit">${unit}</div>
+            </div>
+            ${nextPills}
+          </div>
+          <div class="bus-type-tag">${busTypeIcon(nb.Type, false, loadColor[nb.Load]||'var(--muted)')}</div>
+        </div>
+        <div class="card-right">
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch">
+            <button class="sun-toggle-btn fav-btn" data-key="svc_${s.ServiceNo}" onclick="event.stopPropagation();addSvcFavSmart('${s.ServiceNo}')" style="justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+s.ServiceNo]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+s.ServiceNo]?'★':'☆'}</button>
+            <div class="sun-toggle-btn" style="color:var(--cyan);background:#00C8E015;border-color:#00C8E030;justify-content:center" onclick="toggleStopTiming(${i},'${s.ServiceNo}','${code}')">🕐</div>
+          </div>
+        </div>
+      </div>
+      <div class="sun-panel" id="sp${i}">
+        <div class="sun-inner">${buildPanel(rec, nb.Type==='DD')}</div>
+      </div>
+      <div class="stop-timing-panel" id="stp${i}" style="display:none">
+        <div class="stop-timing-inner" id="sti${i}">
+          <div class="rs-arrivals-placeholder">Loading…</div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('results-stop').innerHTML = html;
+}
+
+function busTypeIcon(type, small=false, color='var(--muted)') {
+  const c = color;
+  if (type === 'DD') {
+    const [w,h] = small ? [26,14] : [38,20];
+    return `<svg width="${w}" height="${h}" viewBox="0 0 38 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1" y="1" width="34" height="17" rx="2" fill="none" stroke="${c}" stroke-width="1.2"/>
+    <line x1="1" y1="9" x2="35" y2="9" stroke="${c}" stroke-width="1"/>
+    <rect x="4" y="2.5" width="5" height="5" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="11" y="2.5" width="5" height="5" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="18" y="2.5" width="5" height="5" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="25" y="2.5" width="5" height="5" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="4" y="10.5" width="5" height="4.5" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="11" y="10.5" width="5" height="4.5" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="18" y="10.5" width="5" height="4.5" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="26" y="10.5" width="4" height="4.5" rx="1" fill="none" stroke="${c}" stroke-width=".8" opacity=".6"/>
+    <circle cx="8" cy="19" r="2" fill="${c}" opacity=".7"/>
+    <circle cx="28" cy="19" r="2" fill="${c}" opacity=".7"/>
+  </svg>`;
+  }
+  if (type === 'BD') {
+    const [w,h] = small ? [36,12] : [52,18];
+    return `<svg width="${w}" height="${h}" viewBox="0 0 52 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1" y="2" width="22" height="13" rx="2" fill="none" stroke="${c}" stroke-width="1.2"/>
+    <rect x="27" y="2" width="22" height="13" rx="2" fill="none" stroke="${c}" stroke-width="1.2"/>
+    <rect x="22" y="4" width="6" height="9" rx="1" fill="none" stroke="${c}" stroke-width=".9" stroke-dasharray="2 1.5" opacity=".7"/>
+    <rect x="3.5" y="4" width="5" height="7" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="10" y="4" width="5" height="7" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="16.5" y="4" width="4" height="7" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="29" y="4" width="5" height="7" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="36" y="4" width="5" height="7" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="43" y="4" width="4" height="7" rx="1" fill="${c}" opacity=".4"/>
+    <circle cx="7" cy="17" r="2" fill="${c}" opacity=".7"/>
+    <circle cx="19" cy="17" r="2" fill="${c}" opacity=".7"/>
+    <circle cx="33" cy="17" r="2" fill="${c}" opacity=".7"/>
+    <circle cx="45" cy="17" r="2" fill="${c}" opacity=".7"/>
+  </svg>`;
+  }
+  // SD
+  const [w,h] = small ? [24,12] : [36,18];
+  return `<svg width="${w}" height="${h}" viewBox="0 0 36 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1" y="2" width="33" height="13" rx="2" fill="none" stroke="${c}" stroke-width="1.2"/>
+    <rect x="3.5" y="4" width="5" height="7" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="10.5" y="4" width="5" height="7" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="17.5" y="4" width="5" height="7" rx="1" fill="${c}" opacity=".4"/>
+    <rect x="25" y="4" width="4" height="7" rx="1" fill="none" stroke="${c}" stroke-width=".8" opacity=".6"/>
+    <circle cx="8" cy="17" r="2" fill="${c}" opacity=".7"/>
+    <circle cx="27" cy="17" r="2" fill="${c}" opacity=".7"/>
+  </svg>`;
+}
+
+async function goToService(svc, stopCode) {
+  switchTab('service');
+  document.getElementById('serviceInput').value = svc;
+  await doServiceSearch();
+
+  if (stopCode && routeData) {
+    const paddedCode = String(stopCode).padStart(5, '0');
+    const normalize = c => String(c).padStart(5, '0');
+
+    // Find which direction contains this stop
+    const dirIdx = routeData.directions.findIndex(d =>
+      d.stops.some(s => normalize(s.BusStopCode) === paddedCode)
+    );
+
+    // If stop is in a different direction, switch to it and wait for re-render
+    if (dirIdx !== -1 && dirIdx !== routeData.currentDir) {
+      await switchDir(dirIdx);
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    }
+
+    // Now find and open the stop
+    const stopItems = document.querySelectorAll(`[id^="rs-${paddedCode}-"]`).length
+      ? document.querySelectorAll(`[id^="rs-${paddedCode}-"]`)
+      : document.querySelectorAll(`[id^="rs-${stopCode}-"]`);
+
+    if (stopItems.length) {
+      const panel = stopItems[0];
+      const card = panel.closest('.route-stop-item')?.querySelector('.route-stop-card');
+      if (!panel.classList.contains('open')) {
+        panel.classList.add('open');
+        card?.querySelector('.rs-chevron')?.classList.add('rotated');
+        loadArrivalsInRoute(paddedCode || stopCode);
+      }
+      const stopEl = panel.closest('.route-stop-item');
+      if (stopEl) {
+        setTimeout(() => {
+          const stickyHeader = document.querySelector('.route-sticky-header');
+          const headerHeight = stickyHeader ? stickyHeader.offsetHeight : 0;
+          const stopTop = stopEl.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({ top: stopTop - headerHeight - 8, behavior: 'smooth' });
+        }, 400);
+      }
+    }
+  }
+}
+
+function togglePanel(i) {
+  document.getElementById(`sp${i}`).classList.toggle('open');
+  // Close timing panel if open
+  const tp = document.getElementById(`stp${i}`);
+  if (tp) tp.style.display = 'none';
+}
+
+async function toggleStopTiming(i, svcNo, stopCode) {
+  // Close sun panel if open
+  document.getElementById(`sp${i}`)?.classList.remove('open');
+  const panel = document.getElementById(`stp${i}`);
+  const inner = document.getElementById(`sti${i}`);
+  if (!panel || !inner) return;
+  if (panel.style.display === 'block') { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+
+  // Try to get timing from routes cache
+  const fmtTime = t => (t && t !== '-') ? t.slice(0,2)+':'+t.slice(2) : null;
+  try {
+    if (!ALL_ROUTES) {
+      inner.innerHTML = '<div class="rs-arrivals-placeholder">Loading route data…</div>';
+      await fetchBusRoute(svcNo); // triggers ALL_ROUTES load
+    }
+    const svcNorm = svcNo.replace(/^0+/,'').toUpperCase();
+    const key = Object.keys(ALL_ROUTES).find(k => k.replace(/^0+/,'').toUpperCase() === svcNorm);
+    if (!key) { inner.innerHTML = '<div class="rs-arrivals-placeholder">No timing data</div>'; return; }
+
+    let stopData = null;
+    for (const stops of Object.values(ALL_ROUTES[key])) {
+      stopData = stops.find(s => s.BusStopCode === stopCode);
+      if (stopData) break;
+    }
+    if (!stopData) { inner.innerHTML = '<div class="rs-arrivals-placeholder">No timing data for this stop</div>'; return; }
+
+    const wd1 = fmtTime(stopData.WD_FirstBus), wd2 = fmtTime(stopData.WD_LastBus);
+    const sa1 = fmtTime(stopData.SAT_FirstBus), sa2 = fmtTime(stopData.SAT_LastBus);
+    const su1 = fmtTime(stopData.SUN_FirstBus), su2 = fmtTime(stopData.SUN_LastBus);
+
+    if (!wd1 && !sa1 && !su1) { inner.innerHTML = '<div class="rs-arrivals-placeholder">No timing data</div>'; return; }
+
+    inner.innerHTML = `
+      <div class="rs-timing-grid">
+        <div class="rs-timing-head"></div><div class="rs-timing-head">First</div><div class="rs-timing-head">Last</div>
+        ${wd1 ? `<div class="rs-timing-day">Weekday</div><div class="rs-timing-val">${wd1}</div><div class="rs-timing-val">${wd2||'—'}</div>` : ''}
+        ${sa1 ? `<div class="rs-timing-day">Saturday</div><div class="rs-timing-val">${sa1}</div><div class="rs-timing-val">${sa2||'—'}</div>` : ''}
+        ${su1 ? `<div class="rs-timing-day">Sunday</div><div class="rs-timing-val">${su1}</div><div class="rs-timing-val">${su2||'—'}</div>` : ''}
+      </div>`;
+  } catch(e) {
+    inner.innerHTML = `<div class="rs-arrivals-placeholder" style="color:#FF9999">⚠️ ${e.message}</div>`;
+  }
+}
+
+// ── ROUTE STOP EXPAND ──
+function toggleRouteTiming(id, btn) {
+  const panel = document.getElementById(id);
+  if (!panel) return;
+  const isOpen = panel.style.display === 'block';
+  panel.style.display = isOpen ? 'none' : 'block';
+  btn.style.background = isOpen ? '#00C8E015' : '#00C8E030';
+  btn.style.borderColor = isOpen ? '#00C8E030' : '#00C8E060';
+}
+
+function toggleRouteStop(id, code, cardEl) {
+  const panel = document.getElementById(id);
+  if (!panel) return;
+  const isOpen = panel.classList.contains('open');
+  if (isOpen) {
+    panel.classList.remove('open');
+    cardEl.querySelector('.rs-chevron')?.classList.remove('rotated');
+  } else {
+    panel.classList.add('open');
+    cardEl.querySelector('.rs-chevron')?.classList.add('rotated');
+    loadArrivalsInRoute(code);
+  }
+}
+
+async function loadArrivalsInRoute(code) {
+  // Find all arrival containers for this stop code
+  const containers = document.querySelectorAll(`[id^="ra-${code}-"]`);
+  containers.forEach(c => c.innerHTML = '<div class="rs-arrivals-placeholder">Loading…</div>');
+  try {
+    const data = await fetchLTA(code);
+    const svcs = data.Services || [];
+    if (!svcs.length) {
+      containers.forEach(c => c.innerHTML = '<div class="rs-arrivals-placeholder">No services right now</div>');
+      return;
+    }
+    svcs.sort((a,b) => parseInt(a.ServiceNo)-parseInt(b.ServiceNo)||a.ServiceNo.localeCompare(b.ServiceNo));
+    const loadColors = {SEA:'var(--green)',SDA:'#FF8C00',LSD:'#FF3333'};
+    const loadLabels = {SEA:'Seats Avail',SDA:'Standing',LSD:'Crowded'};
+
+    function fmtMin(m) { return m <= 0 ? 'Arr' : m + ' min'; }
+    function timeCell(m, nb) {
+      if (m === null || !nb?.EstimatedArrival) return '<div class="rs-time-cell"><span class="rs-time-next">—</span></div>';
+      const lc = loadColors[nb.Load] || 'var(--muted)';
+      const icon = busTypeIcon(nb.Type, true, lc);
+      return `<div class="rs-time-cell">
+        <span class="rs-time-main${m<=1?' arriving':''}">${fmtMin(m)}</span>
+        <div class="rs-time-meta">${icon}</div>
+      </div>`;
+    }
+
+    let html = '';
+    svcs.forEach(s => {
+      const nb = s.NextBus, nb2 = s.NextBus2, nb3 = s.NextBus3;
+      if (!nb?.EstimatedArrival) return;
+      const m1 = minsFrom(nb.EstimatedArrival);
+      const m2 = nb2?.EstimatedArrival ? minsFrom(nb2.EstimatedArrival) : null;
+      const m3 = nb3?.EstimatedArrival ? minsFrom(nb3.EstimatedArrival) : null;
+      const op = (s.Operator||'').toUpperCase();
+      const opCls = op==='GAS'?'op-gas':op==='TTS'?'op-tts':(op==='SBST'||op==='SBS'||op.includes('SBS'))?'op-sbs':'op-smrt';
+      const liveDestCode = nb.DestinationCode;
+      // Fallback: find last stop from ALL_ROUTES for this service
+      let fallbackDestCode = null;
+      if (!stopName(liveDestCode) && ALL_ROUTES) {
+        const routeKey = Object.keys(ALL_ROUTES).find(k => k.toUpperCase() === s.ServiceNo.toUpperCase());
+        if (routeKey) {
+          const dirs = ALL_ROUTES[routeKey];
+          const dir1 = dirs['1'] || dirs[Object.keys(dirs)[0]];
+          if (dir1?.length) fallbackDestCode = dir1[dir1.length - 1].BusStopCode;
+        }
+      }
+      const destName = stopName(liveDestCode) || stopName(fallbackDestCode);
+      const destLabel = destName ? `<div style="font-size:8px;color:#FFFFFF;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px;text-transform:uppercase;letter-spacing:.3px">${destName}</div>` : '';
+      html += `<div class="rs-arrival-row">
+        <div class="rs-svc-col ${opCls}" onclick="goToService('${s.ServiceNo}', '${code}')" style="display:flex;flex-direction:column;align-items:center;padding:3px 2px">${s.ServiceNo}${destLabel}</div>
+        ${timeCell(m1, nb)}
+        ${timeCell(m2, nb2)}
+        ${timeCell(m3, nb3)}
+      </div>`;
+    });
+    containers.forEach(c => c.innerHTML = html || '<div class="rs-arrivals-placeholder">No live data</div>');
+  } catch(e) {
+    containers.forEach(c => c.innerHTML = `<div class="rs-arrivals-placeholder" style="color:#FF9999">⚠️ ${e.message}</div>`);
+  }
+}
+
+
+// ── SEAT REC ──
+function seatRec(lat1,lng1,lat2,lng2) {
+  const φ1=parseFloat(lat1)*Math.PI/180, φ2=parseFloat(lat2)*Math.PI/180;
+  const dλ=(parseFloat(lng2)-parseFloat(lng1))*Math.PI/180;
+  const y=Math.sin(dλ)*Math.cos(φ2);
+  const x=Math.cos(φ1)*Math.sin(φ2)-Math.sin(φ1)*Math.cos(φ2)*Math.cos(dλ);
+  let bear=Math.atan2(y,x)*180/Math.PI; if(bear<0) bear+=360;
+  if(SUN_ALT<5) return {side:'any',bear,intensity:'none'};
+  const rel=(SUN_AZ-bear+360)%360;
+  const goodSide=rel<180?'left':'right', sunSide=rel<180?'right':'left';
+  const perp=Math.abs(Math.sin(rel*Math.PI/180));
+  const altF=Math.sin(Math.abs(SUN_ALT)*Math.PI/180);
+  const score=perp*altF;
+  const intensity=score>.65?'high':score>.3?'medium':'low';
+  return {side:goodSide,sunSide,bear,intensity,rel,score};
+}
+
+// ── BUS DIAGRAM ──
+function buildPanel(rec, isDD) {
+  const rows = isDD ? 7 : 4;
+  let seats = '';
+  for(let r=0;r<rows;r++) {
+    const lc=(rec.side==='left'||rec.side==='any')?'rec':(rec.intensity==='high'?'very-hot':'hot');
+    const rc=(rec.side==='right'||rec.side==='any')?'rec':(rec.intensity==='high'?'very-hot':'hot');
+    seats += `<div class="seat-row-d">
+      <div class="seat-pair"><div class="s ${lc}"></div><div class="s ${lc}"></div></div>
+      <div class="bus-aisle"></div>
+      <div class="seat-pair"><div class="s ${rc}"></div><div class="s ${rc}"></div></div>
+    </div>`;
+  }
+  const busDir=card(rec.bear), sunDir=card(SUN_AZ);
+  let bannerClass='good', emoji='', msg='';
+  if(rec.side==='any') {
+    bannerClass='any'; emoji='😎';
+    msg=`Sun is low on the horizon — <span class="rec-strong">any seat is comfortable</span> right now.`;
+  } else {
+    emoji=rec.side==='left'?'⬅️':'➡️';
+    const oppSide = rec.side === 'left' ? 'right' : 'left';
+    const howMuch = rec.intensity==='high' ? 'directly' : 'partially';
+    msg=`Sit on the <span class="rec-strong">${rec.side} side</span> — the sun is ${howMuch} shining through the <span class="rec-dir">${oppSide} windows</span> right now.`;
+    bannerClass=rec.intensity==='high'?'hot':'good';
+  }
+  return `
+    <div class="panel-title">☀ Sun-Smart Seating</div>
+    <div class="diagram-wrap">
+      <div class="bus-map"><div class="bus-shell">
+        <div class="bus-windshield">
+          <div class="ws-light"></div>
+          <div style="font-size:9px;color:var(--muted);letter-spacing:1px">▲ ${busDir}</div>
+          <div class="ws-light"></div>
+        </div>
+        ${seats}
+      </div></div>
+      <div class="diagram-legend">
+        <div class="leg-row"><div class="leg-swatch" style="background:var(--green)"></div>Shaded side</div>
+        <div class="leg-row"><div class="leg-swatch" style="background:#FF222730;border:1px solid #FF222270"></div>Sunny side</div>
+        <div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.8">
+          🚌 Bus going<br><strong style="color:var(--white)">${busDir}</strong><br><br>
+          ☀ Sun is in the<br><strong style="color:var(--yellow)">${sunDir}</strong><br>
+          <span style="color:var(--muted)">${SUN_ALT.toFixed(0)}° above horizon</span>
+        </div>
+      </div>
+    </div>
+    <div class="rec-banner ${bannerClass}">
+      <div class="rec-emoji">${emoji}</div>
+      <div>${msg}</div>
+    </div>`;
+}
+
+
+// ── FAVOURITES ──
+window._favs = {};
+window._currentUser = null;
+
+function renderFavourites() {
+  const svcGrid = document.getElementById('fav-grid-services');
+  const stopGrid = document.getElementById('fav-grid-stops');
+  if (!svcGrid || !stopGrid) return;
+  const favs = window._favs || {};
+  const services = Object.keys(favs)
+    .filter(k => favs[k].type === 'service')
+    .sort((a, b) => {
+      const na = parseInt(favs[a].id), nb = parseInt(favs[b].id);
+      return (isNaN(na) || isNaN(nb)) ? favs[a].id.localeCompare(favs[b].id) : na - nb;
+    });
+  const stops = Object.keys(favs)
+    .filter(k => favs[k].type === 'stop')
+    .sort((a, b) => favs[a].name.localeCompare(favs[b].name));
+
+  const renderCard = key => {
+    const f = favs[key];
+    const icon = f.type === 'stop' ? '🚏' : '🚌';
+    // Fix stale sub for services: re-derive from ALL_SERVICES if it looks wrong (contains → but should be ↔ or ↻)
+    let sub = f.sub || '';
+    if (f.type === 'service' && ALL_SERVICES) {
+      const svc = f.id, svcUpper = svc.toUpperCase();
+      const key1 = Object.keys(ALL_SERVICES).find(k => k.startsWith(svc+'-1') || k.startsWith(svcUpper+'-1'));
+      const key2 = Object.keys(ALL_SERVICES).find(k => k.startsWith(svc+'-2') || k.startsWith(svcUpper+'-2'));
+      const info1 = key1 ? ALL_SERVICES[key1] : null;
+      if (info1) {
+        const sn = c => ALL_STOPS?.find(s => s.BusStopCode === c)?.Description || c || '';
+        const orig = sn(info1.OriginCode), dest = sn(info1.DestinationCode);
+        const loopD = info1.LoopDesc || '';
+        const isLoop = !key2 && info1.OriginCode === info1.DestinationCode;
+        if (isLoop) sub = loopD ? orig + ' ↻ via ' + loopD : orig + ' ↻';
+        else if (key2) sub = orig + ' ↔ ' + dest;
+        else sub = orig + ' → ' + dest;
+      }
+    }
+    return `<div class="fav-card" onclick="favCardClick('${key}')">
+      <div class="fav-card-type">${icon} ${f.type}</div>
+      <div class="fav-card-name">${f.name}</div>
+      ${sub ? `<div class="fav-card-sub">${sub}</div>` : ''}
+      <div class="fav-remove" onclick="event.stopPropagation();promptRemoveFav('${key}')">✕</div>
+    </div>`;
+  };
+
+  svcGrid.innerHTML = services.length
+    ? services.map(renderCard).join('')
+    : '<div class="fav-empty">No favourite services yet.</div>';
+
+  stopGrid.innerHTML = stops.length
+    ? stops.map(renderCard).join('')
+    : '<div class="fav-empty">No favourite stops yet.</div>';
+}
+
+function favCardClick(key) {
+  const f = (window._favs || {})[key];
+  if (!f) return;
+  if (f.type === 'stop') {
+    quickLoad(f.id);
+  } else {
+    switchTab('service');
+    document.getElementById('serviceInput').value = f.id;
+    doServiceSearch();
+  }
+}
+
+function updateFavButtons() {
+  document.querySelectorAll('.fav-btn').forEach(btn => {
+    const key = btn.dataset.key;
+    const isFav = !!(window._favs && window._favs[key]);
+    btn.textContent = isFav ? '★' : '☆';
+    btn.style.setProperty('color', isFav ? 'var(--yellow)' : 'var(--muted)', 'important');
+  });
+  document.querySelectorAll('[id^="svc-fav-btn-"]').forEach(btn => {
+    const svc = btn.id.replace('svc-fav-btn-', '');
+    const isFav = !!(window._favs && window._favs['svc_' + svc]);
+    btn.textContent = isFav ? '★' : '☆';
+    btn.style.setProperty('color', isFav ? 'var(--yellow)' : 'var(--muted)', 'important');
+  });
+}
+
+function favStopKey(code) { return 'stop_' + code; }
+function favSvcKey(svc) { return 'svc_' + svc; }
+
+
+// ── FAV HELPER ──
+function addSvcFavSmart(svc) {
+  // Use ALL_SERVICES to determine route type, ALL_STOPS for stop names
+  const svcUpper = svc.toUpperCase();
+  const key1 = ALL_SERVICES && Object.keys(ALL_SERVICES).find(k => k.startsWith(svc + '-1') || k.startsWith(svcUpper + '-1'));
+  const key2 = ALL_SERVICES && Object.keys(ALL_SERVICES).find(k => k.startsWith(svc + '-2') || k.startsWith(svcUpper + '-2'));
+  const info1 = key1 ? ALL_SERVICES[key1] : null;
+  const info2 = key2 ? ALL_SERVICES[key2] : null;
+
+  if (!info1) { addSvcFav(svc, ''); return; }
+
+  const stopName = c => ALL_STOPS?.find(s => s.BusStopCode === c)?.Description || c || '';
+  const orig = stopName(info1.OriginCode);
+  const dest = stopName(info1.DestinationCode);
+  const loopD = info1.LoopDesc || '';
+  const isLoop = !info2 && info1.OriginCode === info1.DestinationCode;
+  const isBidir = !!info2;
+
+  let sub = '';
+  if (isLoop) sub = loopD ? orig + ' ↻ via ' + loopD : orig + ' ↻';
+  else if (isBidir) sub = orig + ' ↔ ' + dest;
+  else sub = orig + ' → ' + dest;
+
+  addSvcFav(svc, sub);
+}
+
+function addSvcFavFromRoute(svc) {
+  if (!_currentRouteData) { addSvcFav(svc, ''); return; }
+  const { rd, stopMap, isLoop, loopDesc } = _currentRouteData;
+  const dirs = rd.directions;
+  const firstName = c => stopMap[c]?.Description || '';
+  const first0 = firstName(dirs[0]?.stops[0]?.BusStopCode);
+  const last0  = firstName(dirs[0]?.stops[dirs[0].stops.length - 1]?.BusStopCode);
+  const isActualLoop = isLoop || first0 === last0;
+  let sub = '';
+  if (isActualLoop) {
+    sub = loopDesc ? first0 + ' ↻ via ' + loopDesc : first0 + ' ↻';
+  } else if (dirs.length >= 2) {
+    sub = first0 + ' ↔ ' + last0;
+  } else {
+    sub = first0 + ' → ' + last0;
+  }
+  addSvcFav(svc, sub);
+}
+
+function addSvcFav(svc, sub) {
+  const key = 'svc_' + svc;
+  if (window._favs && window._favs[key]) {
+    promptRemoveFav(key);
+  } else {
+    toggleFav(key, {type:'service', id:svc, name:'Bus ' + svc, sub: sub || ''});
+  }
+}
+
+function addStopFav(code, name, road) {
+  if (window._favs && window._favs['stop_'+code]) {
+    promptRemoveFav('stop_'+code);
+  } else {
+    toggleFav('stop_'+code, {type:'stop', id:code, name:name, sub:road||''});
+  }
+}
+
+// ── REMOVE FAV MODAL ──
+let _pendingRemoveKey = null;
+
+function promptRemoveFav(key) {
+  const f = (window._favs || {})[key];
+  if (!f) return;
+  _pendingRemoveKey = key;
+  document.getElementById('fav-modal-name').textContent = f.name;
+  document.getElementById('fav-remove-modal').style.display = 'flex';
+}
+
+function closeFavModal() {
+  document.getElementById('fav-remove-modal').style.display = 'none';
+  _pendingRemoveKey = null;
+}
+
+async function confirmRemoveFav() {
+  if (!_pendingRemoveKey) return;
+  await toggleFav(_pendingRemoveKey, null);
+  closeFavModal();
+}
+
+// ── HELPERS ──
+function stopName(stopCode) {
+  if (!stopCode || !ALL_STOPS) return null;
+  const padded = String(stopCode).padStart(5, '0');
+  return ALL_STOPS.find(st => st.BusStopCode === padded || st.BusStopCode === String(stopCode))?.Description || null;
+}
+// ── MRT STATION PILLS ──
+let MRT_LOOKUP = {};
+
+async function loadMrtData() {
+  try {
+    const res = await fetch(`${PROXY_URL}?endpoint=static&file=mrt-stations.json`, { headers: await getProxyHeaders() });
+    if (!res.ok) return;
+    const data = await res.json();
+    data.forEach(({ stn_code, mrt_station, mrt_line }) => {
+      const key = mrt_station.toLowerCase();
+      if (!MRT_LOOKUP[key]) MRT_LOOKUP[key] = [];
+      MRT_LOOKUP[key].push({ stn_code, mrt_line });
+    });
+  } catch(e) {}
+}
+
+function mrtLineColor(line) {
+  if (line === 'East West Line' || line === 'Changi Airport Branch Line') return '#009645';
+  if (line === 'North South Line') return '#D42E12';
+  if (line === 'North East Line') return '#7B2D8B';
+  if (line === 'Circle Line') return '#FA9E0D';
+  if (line === 'Downtown Line') return '#005EC4';
+  if (line === 'Thomson-East Coast Line') return '#9D5B25';
+  return '#4A4A4A'; // all LRT lines
+}
+
+function mrtPills(name) {
+  if (!name || !Object.keys(MRT_LOOKUP).length) return '';
+
+  // Strip directional prefix and station suffix
+  let core = name
+    .replace(/^(Bef|Aft|Opp|Fr)\s+/i, '')
+    .replace(/\s+Stn\b.*/i, '')
+    .replace(/\s+Exit\s+\w+/i, '')
+    .replace(/\s+Int\b.*/i, '')
+    .trim()
+    .toLowerCase();
+
+  // Expand abbreviations
+  core = core
+    .replace(/\blor\b/g, 'lorong')
+    .replace(/\bave\b/g, 'avenue')
+    .replace(/\bpk\b/g, 'park')
+    .replace(/\brd\b/g, 'road')
+    .replace(/\bst\b/g, 'street')
+    .replace(/\bdr\b/g, 'drive')
+    .replace(/\bcr\b/g, 'crescent')
+    .replace(/\bctrl\b/g, 'central')
+    .replace(/\bpl\b/g, 'place')
+    .replace(/\bbt\b/g, 'bukit')
+    .replace(/\bholland v\b/g, 'holland village');
+
+  const matches = MRT_LOOKUP[core];
+  if (!matches || !matches.length) return '';
+  return matches.map(({ stn_code, mrt_line }) =>
+    `<span style="display:inline-block;vertical-align:middle;margin-left:5px;background:${mrtLineColor(mrt_line)};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:.5px;padding:2px 6px;border-radius:4px;line-height:1.4;flex-shrink:0">${stn_code}</span>`
+  ).join('');
+}
+
+function stopLabel(name) {
+  if (!name) return name;
+  let label = name;
+  if (/\bInt\b/.test(name)) label += ' <svg style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.85" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="18" height="17" rx="2"/><path d="M3 8h18"/><path d="M3 13h18"/><path d="M8 2v6"/><path d="M16 2v6"/><circle cx="7.5" cy="18.5" r="1.5"/><circle cx="16.5" cy="18.5" r="1.5"/><path d="M7.5 20v2"/><path d="M16.5 20v2"/></svg>';
+  else if (/\bStn\b/.test(name)) label += ' <svg style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.85" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="16" rx="2"/><path d="M4 10h16"/><path d="M9 2v8"/><path d="M15 2v8"/><path d="M8 18l-2 4"/><path d="M16 18l2 4"/><path d="M9 22h6"/></svg>';
+  label += mrtPills(name);
+  return label;
+}
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  const btn = document.getElementById('themeToggle');
+  btn.textContent = isLight ? '🌙 Dark' : '☀ Light';
+  try { localStorage.setItem('shiokbus_theme', isLight ? 'light' : 'dark'); } catch(e) {}
+  // Swap tile layers
+  const tileUrl = isLight
+    ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  [routeMap, tripMap].forEach(map => {
+    if (!map) return;
+    map.eachLayer(l => { if (l._url) map.removeLayer(l); });
+    L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);
+  });
+  // Update journey tab colors
+  ['map','plan'].forEach(t => {
+    const btn = document.getElementById('jt-'+t);
+    if (btn && btn.style.background === 'none' || (btn && !btn.style.background)) {
+      btn.style.color = isLight ? '#000000' : '#FFFFFF';
+    }
+  });
+}
+// Restore saved theme
+try { if (localStorage.getItem('shiokbus_theme') === 'light') { document.body.classList.add('light'); document.getElementById('themeToggle').textContent = '🌙 Dark'; } } catch(e) {}
+function minsFrom(iso) {
+  const d=Math.round((new Date(iso)-Date.now())/60000);
+  return d<0?0:d;
+}
+function toast(msg, duration=2800) {
+  const t=document.createElement('div');
+  t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),duration);
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+</body>
+</html>

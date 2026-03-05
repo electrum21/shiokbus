@@ -1,0 +1,9 @@
+node_modules/
+.firebase/
+firebase-debug.log
+.firebaserc
+fetch-lta-data.mjs
+lta-proxy-worker.js
+r2-setup-guide.md
+shiokbus_latest.html
+shiokbus_writeup.docx
