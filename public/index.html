@@ -248,7 +248,7 @@ body.light .theme-toggle:hover { border-color:#D7181C; color:#D7181C; }
   .bus-card { margin-bottom:8px; }
   /* Road name: hide inline, show as block below stop name */
   .stop-road-inline { display:none; }
-  .stop-road-block { display:block; }
+  .stop-road-block { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
   /* Other layout */
   .interchange-grid { grid-template-columns:repeat(2,1fr); gap:6px; }
   .route-stop-card { padding:8px 10px; }
@@ -563,7 +563,7 @@ body.light #svc-dropdown{background:#FFFFFF}
 .stop-hero{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px;gap:10px}
 .stop-title{font-family:'Barlow',sans-serif;font-weight:700;font-size:26px;line-height:1;}
 .stop-road-inline{font-size:16px;font-weight:500;color:var(--muted);margin-left:6px}
-.stop-road-block{display:none;font-size:14px;font-weight:500;color:var(--muted);margin-top:3px}
+.stop-road-block { display: block; font-size: 14px; font-weight: 500; color: var(--muted); margin-top: 3px; }
 .stop-badge{background:#FFFFFF;color:#08101A;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:1px;padding:6px 14px;border-radius:10px;white-space:nowrap}
 .mock-warning{background:#FFD00015;border:1.5px solid #FFD00040;border-radius:12px;padding:10px 14px;font-size:12px;color:var(--yellow);margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .refresh-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
@@ -2320,7 +2320,7 @@ function render(code, data) {
   let html = `
     <div class="stop-hero">
       <div style="min-width:0;flex:1">
-        <div class="stop-title" id="stop-title-${code}">${stopLabel(name)}${road ? `<span class="stop-road-inline">(${road})</span>` : ''}</div>
+        <div class="stop-title" id="stop-title-${code}">${stopLabel(name)}</div>
         ${road ? `<div class="stop-road-block">(${road})</div>` : ''}
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
@@ -2890,7 +2890,7 @@ function mrtLineColor(line) {
   if (line === 'East West Line' || line === 'Changi Airport Branch Line') return '#009645';
   if (line === 'North South Line') return '#D42E12';
   if (line === 'North East Line') return '#7B2D8B';
-  if (line === 'Circle Line') return '#FA9E0D';
+  if (line === 'Circle Line' || line === 'Circle Line Extension') return '#FA9E0D';
   if (line === 'Downtown Line') return '#005EC4';
   if (line === 'Thomson-East Coast Line') return '#9D5B25';
   return '#4A4A4A'; // all LRT lines
@@ -2920,21 +2920,24 @@ function mrtPills(name) {
     .replace(/\bctrl\b/g, 'central')
     .replace(/\bpl\b/g, 'place')
     .replace(/\bbt\b/g, 'bukit')
+    .replace(/\bgdn\b/g, 'garden')
+    .replace(/\bupp\b/g, 'upper')
     .replace(/\bholland v\b/g, 'holland village');
 
   const matches = MRT_LOOKUP[core];
   if (!matches || !matches.length) return '';
   return matches.map(({ stn_code, mrt_line }) =>
-    `<span style="display:inline-block;vertical-align:middle;margin-left:5px;background:${mrtLineColor(mrt_line)};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:.5px;padding:2px 6px;border-radius:4px;line-height:1.4;flex-shrink:0">${stn_code}</span>`
+    `<span style="display:inline-block;vertical-align:middle;margin-left:5px;background:${mrtLineColor(mrt_line)};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:3px 8px;border-radius:4px;line-height:1.4;flex-shrink:0">${stn_code}</span>`
   ).join('');
 }
 
 function stopLabel(name) {
   if (!name) return name;
   let label = name;
+  const pills = mrtPills(name);
   if (/\bInt\b/.test(name)) label += ' <svg style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.85" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="18" height="17" rx="2"/><path d="M3 8h18"/><path d="M3 13h18"/><path d="M8 2v6"/><path d="M16 2v6"/><circle cx="7.5" cy="18.5" r="1.5"/><circle cx="16.5" cy="18.5" r="1.5"/><path d="M7.5 20v2"/><path d="M16.5 20v2"/></svg>';
-  else if (/\bStn\b/.test(name)) label += ' <svg style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.85" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="16" rx="2"/><path d="M4 10h16"/><path d="M9 2v8"/><path d="M15 2v8"/><path d="M8 18l-2 4"/><path d="M16 18l2 4"/><path d="M9 22h6"/></svg>';
-  label += mrtPills(name);
+  else if (/\bStn\b/.test(name) && pills) label += ' <svg style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.85" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="16" rx="2"/><path d="M4 10h16"/><path d="M9 2v8"/><path d="M15 2v8"/><path d="M8 18l-2 4"/><path d="M16 18l2 4"/><path d="M9 22h6"/></svg>';
+  label += pills;
   return label;
 }
 function toggleTheme() {
