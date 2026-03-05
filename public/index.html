@@ -737,6 +737,8 @@ body.light .plan-walk-pill { background:#08101A;color:#fff; }
 .plan-leg-bus, .plan-leg-mrt { color:var(--white); }
 .mrt-line-pill { display:inline-flex; align-items:center; padding:2px 8px; border-radius:20px; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:11px; letter-spacing:.5px; color:#fff; white-space:nowrap; }
 .plan-leg-stops { font-size:11px; color:var(--white); margin-top:4px; }
+.plan-stop-link { cursor:pointer; }
+.plan-stop-link:hover { color:var(--cyan); }
 .plan-leg-meta { font-size:12px; color:var(--white); }
 body.light .plan-leg-stops { color:#08101A; }
 body.light .plan-leg-meta { color:#08101A; }
@@ -1011,7 +1013,9 @@ body.light .plan-leg-meta { color:#08101A; }
             <div class="stop-name-results" id="planToResults" style="display:none;position:absolute;left:0;right:0;z-index:9999;margin-top:4px"></div>
           </div>
         </div>
-        <button onclick="doPlanSearch()" style="width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:1px;cursor:pointer;margin-top:2px">🗺 Find Route</button>
+        <div style="display:flex;gap:8px;margin-top:2px">
+          <button onclick="doPlanSearch()" style="width:100%;padding:10px;background:var(--red);color:#fff;border:none;border-radius:14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:1px;cursor:pointer">🗺 Find Route</button>
+        </div>
       </div>
       <div id="plan-results" style="margin-top:16px"></div>
     </div>
@@ -1023,6 +1027,10 @@ body.light .plan-leg-meta { color:#08101A; }
       <div style="margin-top:20px">
         <div class="fav-header">🚏 Bus Stops</div>
         <div class="fav-grid" id="fav-grid-stops"><div class="fav-empty">No favourite stops yet.</div></div>
+      </div>
+      <div style="margin-top:20px">
+        <div class="fav-header">🗺 Plans</div>
+        <div class="fav-grid" id="fav-grid-plans"><div class="fav-empty">No favourite plans yet.</div></div>
       </div>
     </div>
 
@@ -1090,7 +1098,6 @@ window.addEventListener('DOMContentLoaded', () => {
   // Preload services silently for instant dropdown
   if (!ALL_SERVICES) fetchAllServices().catch(() => {});
   if (!ALL_STOPS) fetchAllStops().catch(() => {});
-  if (!ALL_ROUTES) fetchBusRoute('65').catch(() => {}); // preload ALL_ROUTES on startup
   loadMrtData().then(() => {
     // Re-render stop title pills if a stop is currently displayed
     const titleEl = document.querySelector('[id^="stop-title-"]');
@@ -1334,8 +1341,6 @@ async function fetchBusRoute(svc) {
     const res = await fetch(`${PROXY_URL}?endpoint=static&file=bus-routes.json`, { headers: await getProxyHeaders() });
     if (!res.ok) throw new Error('Failed to load routes. Check your Worker URL.');
     ALL_ROUTES = await res.json();
-    // Re-render plan results if they were showing ? stops
-    if (window._lastPlanItineraries) renderPlanResults(window._lastPlanItineraries);
   }
   const svcNorm = svc.replace(/^0+/, '').toUpperCase();
   // Find matching key (handles leading zeros, case)
@@ -2836,7 +2841,7 @@ function renderFavourites() {
 
   const renderCard = key => {
     const f = favs[key];
-    const icon = f.type === 'stop' ? '🚏' : '🚌';
+    const icon = f.type === 'stop' ? '🚏' : f.type === 'plan' ? '🗺' : '🚌';
     // Fix stale sub for services: re-derive from ALL_SERVICES if it looks wrong (contains → but should be ↔ or ↻)
     let sub = f.sub || '';
     if (f.type === 'service' && ALL_SERVICES) {
@@ -2866,9 +2871,65 @@ function renderFavourites() {
     ? services.map(renderCard).join('')
     : '<div class="fav-empty">No favourite services yet.</div>';
 
+  const plans = Object.keys(favs)
+    .filter(k => favs[k].type === 'plan')
+    .sort((a, b) => favs[a].name.localeCompare(favs[b].name));
+  const planGrid = document.getElementById('fav-grid-plans');
+  if (planGrid) {
+    planGrid.innerHTML = plans.length
+      ? plans.map(renderCard).join('')
+      : '<div class="fav-empty">No favourite plans yet.</div>';
+  }
+
   stopGrid.innerHTML = stops.length
     ? stops.map(renderCard).join('')
     : '<div class="fav-empty">No favourite stops yet.</div>';
+}
+
+function planStopClick(name) {
+  if (!name || !ALL_STOPS) return;
+  const norm = s => (s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const match = ALL_STOPS.find(s => norm(s.Description) === norm(name));
+  if (match) {
+    quickLoad(match.BusStopCode);
+  } else {
+    switchTab('stop');
+    document.getElementById('stopInput').value = name;
+    doSearch();
+  }
+}
+
+// Delegated click for plan stop links
+document.addEventListener('click', e => {
+  const link = e.target.closest('.plan-stop-link');
+  if (link) {
+    e.stopPropagation();
+    planStopClick(link.dataset.stopName);
+  }
+});
+
+function addPlanFav() {
+  if (!window._currentUser) { toast('Sign in to save favourite plans'); return; }
+  const fromName = document.getElementById('planFromInput').value.trim();
+  const toName = document.getElementById('planToInput').value.trim();
+  if (!fromName || !toName) return;
+  const key = 'plan_' + (planFromCode||'') + '_' + (planToCode||'');
+  const data = {
+    type: 'plan',
+    name: fromName + ' → ' + toName,
+    sub: fromName + ' → ' + toName,
+    fromName, toName,
+    fromCode: planFromCode,
+    toCode: planToCode,
+  };
+  const isSaved = !!(window._favs && window._favs[key]);
+  window.toggleFav(key, data).then(() => {
+    const btn = document.getElementById('plan-fav-btn');
+    if (!btn) return;
+    const nowSaved = !isSaved;
+    btn.style.color = nowSaved ? 'var(--yellow)' : 'var(--muted)';
+    btn.textContent = nowSaved ? '★ Saved' : '☆ Save route';
+  });
 }
 
 function favCardClick(key) {
@@ -2876,6 +2937,13 @@ function favCardClick(key) {
   if (!f) return;
   if (f.type === 'stop') {
     quickLoad(f.id);
+  } else if (f.type === 'plan') {
+    switchTab('plan');
+    document.getElementById('planFromInput').value = f.fromName;
+    document.getElementById('planToInput').value = f.toName;
+    planFromCode = f.fromCode;
+    planToCode = f.toCode;
+    doPlanSearch();
   } else {
     switchTab('service');
     document.getElementById('serviceInput').value = f.id;
@@ -2945,6 +3013,35 @@ function addSvcFavFromRoute(svc) {
     sub = first0 + ' → ' + last0;
   }
   addSvcFav(svc, sub);
+}
+
+function saveFavPlan() {
+  if (!window._currentUser) { toast('Sign in to save favourites'); return; }
+  const fromName = document.getElementById('planFromInput').value.trim();
+  const toName = document.getElementById('planToInput').value.trim();
+  if (!fromName || !toName) { toast('Enter a From and To stop first'); return; }
+  if (!planFromCode || !planToCode) { toast('Select stops from the dropdown first'); return; }
+  const key = 'plan_' + planFromCode + '_' + planToCode;
+  const name = fromName + ' → ' + toName;
+  if (window._favs && window._favs[key]) {
+    promptRemoveFav(key);
+  } else {
+    toggleFav(key, { type: 'plan', id: key, name, fromName, toName, fromCode: planFromCode, toCode: planToCode });
+    toast('Plan saved to favourites ⭐');
+  }
+  updateSavePlanBtn();
+}
+
+function updateSavePlanBtn() {
+  const btn = document.getElementById('save-plan-btn');
+  if (!btn) return;
+  const fromCode = planFromCode, toCode = planToCode;
+  if (!fromCode || !toCode) { btn.textContent = '☆'; btn.style.color = 'var(--muted)'; btn.style.borderColor = 'var(--card-border)'; return; }
+  const key = 'plan_' + fromCode + '_' + toCode;
+  const saved = window._favs && window._favs[key];
+  btn.textContent = saved ? '★' : '☆';
+  btn.style.color = saved ? 'var(--yellow)' : 'var(--muted)';
+  btn.style.borderColor = saved ? 'var(--yellow)' : 'var(--card-border)';
 }
 
 function addSvcFav(svc, sub) {
@@ -3223,8 +3320,7 @@ function mrtLineName(code) {
   return { name: code, abbr: code, color: '#4A4A4A' };
 }
 
-function getBusLegInfo(svc, fromName, toName, fromLat, fromLon, toLat, toLon) {
-  // Get operator colour from ALL_SERVICES
+function getBusLegInfo(svc) {
   let badgeColor = '#D7181C';
   if (ALL_SERVICES) {
     const svcUpper = (svc || '').toUpperCase();
@@ -3239,63 +3335,28 @@ function getBusLegInfo(svc, fromName, toName, fromLat, fromLon, toLat, toLon) {
       else if (op === 'GAS') badgeColor = '#9A7000';
     }
   }
+  return { badgeColor };
+}
 
-  // Normalise a stop name for comparison
-  function norm(s) {
-    return (s || '').toUpperCase()
-      .replace(/\bSTATION\b/g, 'STN')
-      .replace(/\bINTERCHANGE\b/g, 'INT')
-      .replace(/\bAVENUE\b/g, 'AVE')
-      .replace(/\bROAD\b/g, 'RD')
-      .replace(/\bDRIVE\b/g, 'DR')
-      .replace(/[^A-Z0-9]/g, '');
-  }
-
-  // Find bus stop code by matching name
-  function findCode(name) {
-    if (!ALL_STOPS || !name) return null;
-    const n = norm(name);
-    const match = ALL_STOPS.find(s => norm(s.Description) === n);
-    if (!match) {
-      // Show top 3 closest descriptions for debugging
-      const candidates = ALL_STOPS
-        .filter(s => norm(s.Description).includes(n.slice(0,6)))
-        .slice(0,3)
-        .map(s => s.Description);
-    }
-    return match?.BusStopCode || null;
-  }
-
-  // Get stop count from ALL_ROUTES
-  let stopCount = null;
-  if (ALL_ROUTES) {
-    const fromCode = findCode(fromName);
-    const toCode   = findCode(toName);
-    if (fromCode && toCode) {
-      const svcUpper = (svc || '').toUpperCase();
-      const routeKey = Object.keys(ALL_ROUTES).find(k =>
-        k.toUpperCase() === svcUpper || k.replace(/^0+/,'').toUpperCase() === svcUpper.replace(/^0+/,'')
-      );
-      if (routeKey) {
-        for (const dir of Object.values(ALL_ROUTES[routeKey])) {
-          const sorted = [...dir].sort((a, b) => a.StopSequence - b.StopSequence);
-          const fromIdx = sorted.findIndex(s => s.BusStopCode === fromCode);
-          const toIdx   = sorted.findIndex(s => s.BusStopCode === toCode);
-          if (fromIdx !== -1 && toIdx !== -1 && toIdx > fromIdx) {
-            stopCount = toIdx - fromIdx;
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  return { badgeColor, stopCount };
+function formatMins(m) {
+  if (m < 60) return m + ' min';
+  const h = Math.floor(m / 60), rem = m % 60;
+  if (rem === 0) return h === 1 ? '1 hour' : h + ' hours';
+  return h + ' hr ' + rem + ' min';
 }
 
 function renderPlanResults(itineraries) {
   const resultsEl = document.getElementById('plan-results');
-  let html = `<div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:10px">${itineraries.length} route${itineraries.length>1?'s':''} found</div>`;
+  const fromName = document.getElementById('planFromInput').value.trim();
+  const toName = document.getElementById('planToInput').value.trim();
+  const planFavKey = 'plan_' + (planFromCode||'') + '_' + (planToCode||'');
+  const isSaved = !!(window._favs && window._favs[planFavKey]);
+  let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px">
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;flex-shrink:0">${itineraries.length} route${itineraries.length>1?'s':''} found</div>
+    <button onclick="addPlanFav()" id="plan-fav-btn" style="background:none;border:1.5px solid var(--card-border);border-radius:20px;padding:4px 12px;font-size:12px;cursor:pointer;color:${isSaved?'var(--yellow)':'var(--muted)'};font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.5px;transition:all .2s;white-space:nowrap;flex-shrink:0">
+      ${isSaved ? '★ Saved' : '☆ Save route'}
+    </button>
+  </div>`;
   itineraries.forEach((itin, idx) => {
     const totalMins = Math.round(itin.duration / 60);
     const walkMins = Math.round(itin.walkTime / 60);
@@ -3305,22 +3366,21 @@ function renderPlanResults(itineraries) {
     itin.legs.forEach(leg => {
       if (leg.mode === 'WALK') {
         const wm = Math.round(leg.duration / 60);
-        if (wm > 0) legHtml += `<div class="plan-leg plan-leg-walk" style="display:flex;align-items:center;gap:8px">🚶 <span class="plan-walk-pill">Walk</span> <span class="plan-leg-meta">${wm} min</span></div>`;
+        if (wm > 0) legHtml += `<div class="plan-leg plan-leg-walk" style="display:flex;align-items:center;gap:8px">🚶 <span class="plan-walk-pill">Walk</span> <span class="plan-leg-meta">${formatMins(wm)}</span></div>`;
       } else if (leg.mode === 'BUS') {
         const svc = leg.routeShortName || leg.route || '?';
         const legMins = Math.round(leg.duration / 60);
         const sunHtml = getPlanSunPill(leg);
-        const { badgeColor, stopCount } = getBusLegInfo(svc, leg.from?.name, leg.to?.name, leg.from?.lat, leg.from?.lon, leg.to?.lat, leg.to?.lon);
-        const stopsLabel = stopCount !== null ? stopCount + ' stops' : (leg.numStops > 0 ? leg.numStops + ' stops' : '? stops');
+        const { badgeColor } = getBusLegInfo(svc);
         legHtml += `
           <div class="plan-leg plan-leg-bus">
             <div style="display:flex;align-items:center;gap:8px">
               🚌 <div class="plan-bus-badge" style="background:${badgeColor}">Bus ${svc}</div>
-              <div class="plan-leg-meta">${legMins} min · ${stopsLabel}</div>
+              <div class="plan-leg-meta">${formatMins(legMins)}</div>
               <div style="flex:1"></div>
               ${sunHtml}
             </div>
-            <div class="plan-leg-stops" style="padding-left:24px">${leg.from?.name||''} → ${leg.to?.name||''}</div>
+            <div class="plan-leg-stops" style="padding-left:24px"><span class="plan-stop-link" data-stop-name="${leg.from?.name||''}">${leg.from?.name||''}</span> → <span class="plan-stop-link" data-stop-name="${leg.to?.name||''}">${leg.to?.name||''}</span></div>
           </div>`;
       } else if (leg.mode === 'SUBWAY' || leg.mode === 'TRAM') {
         const code = leg.routeShortName || leg.route || '?';
@@ -3338,7 +3398,7 @@ function renderPlanResults(itineraries) {
         legHtml += `<div class="plan-leg plan-leg-mrt">
           <div style="display:flex;align-items:center;gap:8px">
             🚇 <strong style="color:${lineColor}">${lineName}</strong>
-            <span class="plan-leg-meta">${legMins} min</span>
+            <span class="plan-leg-meta">${formatMins(legMins)}</span>
           </div>
           <div class="plan-leg-stops" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-left:24px">
             <span>${leg.from?.name||''}</span>${stationPill(fromCode)}
@@ -3356,7 +3416,7 @@ function renderPlanResults(itineraries) {
         if (wm > 0) summaryParts.push(`<span class="plan-summary-walk">🚶</span>`);
       } else if (leg.mode === 'BUS') {
         const svc = leg.routeShortName || leg.route || '?';
-        const { badgeColor } = getBusLegInfo(svc, leg.from?.name, leg.to?.name, leg.from?.lat, leg.from?.lon, leg.to?.lat, leg.to?.lon);
+        const { badgeColor } = getBusLegInfo(svc);
         summaryParts.push(`<span class="plan-summary-bus" style="background:${badgeColor}">${svc}</span>`);
       } else if (leg.mode === 'SUBWAY' || leg.mode === 'TRAM') {
         const code = leg.routeShortName || leg.route || '?';
@@ -3370,7 +3430,7 @@ function renderPlanResults(itineraries) {
       <div class="plan-card" onclick="togglePlanCard(${idx})">
         <div class="plan-card-header">
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1">
-              <div class="plan-total-time">${totalMins} min</div>
+              <div class="plan-total-time">${formatMins(totalMins)}</div>
               <div class="plan-route-summary" style="margin-top:0">${summaryHtml}</div>
             </div>
             <div style="font-size:18px;color:#999;transition:transform .2s" id="plan-chevron-${idx}">›</div>
