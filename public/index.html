@@ -218,7 +218,7 @@ body.light .theme-toggle:hover { border-color:#D7181C; color:#D7181C; }
 
 /* ── MOBILE RESPONSIVE ── */
 @media (max-width: 480px) {
-  .logo-name { font-size:26px; white-space:nowrap; }
+  #app-logo { height:48px; }
   .logo-sub { display:none; }
   .live-date { font-size:10px; }
   .auth-btn { font-size:11px; padding:4px 8px; }
@@ -282,7 +282,7 @@ body.light .theme-toggle:hover { border-color:#D7181C; color:#D7181C; }
   .card-right { padding:5px 3px 5px 0 !important; }
   .sun-toggle-btn { font-size:8px; padding:3px 4px; }
   .stop-input { font-size:16px; }
-  .logo-name { font-size:34px; white-space:nowrap; }
+  #app-logo { height:56px; }
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;overflow-y:scroll}
@@ -296,6 +296,7 @@ header{padding:16px 20px 0;display:flex;align-items:flex-start;justify-content:s
 .logo-tag{display:inline-block;background:var(--red);color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;padding:3px 8px;border-radius:3px;margin-bottom:4px}
 .logo-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:38px;line-height:1;letter-spacing:-1px;color:var(--yellow);text-shadow:3px 3px 0 var(--red)}
 .logo-sub{font-size:12px;color:var(--muted);letter-spacing:.5px;margin-top:4px}
+#app-logo { content: url("assets/shiokbus-logo-dark.png"); }
 .header-right{text-align:right;padding-top:6px}
 .live-date{font-size:11px;color:var(--muted);margin-top:2px}
 .live-dot{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:4px;box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
@@ -771,12 +772,9 @@ body.light .plan-leg-meta { color:#08101A; }
   letter-spacing: .3px;
   margin-top: 5px;
   white-space: nowrap;
+  background: #3c3c41; 
+  color: #ffffff;
 }
-.rain-badge.fair       { background: #1A3A2A; color: #4CAF50; }
-.rain-badge.slight     { background: #1A2A3A; color: #64B5F6; }
-.rain-badge.moderate   { background: #0D1F3A; color: #42A5F5; }
-.rain-badge.heavy      { background: #0A1428; color: #1E88E5; }
-.rain-badge.thundery   { background: #1A1A3A; color: #AB47BC; }
 
 </style>
 
@@ -918,8 +916,7 @@ body.light .plan-leg-meta { color:#08101A; }
 
   <header>
     <div>
-      <div class="logo-name">SHIOK BUS</div>
-      <div class="logo-sub">Ride comfortable, every time</div>
+      <img id="app-logo" src="assets/shiokbus-logo-dark.png" alt="ShiokBus" style="height:64px;width:auto;display:block">
     </div>
     <div class="header-right">
       <div style="display:flex;align-items:center;gap:10px">
@@ -3079,13 +3076,15 @@ function mrtLineColor(line) {
 
 function mrtPills(name) {
   if (!name || !Object.keys(MRT_LOOKUP).length) return '';
-
+  // Only attempt MRT lookup if the stop name explicitly references a station
+  if (!/\b(Stn|Lrt|Int)\b/i.test(name)) return '';
   // Strip directional prefix and station suffix
   let core = name
     .replace(/^(Bef|Aft|Opp|Fr)\s+/i, '')
     .replace(/\s+Lrt\b.*/i, '')
     .replace(/\s+Stn\b.*/i, '')
     .replace(/\s+Exit\s+\w+/i, '')
+    .replace(/\s+Ctrl\b.*/i, '')
     .replace(/\s+Int\b.*/i, '')
     .trim()
     .toLowerCase();
@@ -3104,6 +3103,15 @@ function mrtPills(name) {
     .replace(/\bbt\b/g, 'bukit')
     .replace(/\bgdn\b/g, 'garden')
     .replace(/\bupp\b/g, 'upper')
+    .replace(/\bs'goon\b/g, 'serangoon')
+    .replace(/\bjln\b/g, 'jalan')
+    .replace(/\bsth\b/g, 'south')
+    .replace(/\bnth\b/g, 'north')
+    .replace(/\bpde\b/g, 'parade')
+    .replace(/\bterr\b/g, 'terrace')
+    .replace(/\bc'wealth\b/g, 'commonwealth')
+    .replace(/\bw'lands\b/g, 'woodlands')
+    .replace(/\blk\b/g, 'link')
     .replace(/\bholland v\b/g, 'holland village');
 
   const matches = MRT_LOOKUP[core];
@@ -3666,11 +3674,11 @@ function getRainForCoords(lat, lng) {
 function rainBadgeHtml(forecast) {
   if (!forecast) return '';
   const f = forecast.toLowerCase();
-  if (f.includes('thundery')) return `<div class="rain-badge thundery">⛈ ${forecast}</div>`;
-  if (f.includes('heavy'))    return `<div class="rain-badge heavy">🌧 ${forecast}</div>`;
-  if (f.includes('moderate')) return `<div class="rain-badge moderate">🌦 ${forecast}</div>`;
-  if (f.includes('slight') || f.includes('light')) return `<div class="rain-badge slight">🌂 ${forecast}</div>`;
-  if (f.includes('fair') || f.includes('partly')) return '';
+  if (f.includes('fair') || f.includes('partly cloudy') || f.includes('cloudy')) return '';
+  if (f.includes('thunder') || f.includes('shower') || f.includes('rain') ||
+      f.includes('drizzle') || f.includes('mist') || f.includes('fog')) {
+    return `<div class="rain-badge">🌧 ${forecast}</div>`;
+  }
   return '';
 }
 
