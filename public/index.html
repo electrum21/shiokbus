@@ -35,7 +35,6 @@ body.light {
 body.light::before{display:none}
 body.light .logo-name { color:#D7181C; text-shadow:3px 3px 0 #FFD000; }
 body.light .logo-sub { color:#6A7A9A; }
-body.light .live-clock { color:#08101A; }
 body.light .live-date { color:#6A7A9A; }
 body.light .sun-card { background:linear-gradient(135deg,#FFF8E0,#FFF0C0 50%,#EEF4FF); border-color:#E0C060; }
 body.light .sun-label { color:#8A6A00; }
@@ -132,14 +131,12 @@ body.light .loading-txt { color:#6A7A9A; }
 body.light .empty-p { color:#6A7A9A; }
 body.light .panel-title { color:#C08000; }
 body.light .panel-title::after { background:#C8D4EE; }
-body.light .map-instruction { background:rgba(240,244,255,.92); color:#6A7A9A; border-color:#C8D4EE; }
-body.light .map-ba-pill { background:rgba(240,244,255,.92); border-color:#C8D4EE; color:#6A7A9A; }
-body.light .map-ba-pill.set { border-color:#00C060; color:#08101A; }
 body.light #map-legend-box { background:rgba(255,255,255,.95); border-color:#D8DEF0; }
 body.light .legend-label { color:#08101A; }
 body.light .legend-title { color:#6A7A9A; }
-body.light #jt-map, body.light #jt-plan { color:#000000; }
-#jt-map, #jt-plan { color:#FFFFFF; }
+body.light #map-legend-box span { color:#08101A; }
+body.light #map-legend-box .map-legend-item-label { color:#08101A; }
+body.light .trip-sun-icon { filter:drop-shadow(0 0 4px rgba(180,120,0,.8)) brightness(0.75); }
 body.light footer { color:#9AAAC0; }
 body.light .clear-nearby { border-color:#C8D4EE; color:#9AAAC0; }
 body.light .rs-action-btn { background:#E8EDF8; border-color:#C8D4EE; color:#08101A; }
@@ -223,7 +220,6 @@ body.light .theme-toggle:hover { border-color:#D7181C; color:#D7181C; }
 @media (max-width: 480px) {
   .logo-name { font-size:26px; white-space:nowrap; }
   .logo-sub { display:none; }
-  .live-clock { font-size:20px; }
   .live-date { font-size:10px; }
   .auth-btn { font-size:11px; padding:4px 8px; }
   .auth-name { display:none; }
@@ -301,7 +297,6 @@ header{padding:16px 20px 0;display:flex;align-items:flex-start;justify-content:s
 .logo-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:38px;line-height:1;letter-spacing:-1px;color:var(--yellow);text-shadow:3px 3px 0 var(--red)}
 .logo-sub{font-size:12px;color:var(--muted);letter-spacing:.5px;margin-top:4px}
 .header-right{text-align:right;padding-top:6px}
-.live-clock{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:32px;color:var(--white);line-height:1;letter-spacing:1px}
 .live-date{font-size:11px;color:var(--muted);margin-top:2px}
 .live-dot{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:4px;box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
@@ -460,7 +455,6 @@ body.light .unified-name{color:#08101A}
 
 
 /* PLAN MY TRIP TAB */
-.route-view-tabs{display:flex;gap:0;margin-bottom:0;border-radius:12px 12px 0 0;overflow:hidden;border:1.5px solid var(--card-border);border-bottom:none}
 .route-view-tab{flex:1;padding:10px 0;font-family:'Barlow',sans-serif;font-weight:600;font-size:12px;text-align:center;cursor:pointer;background:var(--card-bg);color:var(--muted);border:none;transition:all .2s;letter-spacing:.5px;text-transform:uppercase}
 .route-view-tab.active{background:#0F2040;color:var(--white);border-bottom:2px solid var(--cyan)}
 .route-view-panel{border:1.5px solid var(--card-border);border-radius:0 0 12px 12px;overflow:visible;margin-bottom:16px}
@@ -472,7 +466,9 @@ body.light .unified-name{color:#08101A}
 .plan-stop-select{width:100%;background:#0a1628;border:1.5px solid var(--card-border);border-radius:10px;color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;padding:10px 12px;outline:none;appearance:none;cursor:pointer;transition:border-color .2s}
 .plan-stop-select:focus{border-color:var(--cyan)}
 .plan-stop-input-wrap{position:relative}
-.plan-stop-input{width:100%;background:#0a1628;border:1.5px solid var(--card-border);border-radius:10px;color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;padding:10px 12px;outline:none;transition:border-color .2s}
+.plan-stop-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:2px 4px;line-height:1;display:none;z-index:2}
+.plan-stop-clear.visible{display:block}
+.plan-stop-input{width:100%;background:#0a1628;border:1.5px solid var(--card-border);border-radius:10px;color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;padding:10px 28px 10px 12px;outline:none;transition:border-color .2s}
 .plan-stop-input:focus{border-color:var(--cyan)}
 .plan-stop-dropdown{position:absolute;top:100%;left:0;right:0;background:#0d1e3a;border:1.5px solid var(--card-border);border-top:none;border-radius:0 0 10px 10px;z-index:9999;min-height:200px;max-height:320px;overflow-y:auto;display:none}
 .plan-stop-dropdown.open{display:block}
@@ -502,13 +498,7 @@ body.light .unified-name{color:#08101A}
 .trip-stops-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
 
 /* ROUTE MAP */
-.route-map-wrap{margin-bottom:16px;border-radius:18px;overflow:hidden;border:1.5px solid var(--card-border);position:relative}
-#route-map{height:320px;width:100%;background:#0a0a0a}
 .map-board-alight{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;gap:8px;pointer-events:none}
-.map-ba-pill{background:rgba(10,20,50,.92);border:1.5px solid var(--card-border);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;pointer-events:all;cursor:default}
-.map-ba-pill.set{border-color:var(--green);color:var(--white)}
-.map-ba-pill.set-alight{border-color:var(--red);color:var(--white)}
-.map-instruction{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:1000;background:rgba(10,20,50,.92);border:1.5px solid var(--card-border);border-radius:20px;padding:6px 16px;font-size:11px;color:var(--muted);white-space:nowrap;pointer-events:none}
 /* SEATING UPDATE PANEL */
 .rsp-trip-banner{background:linear-gradient(135deg,#001A0A,#0F1E3A);border:1.5px solid #00E07A40;border-radius:14px;padding:14px 16px;margin-top:12px;display:flex;align-items:center;gap:12px}
 .rsp-trip-banner.sunny{border-color:#FF333340;background:linear-gradient(135deg,#1A0500,#0F1E3A)}
@@ -531,11 +521,11 @@ body.light .unified-name{color:#08101A}
 .dir-btn:hover:not(.active){border-color:var(--muted);color:var(--white)}
 
 /* NEAR ME BUTTON */
-.near-me-btn{width:100%;margin-top:10px;background:linear-gradient(135deg,var(--blue-mid),#0B2F7F);border:1.5px solid #2A4A99;border-radius:14px;padding:13px 20px;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;text-transform:uppercase}
+.near-me-btn{width:100%;height:40px;margin-top:10px;background:linear-gradient(135deg,var(--blue-mid),#0B2F7F);border:1.5px solid #2A4A99;border-radius:14px;padding:13px 20px;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;text-transform:uppercase}
 .near-me-btn:hover{background:linear-gradient(135deg,#2040AA,#1035A0);border-color:#4060BB;transform:translateY(-1px)}
 .near-me-btn:active{transform:scale(.98)}
 .near-me-btn.loading{opacity:.7;pointer-events:none}
-.near-me-btn .btn-icon{font-size:20px}
+.near-me-btn .btn-icon{font-size:16px}
 .near-me-btn .btn-sub{font-size:10px;color:#8AAAD0;font-weight:400;letter-spacing:.5px;font-family:'Barlow',sans-serif;margin-top:1px}
 
 /* INTERCHANGE GRID */
@@ -644,11 +634,10 @@ body.light #svc-dropdown{background:#FFFFFF}
 .bus-aisle{width:16px}
 .diagram-legend{min-width:88px;display:flex;flex-direction:column;gap:8px;padding-top:4px}
 .legend-label{color:#ccc}
+.map-legend-item-label{color:#ccc}
 .legend-title{color:var(--muted)}
 #map-legend-box{background:#0a0e1aee;border:1px solid var(--card-border)}
 .map-legend-inline{position:absolute;top:8px;right:8px;z-index:1000;background:#0a0e1aee;border:1px solid var(--card-border);border-radius:10px;padding:7px 9px;font-size:10px;line-height:1.8;backdrop-filter:blur(4px)}
-body.light .map-legend-inline{background:rgba(255,255,255,.95);border-color:#D8DEF0;color:#08101A}
-body.light .map-legend-inline span{color:#08101A !important}
 .leaflet-control-attribution{font-size:9px !important;opacity:.7}
 .leg-row{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);line-height:1.3}
 .leg-swatch{width:14px;height:12px;border-radius:3px;flex-shrink:0}
@@ -934,10 +923,6 @@ body.light .plan-leg-meta { color:#08101A; }
     </div>
     <div class="header-right">
       <div style="display:flex;align-items:center;gap:10px">
-        <div>
-          <div class="live-clock" id="clock">--:--</div>
-          <div class="live-date" id="dateStr">---</div>
-        </div>
         <button class="auth-btn" id="auth-btn" onclick="openSettings()"><span style="font-size:16px;margin-right:4px">👤</span><span class="auth-name"> Sign in</span></button>
       </div>
     </div>
@@ -1122,10 +1107,10 @@ body.light .plan-leg-meta { color:#08101A; }
   <div class="settings-section">
     <div class="settings-section-title">Preferences</div>
     <!-- Default tab -->
-    <div class="settings-row-label">Default tab</div>
+    <div class="settings-row-label" style="font-weight:700">Default Tab</div>
     <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:12px" id="settings-default-tab"></div>
     <!-- Theme -->
-    <div class="settings-row-label">Theme</div>
+    <div class="settings-row-label" style="font-weight:700">Theme</div>
     <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:12px" id="settings-theme-opts"></div>
   </div>
 
@@ -1216,16 +1201,6 @@ document.addEventListener('visibilitychange', () => {
     window._sunInterval = setInterval(calcSun, 60000);
   }
 });
-
-// ── CLOCK ──
-function tick() {
-  const n = new Date();
-  document.getElementById('clock').textContent =
-    String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
-  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  document.getElementById('dateStr').textContent = `${DAYS[n.getDay()]}, ${n.getDate()} ${MONTHS[n.getMonth()]}`;
-}
 
 // ── SUN POSITION ──
 // getSunAtTime: returns {az, alt} for a given Date at Singapore coords.
@@ -1373,7 +1348,6 @@ async function doSearch() {
 
 // ── BUS SERVICE SEARCH ──
 let routeData = null; // { directions: [{dir, stops}], currentDir: 0 }
-let routeMap = null;       // Leaflet map instance
 let _currentRouteData = null; // stored for addSvcFavFromRoute
 let tripMap = null;        // Leaflet map for plan trip tab
 let planStops = [];        // stops array for current route/dir
@@ -1381,10 +1355,6 @@ let planStopMap = {};      // stopMap for current route/dir
 let planSunAnalysis = null;// sun analysis for current route/dir
 let planBoardIdx = -1;
 let planAlightIdx = -1;
-let boardStop = null;      // { code, idx }
-let alightStop = null;     // { code, idx }
-let routeSegLayers = [];   // coloured polyline segments
-let stopMarkers = [];       // circle markers
 
 async function doServiceSearch() {
   closeServiceDropdown();
@@ -1647,7 +1617,7 @@ function renderRoute(rd, allStops) {
         ${category && opLabel ? `<span style="color:var(--card-border);flex-shrink:0">·</span>` : ''}
         ${opLabel ? `<span style="color:var(--muted);font-size:11px;flex-shrink:0">${opLabel}</span>` : ''}
         <div style="flex:1"></div>
-        <button onclick="toggleJourneyDetails()" id="journey-details-btn" style="padding:4px 10px;border:1.5px solid var(--card-border);border-radius:8px;background:none;color:var(--muted);font-family:'Barlow',sans-serif;font-weight:600;font-size:11px;cursor:pointer;letter-spacing:.5px;transition:all .2s;white-space:nowrap;flex-shrink:0">✳ More Details ›</button>
+        <button onclick="toggleJourneyDetails()" id="journey-details-btn" style="padding:4px 10px;border:1.5px solid var(--card-border);border-radius:8px;background:none;color:var(--muted);font-family:'Barlow',sans-serif;font-weight:600;font-size:11px;cursor:pointer;letter-spacing:.5px;transition:all .2s;white-space:nowrap;flex-shrink:0">✳ Where to sit? ›</button>
         <button id="svc-fav-btn-${rd.svc}" onclick="addSvcFavFromRoute('${rd.svc}')" style="background:none;border:1.5px solid var(--card-border);border-radius:8px;padding:4px 10px;font-size:18px;cursor:pointer;line-height:1;transition:all .2s;flex-shrink:0;color:${(window._favs||{})['svc_'+rd.svc]?'var(--yellow)':'var(--muted)'}" title="Favourite this service">${(window._favs||{})['svc_'+rd.svc]?'★':'☆'}</button>
       </div>
     </div>
@@ -1732,34 +1702,23 @@ function renderRoute(rd, allStops) {
 
   const tabsHtml = `
     <div id="journey-details-wrap" style="display:none;margin-bottom:12px;border:1.5px solid var(--card-border);border-radius:16px;overflow:visible">
-      <div style="display:flex;border-bottom:1.5px solid var(--card-border);border-radius:14px 14px 0 0;overflow:hidden">
-        <button onclick="switchJourneyTab('map')"  id="jt-map"  style="flex:1;padding:9px 0;border:none;background:#0F2040;color:#FFFFFF;font-family:'Barlow',sans-serif;font-weight:600;font-size:11px;cursor:pointer;letter-spacing:.5px;border-right:1px solid var(--card-border);transition:all .2s">🗺 Map</button>
-        <button onclick="switchJourneyTab('plan')" id="jt-plan" style="flex:1;padding:9px 0;border:none;background:none;color:inherit;font-family:'Barlow',sans-serif;font-weight:600;font-size:11px;cursor:pointer;letter-spacing:.5px;transition:all .2s">📍 Plan Trip</button>
-      </div>
       <div id="jp-sun" style="display:none">${routeSunPanel}</div>
-      <div id="jp-map" style="display:none">
-        <div class="route-map-wrap" style="border-radius:0;border:none;margin-bottom:0;position:relative">
-          <div id="route-map"></div>
-          <div class="map-instruction" id="map-instruction" style="display:none">Tap a stop on the map to select</div>
-          <div id="map-legend-box" style="position:absolute;top:10px;right:10px;z-index:1000;border-radius:10px;padding:8px 10px;font-size:10px;line-height:1.8;backdrop-filter:blur(4px)">
-            <div id="sun-direction-legend"><!-- filled by JS --></div>
-          </div>
-        </div>
-      </div>
-      <div id="jp-plan" style="display:none">
+      <div id="jp-plan" style="display:block">
         <div class="plan-trip-wrap">
           <div style="display:flex;gap:10px">
             <div class="plan-stop-group" style="flex:1;min-width:0">
               <div class="plan-stop-label">🟢 Board at</div>
               <div class="plan-stop-input-wrap">
-                <input class="plan-stop-input" id="plan-board-input" placeholder="Search stop name…" oninput="filterPlanStops('board')" onfocus="openPlanDrop('board')" onblur="closePlanDropDelay('board')" autocomplete="off"/>
+                <input class="plan-stop-input" id="plan-board-input" placeholder="Search stop name…" oninput="filterPlanStops('board');updatePlanClearBtn('board')" onfocus="openPlanDrop('board')" onblur="closePlanDropDelay('board')" autocomplete="off"/>
+                <button class="plan-stop-clear" id="plan-board-clear" onmousedown="event.preventDefault();clearPlanStop('board')">✕</button>
                 <div class="plan-stop-dropdown" id="plan-board-drop"></div>
               </div>
             </div>
             <div class="plan-stop-group" style="flex:1;min-width:0">
               <div class="plan-stop-label">🔴 Alight at</div>
               <div class="plan-stop-input-wrap">
-                <input class="plan-stop-input" id="plan-alight-input" placeholder="Search stop name…" oninput="filterPlanStops('alight')" onfocus="openPlanDrop('alight')" onblur="closePlanDropDelay('alight')" autocomplete="off"/>
+                <input class="plan-stop-input" id="plan-alight-input" placeholder="Search stop name…" oninput="filterPlanStops('alight');updatePlanClearBtn('alight')" onfocus="openPlanDrop('alight')" onblur="closePlanDropDelay('alight')" autocomplete="off"/>
+                <button class="plan-stop-clear" id="plan-alight-clear" onmousedown="event.preventDefault();clearPlanStop('alight')">✕</button>
                 <div class="plan-stop-dropdown" id="plan-alight-drop"></div>
               </div>
             </div>
@@ -1774,8 +1733,6 @@ function renderRoute(rd, allStops) {
   if (detailsSlot) detailsSlot.outerHTML = tabsHtml;
 
   // Reset board/alight selection when route re-renders
-  boardStop = null; alightStop = null;
-  initRouteMap(dir.stops, stopMap, routeSunAnalysis);
   populatePlanDropdowns();
 }
 
@@ -1790,28 +1747,6 @@ function toggleJourneyDetails() {
     btn.style.borderColor = isOpen ? 'var(--card-border)' : 'var(--cyan)';
     btn.textContent = isOpen ? '✳ More Details ›' : '✳ More Details ∨';
   }
-  if (!isOpen) { setTimeout(() => routeMap?.invalidateSize(), 100); switchJourneyTab('map'); }
-}
-
-function switchJourneyTab(tab) {
-  const isLight = document.body.classList.contains('light');
-  ['map','plan'].forEach(t => {
-    const panel = document.getElementById('jp-'+t);
-    const btn   = document.getElementById('jt-'+t);
-    const active = t === tab;
-    if (panel) panel.style.display = active ? 'block' : 'none';
-    if (btn) {
-      btn.style.background = active ? '#0F2040' : 'none';
-      btn.style.color = active ? '#FFFFFF' : '';
-    }
-  });
-  if (tab === 'map') setTimeout(() => {
-    if (routeMap) {
-      routeMap.invalidateSize();
-      const markers = stopMarkers.map(m => m.coords).filter(Boolean);
-      if (markers.length) routeMap.fitBounds(markers, { padding: [24, 24] });
-    }
-  }, 100);
 }
 
 function populatePlanDropdowns() {
@@ -1870,7 +1805,25 @@ function selectPlanStop(which, idx, name) {
     }
     renderPlanDrop('alight', document.getElementById('plan-alight-input').value);
   } else planAlightIdx = idx;
+  updatePlanClearBtn('board'); updatePlanClearBtn('alight');
   if (planBoardIdx >= 0 && planAlightIdx >= 0) runPlanTrip();
+}
+
+function clearPlanStop(which) {
+  const input = document.getElementById('plan-' + which + '-input');
+  input.value = '';
+  if (which === 'board') { planBoardIdx = -1; }
+  else { planAlightIdx = -1; }
+  updatePlanClearBtn(which);
+  document.getElementById('plan-trip-result').innerHTML = '';
+  input.focus();
+}
+
+function updatePlanClearBtn(which) {
+  const input = document.getElementById('plan-' + which + '-input');
+  const btn = document.getElementById('plan-' + which + '-clear');
+  if (!btn) return;
+  btn.classList.toggle('visible', input.value.length > 0);
 }
 
 function runPlanTrip() {
@@ -1911,12 +1864,16 @@ function renderPlanTripResult(analysis, sliced, boardIdx, alightIdx) {
   container.innerHTML = `
     <div class="trip-result-card${isSunny?' sunny':''}">
       <div class="trip-result-map-wrap" style="position:relative"><div id="trip-map"></div>
-        <div class="map-legend-inline">
-          <div style="font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;font-size:9px">Sun on route</div>
-          <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#4A6090;flex-shrink:0"></div><span style="color:#ccc">No direct sun</span></div>
-          <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FFD000;flex-shrink:0"></div><span style="color:#ccc">Mild sun</span></div>
-          <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FF8800;flex-shrink:0"></div><span style="color:#ccc">Moderate sun</span></div>
-          <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FF3333;flex-shrink:0"></div><span style="color:#ccc">Strong sun</span></div>
+        <div class="map-legend-inline" id="map-legend-box">
+          <div onclick="toggleMapLegend()" style="font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <span>Sun Intensity</span><span id="map-legend-chevron" style="font-size:10px;transition:transform .2s">▾</span>
+          </div>
+          <div id="map-legend-items" style="margin-top:3px">
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#4A6090;flex-shrink:0"></div><span class="map-legend-item-label">No direct sun</span></div>
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FFD000;flex-shrink:0"></div><span class="map-legend-item-label">Mild sun</span></div>
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FF8800;flex-shrink:0"></div><span class="map-legend-item-label">Moderate sun</span></div>
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FF3333;flex-shrink:0"></div><span class="map-legend-item-label">Strong sun</span></div>
+          </div>
         </div>
       </div>
       <div class="trip-rec-row">
@@ -1971,8 +1928,10 @@ function initTripMap(sliced, boardIdx, alightIdx) {
     }).addTo(tripMap);
   });
 
-  tripMap.fitBounds(validCoords, { padding: [28, 28] });
-  setTimeout(() => { if (tripMap) { tripMap.invalidateSize(); tripMap.fitBounds(validCoords, { padding: [28, 28] }); } }, 150);
+  tripMap.fitBounds(validCoords, { padding: [48, 48] });
+  tripMap.whenReady(() => {
+    setTimeout(() => updateSunDirectionOnTripMap(), 300);
+  });
 
   // Fetch road-snapped geometry from OSRM in chunks of 25 waypoints
   (async () => {
@@ -2010,121 +1969,47 @@ function initTripMap(sliced, boardIdx, alightIdx) {
   })();
 }
 
-function initRouteMap(stops, stopMap, sunAnalysis) {
-  // Destroy previous map instance
-  if (routeMap) { routeMap.remove(); routeMap = null; }
-  stopMarkers = []; routeSegLayers = [];
 
-  // Collect valid coords
-  const coords = stops.map(s => {
-    const info = stopMap[s.BusStopCode];
-    return info?.Latitude ? [parseFloat(info.Latitude), parseFloat(info.Longitude)] : null;
-  });
 
-  const validCoords = coords.filter(Boolean);
-  if (!validCoords.length) return;
 
-  // Tile layer (theme-aware)
-  routeMap = L.map('route-map', { zoomControl: true, attributionControl: false });
-  L.tileLayer(document.body.classList.contains('light') ? 'https://www.onemap.gov.sg/maps/tiles/Default/{z}/{x}/{y}.png' : 'https://www.onemap.gov.sg/maps/tiles/Night/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; <a href="https://www.onemap.gov.sg" target="_blank">OneMap</a> &copy; Singapore Land Authority'
-  }).addTo(routeMap);
-
-  // Draw stop markers first (they appear while road geometry loads)
-  stops.forEach((s, i) => {
-    if (!coords[i]) return;
-    const info = stopMap[s.BusStopCode];
-    const name = info?.Description || s.BusStopCode;
-    const isFirst = i === 0, isLast = i === stops.length - 1;
-    const baseColor = isFirst ? '#00E07A' : isLast ? '#FF3333' : '#FFFEF5';
-    const marker = L.circleMarker(coords[i], {
-      radius: isFirst || isLast ? 8 : 5,
-      fillColor: baseColor,
-      color: '#000',
-      weight: 1.5,
-      fillOpacity: 1,
-      zIndexOffset: 100
-    }).addTo(routeMap);
-    marker.on('click', () => selectRouteStop(s.BusStopCode, i, name, stops, stopMap, sunAnalysis));
-    stopMarkers.push({ marker, code: s.BusStopCode, idx: i, coords: coords[i] });
-  });
-
-  routeMap.fitBounds(validCoords, { padding: [24, 24] });
-  // Re-fit after a tick in case the container was hidden when first rendered
-  setTimeout(() => {
-    if (routeMap) {
-      routeMap.invalidateSize();
-      routeMap.fitBounds(validCoords, { padding: [24, 24] });
-    }
-  }, 150);
-
-// Draw route and sun indicator
-  drawStraightRoute(coords, sunAnalysis);
+function toggleMapLegend() {
+  const items = document.getElementById('map-legend-items');
+  const chevron = document.getElementById('map-legend-chevron');
+  if (!items) return;
+  const collapsed = items.style.display === 'none';
+  items.style.display = collapsed ? 'block' : 'none';
+  chevron.style.transform = collapsed ? '' : 'rotate(-90deg)';
 }
 
-function drawStraightRoute(coords, sunAnalysis) {
-  const validPairs = coords.map((c, i) => ({ c, i })).filter(x => x.c);
-  if (validPairs.length < 2) return;
+function updateSunDirectionOnTripMap() {
+  if (!tripMap) return;
+  if (tripMap._sunMarker) { tripMap.removeLayer(tripMap._sunMarker); delete tripMap._sunMarker; }
+  if (tripMap._sunRay) { tripMap.removeLayer(tripMap._sunRay); delete tripMap._sunRay; }
 
-  const routeLine = L.polyline(validPairs.map(p => p.c), {
-    color: '#4A90E2', weight: 4, opacity: 0.85
-  });
-  if (routeMap) { routeLine.addTo(routeMap); routeSegLayers.push(routeLine); }
-
-  updateSunDirectionOnMap(sunAnalysis);
-}
-
-function updateSunDirectionOnMap(sunAnalysis) {
-  if (!routeMap) return;
   const sun = getSunAtTime(new Date());
-  const legendEl = document.getElementById('sun-direction-legend');
+  if (sun.alt < 3) return;
 
-  if (sun.alt < 3) {
-    if (legendEl) legendEl.innerHTML = `<div style="font-size:11px;opacity:.7">🌙 No sun now</div>`;
-    return;
-  }
+  // Sun azimuth: direction sun is coming FROM (opposite of where it shines TO)
+  const az = sun.az; // degrees clockwise from north
+  const rad = az * Math.PI / 180;
+  // Direction vector FROM sun toward center (sun shines in this direction)
+  const dLat = -Math.cos(rad); // negative = sun is in opposite direction
+  const dLng = -Math.sin(rad);
 
-  const az = sun.az;
-  const altDeg = Math.round(sun.alt * 180 / Math.PI);
-  const azDeg = Math.round(az);
+  const bounds = tripMap.getBounds();
+  const north = bounds.getNorth(), south = bounds.getSouth();
+  const east = bounds.getEast(), west = bounds.getWest();
+  const centerLat = (north + south) / 2;
+  const centerLng = (east + west) / 2;
+  const latSpan = (north - south) * 0.4;
+  const lngSpan = (east - west) * 0.4;
 
-  if (legendEl) legendEl.innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px">
-      <svg width="20" height="20" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform:rotate(${azDeg}deg);flex-shrink:0;filter:drop-shadow(0 0 3px rgba(255,210,0,.8))">
-        <circle cx="18" cy="18" r="7" fill="#FFD000"/>
-        <line x1="18" y1="2" x2="18" y2="8" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="18" y1="28" x2="18" y2="34" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="2" y1="18" x2="8" y2="18" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="28" y1="18" x2="34" y2="18" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="5.5" y1="5.5" x2="9.8" y2="9.8" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="26.2" y1="26.2" x2="30.5" y2="30.5" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="30.5" y1="5.5" x2="26.2" y2="9.8" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="9.8" y1="26.2" x2="5.5" y2="30.5" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
-      </svg>
-      <div>
-        <div style="font-weight:700;font-size:11px">Sun direction</div>
-        <div style="opacity:.7;font-size:10px">${compassPoint(azDeg)} · ${altDeg}° high</div>
-      </div>
-    </div>`;
+  // Place sun at map edge in the direction it's coming FROM
+  const fromRad = (az) * Math.PI / 180;
+  const fromLat = centerLat + Math.cos(fromRad) * latSpan;
+  const fromLng = centerLng + Math.sin(fromRad) * lngSpan;
 
-  if (routeMap._sunMarker) { routeMap.removeLayer(routeMap._sunMarker); delete routeMap._sunMarker; }
-  if (routeMap._sunRay) { routeMap.removeLayer(routeMap._sunRay); delete routeMap._sunRay; }
-
-  const fromAz = (az + 180) % 360;
-  const rad = fromAz * Math.PI / 180;
-  const mapSize = routeMap.getSize();
-  const cx = mapSize.x / 2;
-  const cy = mapSize.y / 2;
-  const dx = Math.sin(rad);
-  const dy = -Math.cos(rad);
-  const pad = 28;
-  const tx = dx !== 0 ? (dx > 0 ? (mapSize.x - pad - cx) : (pad - cx)) / dx : Infinity;
-  const ty = dy !== 0 ? (dy > 0 ? (mapSize.y - pad - cy) : (pad - cy)) / dy : Infinity;
-  const t = Math.min(Math.abs(tx), Math.abs(ty));
-  const sunLatLng = routeMap.containerPointToLatLng([cx + dx * t, cy + dy * t]);
-
-  const sunSvg = `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 5px rgba(255,210,0,.9))">
+  const sunSvg = `<svg width="32" height="32" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" class="trip-sun-icon" style="filter:drop-shadow(0 0 6px rgba(255,210,0,1))">
     <circle cx="18" cy="18" r="7" fill="#FFD000"/>
     <line x1="18" y1="2" x2="18" y2="8" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
     <line x1="18" y1="28" x2="18" y2="34" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
@@ -2136,83 +2021,20 @@ function updateSunDirectionOnMap(sunAnalysis) {
     <line x1="9.8" y1="26.2" x2="5.5" y2="30.5" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
   </svg>`;
 
-  const sunIcon = L.divIcon({ html: sunSvg, className: '', iconAnchor: [18, 18] });
-  const marker = L.marker(sunLatLng, { icon: sunIcon, interactive: false, zIndexOffset: 500 });
-  marker.addTo(routeMap);
-  routeMap._sunMarker = marker;
-  routeSegLayers.push(marker);
+  const sunIcon = L.divIcon({ html: sunSvg, className: '', iconAnchor: [16, 16] });
+  const marker = L.marker([fromLat, fromLng], { icon: sunIcon, interactive: false, zIndexOffset: 500 });
+  marker.addTo(tripMap);
+  tripMap._sunMarker = marker;
 
-  const routeCenter = stopMarkers?.[Math.floor(stopMarkers.length / 2)]?.coords || null;
-  if (routeCenter) {
-    const ray = L.polyline([sunLatLng, routeCenter], {
-      color: '#FFD000', weight: 1.5, opacity: 0.35, dashArray: '6 7'
-    });
-    ray.addTo(routeMap);
-    routeMap._sunRay = ray;
-    routeSegLayers.push(ray);
-  }
-}
-
-function compassPoint(deg) {
-  const pts = ['N','NE','E','SE','S','SW','W','NW'];
-  return pts[Math.round(deg / 45) % 8];
-}
-
-function selectRouteStop(code, idx, name, stops, stopMap, sunAnalysis) {
-  if (!boardStop) {
-    // Set board stop
-    boardStop = { code, idx, name };
-    document.getElementById('pill-board').textContent = '🟢 Board: ' + name;
-    document.getElementById('pill-board').className = 'map-ba-pill set';
-    // document.getElementById('map-instruction').textContent = 'Now tap your alighting stop';
-    // Highlight selected marker
-    stopMarkers.forEach(m => {
-      if (m.code === code && m.idx === idx) {
-        m.marker.setStyle({ fillColor: '#00E07A', radius: 9, color: '#00E07A', weight: 2 });
-      }
-    });
-    return;
-  }
-
-  if (idx === boardStop.idx) {
-    // Deselect board stop
-    boardStop = null; alightStop = null;
-    document.getElementById('pill-board').textContent = '🟢 Board: —';
-    document.getElementById('pill-board').className = 'map-ba-pill';
-    document.getElementById('pill-alight').textContent = '🔴 Alight: —';
-    document.getElementById('pill-alight').className = 'map-ba-pill';
-    // document.getElementById('map-instruction').textContent = 'Tap a stop to board · tap another to alight';
-    const existing = document.getElementById('rsp-trip-result');
-    if (existing) existing.remove();
-    resetMarkerStyles(stops, stopMap);
-    return;
-  }
-
-  // Ensure alight is after board
-  if (idx < boardStop.idx) {
-    toast('⚠️ Alighting stop must be after boarding stop');
-    return;
-  }
-
-  alightStop = { code, idx, name };
-  document.getElementById('pill-alight').textContent = '🔴 Alight: ' + name;
-  document.getElementById('pill-alight').className = 'map-ba-pill set-alight';
-  // document.getElementById('map-instruction').textContent = 'Tap any stop to change selection';
-
-  // Highlight alight marker
-  stopMarkers.forEach(m => {
-    if (m.code === code && m.idx === idx) {
-      m.marker.setStyle({ fillColor: '#FF3333', radius: 9, color: '#FF3333', weight: 2 });
-    }
+  // Draw dashed ray from sun toward center of route
+  const ray = L.polyline([[fromLat, fromLng], [centerLat, centerLng]], {
+    color: '#FFD000', weight: 1.5, opacity: 0.4, dashArray: '6 7'
   });
-
-  // Compute seating for just the selected portion
-  const slicedStops = stops.slice(boardStop.idx, alightStop.idx + 1);
-  // Re-compute sun analysis for this slice, with time offset from boarding stop
-  const boardElapsed = sunAnalysis?.segResults?.slice(0, boardStop.idx).reduce((acc, s) => acc + s.segTime, 0) || 0;
-  const tripAnalysis = computeRouteSeatingSlice(slicedStops, stopMap, boardElapsed);
-  updateTripSeatingPanel(tripAnalysis, boardStop.name, alightStop.name);
+  ray.addTo(tripMap);
+  tripMap._sunRay = ray;
 }
+
+
 
 function computeRouteSeatingSlice(stops, stopMap, startElapsed) {
   const segments = [];
@@ -2268,18 +2090,12 @@ function updateTripSeatingPanel(analysis, fromName, toName) {
       <div class="rsp-trip-rec">Sit <strong>${recSide.toUpperCase()}</strong> from ${fromName}</div>
       <div class="rsp-trip-sub">Sun hits ${sunSide} ${intensity} · ~${totalMins} min · to ${toName}</div>
     </div>`;
-  // Insert after the map wrap
-  const mapWrap = document.querySelector('.route-map-wrap');
-  if (mapWrap) mapWrap.insertAdjacentElement('afterend', div);
+  // Insert into trip result area
+  const tripResultWrap = document.getElementById('trip-result-wrap');
+  if (tripResultWrap) tripResultWrap.prepend(div);
+  else document.getElementById('plan-result')?.prepend(div);
 }
 
-function resetMarkerStyles(stops, stopMap) {
-  stopMarkers.forEach((m, i) => {
-    const isFirst = i === 0, isLast = i === stops.length - 1;
-    const baseColor = isFirst ? '#00E07A' : isLast ? '#FF3333' : '#FFFEF5';
-    m.marker.setStyle({ fillColor: baseColor, radius: isFirst||isLast?8:5, color:'#000', weight:1.5 });
-  });
-}
 
 function switchDir(i) {
   if (!routeData) return Promise.resolve();
@@ -2584,14 +2400,12 @@ function render(code, data) {
   let html = `
     <div class="stop-hero">
       <div style="min-width:0;flex:1">
-        <div class="stop-title" id="stop-title-${code}">${stopLabel(name, true)}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="stop-title" id="stop-title-${code}" style="flex:1;min-width:0">${stopLabel(name, true)}</div>
+          <button class="fav-btn" data-key="stop_${code}" title="Favourite this stop" onclick="addStopFav('${code}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')\" style="font-size:20px;color:${(window._favs||{})['stop_'+code]?'var(--yellow)':'var(--muted)'}\">${(window._favs||{})['stop_'+code]?'★':'☆'}</button>
+        </div>
         ${road ? `<div class="stop-road-block">(${road})</div>` : ''}
         ${(() => { const si = ALL_STOPS?.find(s=>s.BusStopCode===code); const lat = parseFloat(si?.Latitude), lng = parseFloat(si?.Longitude); const fc = getRainForCoords(lat, lng); return rainBadgeHtml(fc); })()}
-      </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-        <button class="fav-btn" data-key="stop_${code}" title="Favourite this stop" onclick="addStopFav('${code}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')" style="font-size:20px;color:${(window._favs||{})['stop_'+code]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['stop_'+code]?'★':'☆'}</button>
-        <div class="stop-badge">${code}</div>
       </div>
     </div>
     <div class="refresh-row">
@@ -2609,7 +2423,7 @@ function render(code, data) {
     const label = m1<=0?'ARR':`${m1}`, unit = m1<=0?'':'min';
     const rec = seatRec(nb.Latitude,nb.Longitude,nb2?.Latitude,nb2?.Longitude);
     const loadColor = {SEA:'var(--green)', SDA:'#FF8C00', LSD:'#FF3333'};
-    const nextPills = [[m2,nb2],[m3,nb3]].filter(([m])=>m!==null).map(([m,nb])=>`<div class="next-pill"><span>${m} min</span>${busTypeIcon(nb.Type,true,loadColor[nb.Load]||'var(--muted)')}</div>`).join('');
+    const nextPills = [[m2,nb2],[m3,nb3]].filter(([m])=>m!==null).map(([m,nb])=>`<div class="next-pill"><span>${m<=0?'ARR':m+' min'}</span>${busTypeIcon(nb.Type,true,loadColor[nb.Load]||'var(--muted)')}</div>`).join('');
     const op = (s.Operator||'').toUpperCase();
     const opCls = op==='GAS'?'op-gas':op==='TTS'?'op-tts':(op==='SBST'||op==='SBS'||op.includes('SBS'))?'op-sbs':'op-smrt';
     // Use origin/destination directly from the live arrival data (per-bus, correct direction)
@@ -3325,7 +3139,7 @@ function toggleTheme() {
   const tileUrl = isLight
     ? 'https://www.onemap.gov.sg/maps/tiles/Default/{z}/{x}/{y}.png'
     : 'https://www.onemap.gov.sg/maps/tiles/Night/{z}/{x}/{y}.png';
-  [routeMap, tripMap].forEach(map => {
+  [tripMap].forEach(map => {
     if (!map) return;
     map.eachLayer(l => { if (l._url) map.removeLayer(l); });
     L.tileLayer(tileUrl, { maxZoom: 19, attribution: '&copy; <a href="https://www.onemap.gov.sg" target="_blank">OneMap</a> &copy; Singapore Land Authority' }).addTo(map);
@@ -3341,7 +3155,7 @@ function toggleTheme() {
 // Restore saved theme
 try { if (localStorage.getItem('shiokbus_theme') === 'light') { document.body.classList.add('light'); document.getElementById('themeToggle').textContent = '🌙 Dark'; } } catch(e) {}
 function minsFrom(iso) {
-  const d=Math.round((new Date(iso)-Date.now())/60000);
+  const d=Math.floor((new Date(iso)-Date.now())/60000);
   return d<0?0:d;
 }
 function toast(msg, duration=2800) {
@@ -3528,7 +3342,7 @@ async function renderPlanResults(itineraries) {
       } else if (leg.mode === 'SUBWAY' || leg.mode === 'TRAM') {
         const code = leg.routeShortName || leg.route || '?';
         const legMins = Math.round(leg.duration / 60);
-        const { name: lineName, color: lineColor } = mrtLineName(code);
+        const { name: lineName, color: lineColor, abbr } = mrtLineName(code);
         const fromCode = leg.from?.stopCode;
         const toCode = leg.to?.stopCode;
         const stationPill = (c) => {
@@ -3540,7 +3354,7 @@ async function renderPlanResults(itineraries) {
         };
         legHtml += `<div class="plan-leg plan-leg-mrt">
           <div style="display:flex;align-items:center;gap:8px">
-            🚇 <strong style="color:${lineColor}">${lineName}</strong>
+            🚇 <div class="plan-bus-badge" style="background:${lineColor}">${lineName}</div>
             <span class="plan-leg-meta">${formatMins(legMins)}</span>
           </div>
           <div class="plan-leg-stops" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-left:24px">
@@ -3616,12 +3430,12 @@ async function renderPlanResults(itineraries) {
             const label = m <= 0 ? 'ARR' : `${m}`;
             const unit = m <= 0 ? '' : 'min';
             const col = loadColor[nb.Load] || 'var(--muted)';
-            return `<div style="display:flex;align-items:center;gap:6px;min-width:52px">
-              <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:20px;line-height:1;color:var(--white)">${label}<span style="font-size:11px;font-weight:500;color:var(--muted);margin-left:2px">${unit}</span></div>
+            return `<div style="display:flex;align-items:center;gap:4px;min-width:40px">
+              <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;line-height:1;color:var(--muted)">${label}<span style="font-size:10px;font-weight:500;margin-left:1px">${unit}</span></div>
               ${busTypeIcon(nb.Type, true, col)}
             </div>`;
           }
-          el.innerHTML = `<div style="display:flex;align-items:center;gap:16px;padding:4px 0">
+          el.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:2px 0 0">
             ${timing(nb1)}${timing(nb2)}${timing(nb3)}
           </div>`;
         }).catch(() => {
@@ -3764,7 +3578,7 @@ function updateMapTiles() {
   const tileUrl = isLight
     ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
     : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-  [routeMap, tripMap].forEach(map => {
+  [tripMap].forEach(map => {
     if (!map) return;
     map.eachLayer(l => { if (l._url) map.removeLayer(l); });
     L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);
