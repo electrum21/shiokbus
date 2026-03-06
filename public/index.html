@@ -768,6 +768,27 @@ body.light .plan-leg-meta { color:#08101A; }
 .settings-signout-btn { width: 100%; padding: 11px; background: none; border: 1.5px solid #FF6B6B40; border-radius: 10px; color: #FF6B6B; font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 13px; cursor: pointer; transition: background .15s; margin-top: 4px; }
 .settings-signout-btn:hover { background: #FF6B6B15; }
 .settings-signin-btn { width: 100%; padding: 11px; background: var(--red); border: none; border-radius: 10px; color: #fff; font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 13px; cursor: pointer; }
+
+/* ── RAIN BADGE ── */
+.rain-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: .3px;
+  margin-top: 5px;
+  white-space: nowrap;
+}
+.rain-badge.fair       { background: #1A3A2A; color: #4CAF50; }
+.rain-badge.slight     { background: #1A2A3A; color: #64B5F6; }
+.rain-badge.moderate   { background: #0D1F3A; color: #42A5F5; }
+.rain-badge.heavy      { background: #0A1428; color: #1E88E5; }
+.rain-badge.thundery   { background: #1A1A3A; color: #AB47BC; }
+
 </style>
 
 <!-- Firebase -->
@@ -976,7 +997,7 @@ body.light .plan-leg-meta { color:#08101A; }
           <div class="int-card" onclick="quickLoad('17009')"><div class="int-name">Clementi</div><div class="int-code">17009</div></div>
           <div class="int-card" onclick="quickLoad('28009')"><div class="int-name">Jurong East</div><div class="int-code">28009</div></div>
           <div class="int-card" onclick="quickLoad('77009')"><div class="int-name">Pasir Ris</div><div class="int-code">77009</div></div>
-          <div class="int-card" onclick="quickLoad('65009')"><div class="int-name">Punggol Temp</div><div class="int-code">65009</div></div>
+          <div class="int-card" onclick="quickLoad('65009')"><div class="int-name">Punggol</div><div class="int-code">65009</div></div>
           <div class="int-card" onclick="quickLoad('75009')"><div class="int-name">Tampines</div><div class="int-code">75009</div></div>
           <div class="int-card" onclick="quickLoad('46009')"><div class="int-name">Woodlands</div><div class="int-code">46009</div></div>
           <div class="int-card" onclick="quickLoad('55509')"><div class="int-name">Yio Chu Kang</div><div class="int-code">55509</div></div>
@@ -1183,8 +1204,17 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const defaultTab = localStorage.getItem('shiokbus_default_tab') || 'service';
   switchTab(defaultTab);
-  tick(); setInterval(tick, 1000);
+  fetchRainForecast();
+  setInterval(fetchRainForecast, 5 * 60 * 1000);
   calcSun(); setInterval(calcSun, 60000);
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    clearInterval(window._sunInterval);
+  } else {
+    window._sunInterval = setInterval(calcSun, 60000);
+  }
 });
 
 // ── CLOCK ──
@@ -1712,11 +1742,7 @@ function renderRoute(rd, allStops) {
           <div id="route-map"></div>
           <div class="map-instruction" id="map-instruction" style="display:none">Tap a stop on the map to select</div>
           <div id="map-legend-box" style="position:absolute;top:10px;right:10px;z-index:1000;border-radius:10px;padding:8px 10px;font-size:10px;line-height:1.8;backdrop-filter:blur(4px)">
-            <div class="legend-title" style="font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;font-size:9px">Sun on route</div>
-            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#4A6090;flex-shrink:0"></div><span class="legend-label">No direct sun</span></div>
-            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FFD000;flex-shrink:0"></div><span class="legend-label">Mild sun</span></div>
-            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FF8800;flex-shrink:0"></div><span class="legend-label">Moderate sun</span></div>
-            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FF3333;flex-shrink:0"></div><span class="legend-label">Strong sun</span></div>
+            <div id="sun-direction-legend"><!-- filled by JS --></div>
           </div>
         </div>
       </div>
@@ -2033,56 +2059,103 @@ function initRouteMap(stops, stopMap, sunAnalysis) {
     }
   }, 150);
 
-  // Fetch road-snapped geometry from OSRM in chunks of 90 stops
-  drawRoadSnappedRoute(coords, sunAnalysis);
+// Draw route and sun indicator
+  drawStraightRoute(coords, sunAnalysis);
 }
 
-async function drawRoadSnappedRoute(coords, sunAnalysis) {
+function drawStraightRoute(coords, sunAnalysis) {
   const validPairs = coords.map((c, i) => ({ c, i })).filter(x => x.c);
   if (validPairs.length < 2) return;
 
-  function segColor(i) {
-    const seg = sunAnalysis?.segResults?.[i];
-    if (!seg || seg.exposure === 'none' || seg.side === 'any') return '#4A6090';
-    return seg.exposure === 'high' ? '#FF3333' : seg.exposure === 'medium' ? '#FF8800' : '#FFD000';
+  const routeLine = L.polyline(validPairs.map(p => p.c), {
+    color: '#4A90E2', weight: 4, opacity: 0.85
+  });
+  if (routeMap) { routeLine.addTo(routeMap); routeSegLayers.push(routeLine); }
+
+  updateSunDirectionOnMap(sunAnalysis);
+}
+
+function updateSunDirectionOnMap(sunAnalysis) {
+  if (!routeMap) return;
+  const sun = getSunAtTime(new Date());
+  const legendEl = document.getElementById('sun-direction-legend');
+
+  if (sun.alt < 3) {
+    if (legendEl) legendEl.innerHTML = `<div style="font-size:11px;opacity:.7">🌙 No sun now</div>`;
+    return;
   }
 
-  const CHUNK = 25;
-  for (let start = 0; start < validPairs.length - 1; start += CHUNK - 1) {
-    const chunk = validPairs.slice(start, start + CHUNK);
-    if (chunk.length < 2) break;
-    const coordStr = chunk.map(p => `${p.c[1]},${p.c[0]}`).join(';');
-    const url = `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=false&geometries=geojson&annotations=false&steps=true`;
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 8000);
-      const res = await fetch(url, { signal: controller.signal });
-      clearTimeout(timer);
-      const data = await res.json();
-      if (data.code !== 'Ok' || !data.routes?.[0]?.legs) throw new Error('no route');
-      data.routes[0].legs.forEach((leg, j) => {
-        const color = segColor(chunk[j].i);
-        const legCoords = leg.steps.flatMap(step =>
-          step.geometry.coordinates.map(([lng, lat]) => [lat, lng])
-        );
-        if (legCoords.length >= 2) {
-          const line = L.polyline(legCoords, { color, weight: 4, opacity: 0.9 });
-          if (routeMap) { line.addTo(routeMap); routeSegLayers.push(line); }
-        } else {
-          const a = chunk[j].c, b = chunk[j + 1].c;
-          const line = L.polyline([a, b], { color, weight: 4, opacity: 0.7, dashArray: '6 4' });
-          if (routeMap) { line.addTo(routeMap); routeSegLayers.push(line); }
-        }
-      });
-    } catch {
-      chunk.slice(0, -1).forEach((a, j) => {
-        const b = chunk[j + 1];
-        const color = segColor(a.i);
-        const line = L.polyline([a.c, b.c], { color, weight: 4, opacity: 0.7, dashArray: '6 4' });
-        if (routeMap) { line.addTo(routeMap); routeSegLayers.push(line); }
-      });
-    }
+  const az = sun.az;
+  const altDeg = Math.round(sun.alt * 180 / Math.PI);
+  const azDeg = Math.round(az);
+
+  if (legendEl) legendEl.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px">
+      <svg width="20" height="20" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform:rotate(${azDeg}deg);flex-shrink:0;filter:drop-shadow(0 0 3px rgba(255,210,0,.8))">
+        <circle cx="18" cy="18" r="7" fill="#FFD000"/>
+        <line x1="18" y1="2" x2="18" y2="8" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="18" y1="28" x2="18" y2="34" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="2" y1="18" x2="8" y2="18" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="28" y1="18" x2="34" y2="18" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="5.5" y1="5.5" x2="9.8" y2="9.8" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="26.2" y1="26.2" x2="30.5" y2="30.5" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="30.5" y1="5.5" x2="26.2" y2="9.8" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="9.8" y1="26.2" x2="5.5" y2="30.5" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div style="font-weight:700;font-size:11px">Sun direction</div>
+        <div style="opacity:.7;font-size:10px">${compassPoint(azDeg)} · ${altDeg}° high</div>
+      </div>
+    </div>`;
+
+  if (routeMap._sunMarker) { routeMap.removeLayer(routeMap._sunMarker); delete routeMap._sunMarker; }
+  if (routeMap._sunRay) { routeMap.removeLayer(routeMap._sunRay); delete routeMap._sunRay; }
+
+  const fromAz = (az + 180) % 360;
+  const rad = fromAz * Math.PI / 180;
+  const mapSize = routeMap.getSize();
+  const cx = mapSize.x / 2;
+  const cy = mapSize.y / 2;
+  const dx = Math.sin(rad);
+  const dy = -Math.cos(rad);
+  const pad = 28;
+  const tx = dx !== 0 ? (dx > 0 ? (mapSize.x - pad - cx) : (pad - cx)) / dx : Infinity;
+  const ty = dy !== 0 ? (dy > 0 ? (mapSize.y - pad - cy) : (pad - cy)) / dy : Infinity;
+  const t = Math.min(Math.abs(tx), Math.abs(ty));
+  const sunLatLng = routeMap.containerPointToLatLng([cx + dx * t, cy + dy * t]);
+
+  const sunSvg = `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 5px rgba(255,210,0,.9))">
+    <circle cx="18" cy="18" r="7" fill="#FFD000"/>
+    <line x1="18" y1="2" x2="18" y2="8" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="18" y1="28" x2="18" y2="34" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="2" y1="18" x2="8" y2="18" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="28" y1="18" x2="34" y2="18" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="5.5" y1="5.5" x2="9.8" y2="9.8" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="26.2" y1="26.2" x2="30.5" y2="30.5" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="30.5" y1="5.5" x2="26.2" y2="9.8" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="9.8" y1="26.2" x2="5.5" y2="30.5" stroke="#FFD000" stroke-width="2.2" stroke-linecap="round"/>
+  </svg>`;
+
+  const sunIcon = L.divIcon({ html: sunSvg, className: '', iconAnchor: [18, 18] });
+  const marker = L.marker(sunLatLng, { icon: sunIcon, interactive: false, zIndexOffset: 500 });
+  marker.addTo(routeMap);
+  routeMap._sunMarker = marker;
+  routeSegLayers.push(marker);
+
+  const routeCenter = stopMarkers?.[Math.floor(stopMarkers.length / 2)]?.coords || null;
+  if (routeCenter) {
+    const ray = L.polyline([sunLatLng, routeCenter], {
+      color: '#FFD000', weight: 1.5, opacity: 0.35, dashArray: '6 7'
+    });
+    ray.addTo(routeMap);
+    routeMap._sunRay = ray;
+    routeSegLayers.push(ray);
   }
+}
+
+function compassPoint(deg) {
+  const pts = ['N','NE','E','SE','S','SW','W','NW'];
+  return pts[Math.round(deg / 45) % 8];
 }
 
 function selectRouteStop(code, idx, name, stops, stopMap, sunAnalysis) {
@@ -2513,6 +2586,8 @@ function render(code, data) {
       <div style="min-width:0;flex:1">
         <div class="stop-title" id="stop-title-${code}">${stopLabel(name, true)}</div>
         ${road ? `<div class="stop-road-block">(${road})</div>` : ''}
+        ${(() => { const si = ALL_STOPS?.find(s=>s.BusStopCode===code); const lat = parseFloat(si?.Latitude), lng = parseFloat(si?.Longitude); const fc = getRainForCoords(lat, lng); return rainBadgeHtml(fc); })()}
+      </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
         <button class="fav-btn" data-key="stop_${code}" title="Favourite this stop" onclick="addStopFav('${code}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')" style="font-size:20px;color:${(window._favs||{})['stop_'+code]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['stop_'+code]?'★':'☆'}</button>
@@ -3409,7 +3484,7 @@ function formatMins(m) {
   return h + ' hr ' + rem + ' min';
 }
 
-function renderPlanResults(itineraries) {
+async function renderPlanResults(itineraries) {
   const resultsEl = document.getElementById('plan-results');
   const fromName = document.getElementById('planFromInput').value.trim();
   const toName = document.getElementById('planToInput').value.trim();
@@ -3427,6 +3502,7 @@ function renderPlanResults(itineraries) {
     const transitLegs = itin.legs.filter(l => l.mode === 'BUS' || l.mode === 'SUBWAY' || l.mode === 'TRAM');
     const transfers = Math.max(0, transitLegs.length - 1);
     let legHtml = '';
+    let busLegIdx = 0;
     itin.legs.forEach(leg => {
       if (leg.mode === 'WALK') {
         const wm = Math.round(leg.duration / 60);
@@ -3436,6 +3512,8 @@ function renderPlanResults(itineraries) {
         const legMins = Math.round(leg.duration / 60);
         const sunHtml = getPlanSunPill(leg);
         const { badgeColor } = getBusLegInfo(svc);
+        const arrivalId = `plan-arrival-${idx}-${busLegIdx}`;
+        busLegIdx++;
         legHtml += `
           <div class="plan-leg plan-leg-bus">
             <div style="display:flex;align-items:center;gap:8px">
@@ -3445,6 +3523,7 @@ function renderPlanResults(itineraries) {
               ${sunHtml}
             </div>
             <div class="plan-leg-stops" style="padding-left:24px"><span class="plan-stop-link" data-stop-name="${leg.from?.name||''}">${leg.from?.name||''}</span> → <span class="plan-stop-link" data-stop-name="${leg.to?.name||''}">${leg.to?.name||''}</span></div>
+            <div id="${arrivalId}" style="padding-left:24px;margin-top:5px;font-size:12px;color:var(--muted)">⏳ Fetching arrival…</div>
           </div>`;
       } else if (leg.mode === 'SUBWAY' || leg.mode === 'TRAM') {
         const code = leg.routeShortName || leg.route || '?';
@@ -3504,6 +3583,55 @@ function renderPlanResults(itineraries) {
   });
   resultsEl.innerHTML = html;
   togglePlanCard(0);
+
+  // Fetch live arrivals for all bus legs in parallel
+  const fetches = [];
+  itineraries.forEach((itin, idx) => {
+    let busLegIdx = 0;
+    itin.legs.forEach(leg => {
+      if (leg.mode !== 'BUS') return;
+      const svc = leg.routeShortName || leg.route || '?';
+      const boardCode = leg.from?.stopCode || '';
+      const arrivalId = `plan-arrival-${idx}-${busLegIdx}`;
+      busLegIdx++;
+      if (!boardCode) {
+        const el = document.getElementById(arrivalId);
+        if (el) el.textContent = '';
+        return;
+      }
+      fetches.push(
+        fetchLTA(boardCode).then(data => {
+          const el = document.getElementById(arrivalId);
+          if (!el) return;
+          const match = data.Services?.find(s => s.ServiceNo === svc);
+          if (!match || !match.NextBus?.EstimatedArrival) {
+            el.innerHTML = '<span style="font-size:11px;color:var(--muted)">⚠️ No data</span>';
+            return;
+          }
+          const nb1 = match.NextBus, nb2 = match.NextBus2, nb3 = match.NextBus3;
+          const loadColor = { SEA: 'var(--green)', SDA: '#FF8C00', LSD: '#FF3333' };
+          function timing(nb) {
+            if (!nb?.EstimatedArrival) return '';
+            const m = minsFrom(nb.EstimatedArrival);
+            const label = m <= 0 ? 'ARR' : `${m}`;
+            const unit = m <= 0 ? '' : 'min';
+            const col = loadColor[nb.Load] || 'var(--muted)';
+            return `<div style="display:flex;align-items:center;gap:6px;min-width:52px">
+              <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:20px;line-height:1;color:var(--white)">${label}<span style="font-size:11px;font-weight:500;color:var(--muted);margin-left:2px">${unit}</span></div>
+              ${busTypeIcon(nb.Type, true, col)}
+            </div>`;
+          }
+          el.innerHTML = `<div style="display:flex;align-items:center;gap:16px;padding:4px 0">
+            ${timing(nb1)}${timing(nb2)}${timing(nb3)}
+          </div>`;
+        }).catch(() => {
+          const el = document.getElementById(arrivalId);
+          if (el) el.textContent = '';
+        })
+      );
+    });
+  });
+  await Promise.allSettled(fetches);
 }
 
 function togglePlanCard(idx) {
@@ -3642,6 +3770,96 @@ function updateMapTiles() {
     L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);
   });
 }
+
+// ── RAIN FORECAST ──
+let _rainData = {};
+let _rainFetchedAt = 0;
+
+async function fetchRainForecast() {
+  try {
+    const res = await fetch('https://api.data.gov.sg/v1/environment/2-hour-weather-forecast');
+    const data = await res.json();
+    _rainData = {};
+    const forecasts = data.items?.[0]?.forecasts || [];
+    forecasts.forEach(f => {
+      _rainData[f.area.toLowerCase()] = f.forecast;
+    });
+    _rainFetchedAt = Date.now();
+  } catch(e) {}
+}
+
+function getRainForCoords(lat, lng) {
+  if (!lat || !lng || !Object.keys(_rainData).length) return null;
+  // Map coordinates to NEA planning area using rough bounding boxes
+  // Key areas mapped by lat/lng centroids — expand as needed
+  const areas = [
+    { area: 'ang mo kio',        lat: 1.3691, lng: 103.8454 },
+    { area: 'bedok',             lat: 1.3236, lng: 103.9273 },
+    { area: 'bishan',            lat: 1.3526, lng: 103.8352 },
+    { area: 'boon lay',          lat: 1.3388, lng: 103.7066 },
+    { area: 'bukit batok',       lat: 1.3590, lng: 103.7637 },
+    { area: 'bukit merah',       lat: 1.2819, lng: 103.8239 },
+    { area: 'bukit panjang',     lat: 1.3774, lng: 103.7719 },
+    { area: 'bukit timah',       lat: 1.3294, lng: 103.8021 },
+    { area: 'central water catchment', lat: 1.4050, lng: 103.8116 },
+    { area: 'changi',            lat: 1.3644, lng: 103.9915 },
+    { area: 'choa chu kang',     lat: 1.3840, lng: 103.7470 },
+    { area: 'clementi',          lat: 1.3162, lng: 103.7649 },
+    { area: 'city',              lat: 1.2897, lng: 103.8501 },
+    { area: 'geylang',           lat: 1.3201, lng: 103.8918 },
+    { area: 'hougang',           lat: 1.3612, lng: 103.8863 },
+    { area: 'jurong east',       lat: 1.3329, lng: 103.7436 },
+    { area: 'jurong island',     lat: 1.2650, lng: 103.7100 },
+    { area: 'jurong west',       lat: 1.3404, lng: 103.7090 },
+    { area: 'kallang',           lat: 1.3100, lng: 103.8714 },
+    { area: 'lim chu kang',      lat: 1.4362, lng: 103.7179 },
+    { area: 'mandai',            lat: 1.4197, lng: 103.8198 },
+    { area: 'marine parade',     lat: 1.3020, lng: 103.9070 },
+    { area: 'novena',            lat: 1.3204, lng: 103.8438 },
+    { area: 'pasir ris',         lat: 1.3721, lng: 103.9474 },
+    { area: 'paya lebar',        lat: 1.3180, lng: 103.8930 },
+    { area: 'pioneer',           lat: 1.3157, lng: 103.6969 },
+    { area: 'pulau tekong',      lat: 1.4046, lng: 104.0530 },
+    { area: 'pulau ubin',        lat: 1.4050, lng: 103.9600 },
+    { area: 'punggol',           lat: 1.3984, lng: 103.9072 },
+    { area: 'queenstown',        lat: 1.2942, lng: 103.7861 },
+    { area: 'seletar',           lat: 1.4044, lng: 103.8696 },
+    { area: 'sembawang',         lat: 1.4491, lng: 103.8185 },
+    { area: 'sengkang',          lat: 1.3868, lng: 103.8914 },
+    { area: 'sentosa',           lat: 1.2494, lng: 103.8303 },
+    { area: 'serangoon',         lat: 1.3554, lng: 103.8679 },
+    { area: 'southern islands',  lat: 1.2056, lng: 103.8420 },
+    { area: 'sungei kadut',      lat: 1.4138, lng: 103.7584 },
+    { area: 'tampines',          lat: 1.3496, lng: 103.9568 },
+    { area: 'tanglin',           lat: 1.3063, lng: 103.8132 },
+    { area: 'tengah',            lat: 1.3740, lng: 103.7237 },
+    { area: 'toa payoh',         lat: 1.3343, lng: 103.8563 },
+    { area: 'tuas',              lat: 1.2966, lng: 103.6357 },
+    { area: 'western islands',   lat: 1.2050, lng: 103.7400 },
+    { area: 'western water catchment', lat: 1.4050, lng: 103.6900 },
+    { area: 'woodlands',         lat: 1.4382, lng: 103.7890 },
+    { area: 'yishun',            lat: 1.4304, lng: 103.8354 },
+  ];
+  // Find closest area centroid
+  let closest = null, minDist = Infinity;
+  areas.forEach(a => {
+    const d = Math.hypot(lat - a.lat, lng - a.lng);
+    if (d < minDist) { minDist = d; closest = a.area; }
+  });
+  return closest ? (_rainData[closest] || null) : null;
+}
+
+function rainBadgeHtml(forecast) {
+  if (!forecast) return '';
+  const f = forecast.toLowerCase();
+  if (f.includes('thundery')) return `<div class="rain-badge thundery">⛈ ${forecast}</div>`;
+  if (f.includes('heavy'))    return `<div class="rain-badge heavy">🌧 ${forecast}</div>`;
+  if (f.includes('moderate')) return `<div class="rain-badge moderate">🌦 ${forecast}</div>`;
+  if (f.includes('slight') || f.includes('light')) return `<div class="rain-badge slight">🌂 ${forecast}</div>`;
+  if (f.includes('fair') || f.includes('partly')) return '';
+  return '';
+}
+
 
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
