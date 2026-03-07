@@ -832,6 +832,8 @@ body.light .plan-leg-meta { color:#08101A; }
   color: #ffffff;
 }
 
+.legend-nosun-swatch { background: #FFFFFF; }
+body.light .legend-nosun-swatch { background: #4A6090; }
 </style>
 
 <!-- Firebase -->
@@ -1887,7 +1889,7 @@ function renderPlanTripResult(analysis, sliced, boardIdx, alightIdx) {
             <span>Sun Intensity</span><span id="map-legend-chevron" style="font-size:10px;transition:transform .2s">▾</span>
           </div>
           <div id="map-legend-items" style="margin-top:3px">
-            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#4A6090;flex-shrink:0"></div><span class="map-legend-item-label">No direct sun</span></div>
+            <div style="display:flex;align-items:center;gap:6px"><div class="legend-nosun-swatch" style="width:22px;height:4px;border-radius:2px;flex-shrink:0"></div><span class="map-legend-item-label">No direct sun</span></div>
             <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FFD000;flex-shrink:0"></div><span class="map-legend-item-label">Mild sun</span></div>
             <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FF8800;flex-shrink:0"></div><span class="map-legend-item-label">Moderate sun</span></div>
             <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FF3333;flex-shrink:0"></div><span class="map-legend-item-label">Strong sun</span></div>
@@ -1930,7 +1932,7 @@ function initTripMap(sliced, boardIdx, alightIdx) {
   const segResults = planSunAnalysis?.segResults?.slice(boardIdx, alightIdx) || [];
   function segColor(i) {
     const seg = segResults[i];
-    if (!seg || seg.exposure === 'none' || seg.side === 'any') return '#4A6090';
+    if (!seg || seg.exposure === 'none' || seg.side === 'any') return document.body.classList.contains('light') ? '#4A6090' : '#FFFFFF';
     return seg.exposure === 'high' ? '#FF3333' : seg.exposure === 'medium' ? '#FF8800' : '#FFD000';
   }
 
@@ -3604,6 +3606,11 @@ function updateMapTiles() {
     map.eachLayer(l => { if (l._url) map.removeLayer(l); });
     L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);
   });
+  // Redraw polylines so no-sun color updates immediately
+  if (tripMap && planBoardIdx >= 0 && planAlightIdx >= 0) {
+    const sliced = planStops.slice(planBoardIdx, planAlightIdx + 1);
+    initTripMap(sliced, planBoardIdx, planAlightIdx);
+  }
 }
 
 // ── RAIN FORECAST ──
