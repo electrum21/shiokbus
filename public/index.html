@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Shiok Bus – Ride Comfortable</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚌</text></svg>">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🚌%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -349,7 +349,7 @@ header{padding:16px 20px 0;display:flex;align-items:flex-start;justify-content:s
 .go-btn.slim svg{width:14px;height:14px;stroke-width:3;}
 
 /* STOP NAME LIVE RESULTS DROPDOWN */
-.stop-name-results{background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:14px;margin-top:8px;overflow:hidden;display:none;animation:cardIn .2s ease}
+.stop-name-results{background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:14px;margin-top:8px;overflow-y:auto;max-height:320px;display:none;animation:cardIn .2s ease}
 .stop-name-results.open{display:block}
 .sn-item{padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--card-border);transition:background .15s}
 .sn-item:last-child{border-bottom:none}
@@ -562,7 +562,63 @@ body.light .unified-name{color:#08101A}
 .results-area{margin:24px 20px 0}
 .route-sticky-header{position:sticky;top:0;z-index:100;background:var(--card-bg, #0F1E3A);padding:12px 14px 10px;margin-bottom:4px;border-bottom:1px solid var(--card-border)}
 body.light .route-sticky-header{background:#FFFFFF}
-.stops-scroll-wrap{overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--card-border) transparent;padding-right:8px}
+.stops-scroll-wrap{overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.15) transparent;padding-right:8px}
+
+/* ── GLOBAL THEMED SCROLLBARS ── */
+/* Covers: html, stop-name-results, plan-stop-dropdown, svc-dropdown, settings-drawer, stops-scroll-wrap */
+html,
+.stop-name-results,
+.plan-stop-dropdown,
+.stops-scroll-wrap,
+#svc-dropdown,
+#settings-drawer {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+html::-webkit-scrollbar,
+.stop-name-results::-webkit-scrollbar,
+.plan-stop-dropdown::-webkit-scrollbar,
+.stops-scroll-wrap::-webkit-scrollbar,
+#svc-dropdown::-webkit-scrollbar,
+#settings-drawer::-webkit-scrollbar { width: 4px; height: 4px; }
+html::-webkit-scrollbar-track,
+.stop-name-results::-webkit-scrollbar-track,
+.plan-stop-dropdown::-webkit-scrollbar-track,
+.stops-scroll-wrap::-webkit-scrollbar-track,
+#svc-dropdown::-webkit-scrollbar-track,
+#settings-drawer::-webkit-scrollbar-track { background: transparent; }
+html::-webkit-scrollbar-thumb,
+.stop-name-results::-webkit-scrollbar-thumb,
+.plan-stop-dropdown::-webkit-scrollbar-thumb,
+.stops-scroll-wrap::-webkit-scrollbar-thumb,
+#svc-dropdown::-webkit-scrollbar-thumb,
+#settings-drawer::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 999px;
+}
+html::-webkit-scrollbar-thumb:hover,
+.stop-name-results::-webkit-scrollbar-thumb:hover,
+.plan-stop-dropdown::-webkit-scrollbar-thumb:hover,
+.stops-scroll-wrap::-webkit-scrollbar-thumb:hover,
+#svc-dropdown::-webkit-scrollbar-thumb:hover,
+#settings-drawer::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.28);
+}
+/* Light mode */
+body.light html,
+body.light .stop-name-results,
+body.light .plan-stop-dropdown,
+body.light .stops-scroll-wrap,
+body.light #svc-dropdown,
+body.light #settings-drawer {
+  scrollbar-color: rgba(0,0,0,0.15) transparent;
+}
+body.light ::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+}
+body.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.28);
+}
 .svc-drop-item{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background .15s;font-family:'Barlow',sans-serif}
 .svc-drop-item:hover{background:var(--card-border)}
 .svc-drop-item:last-child{border-radius:0 0 10px 10px}
@@ -783,7 +839,6 @@ body.light .plan-leg-meta { color:#08101A; }
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
   import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-  import { initializeAppCheck, ReCaptchaV3Provider, getToken } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-check.js';
 
   // ── FIREBASE CONFIG ──
   const firebaseConfig = {
@@ -800,33 +855,6 @@ body.light .plan-leg-meta { color:#08101A; }
   const auth = getAuth(app);
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
-
-  // ── APP CHECK ──
-  const appCheck = initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider('6LfBpH8sAAAAADSSj5Pr5gqikD5isRnqcFfKhLQx'),
-    isTokenAutoRefreshEnabled: true
-  });
-
-  // Expose getToken so the main script can use it for Worker requests
-  window._getAppCheckToken = (() => {
-    let cachedToken = null;
-    let tokenExpiry = 0;
-
-    return async () => {
-      const now = Date.now();
-      // Reuse token if it's less than 50 minutes old
-      if (cachedToken && now < tokenExpiry) return cachedToken;
-      try {
-        const { token } = await getToken(appCheck, false);
-        cachedToken = token;
-        tokenExpiry = now + 50 * 60 * 1000; // 50 minutes
-        return token;
-      } catch(e) {
-        console.warn('App Check token failed:', e);
-        return null;
-      }
-    };
-  })();
 
   let currentUser = null;
   let unsubFavs = null;
@@ -996,7 +1024,7 @@ body.light .plan-leg-meta { color:#08101A; }
         <button class="go-btn" onclick="doServiceSearch()">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </button>
-        <div id="svc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:9999;background:var(--card-bg);border:1.5px solid var(--card-border);border-top:none;border-radius:0 0 12px 12px;max-height:240px;overflow-y:auto;scrollbar-width:thin"></div>
+        <div id="svc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:9999;background:var(--card-bg);border:1.5px solid var(--card-border);border-top:none;border-radius:0 0 12px 12px;max-height:240px;overflow-y:auto"></div>
       </div>
 
     </div>
@@ -1141,10 +1169,9 @@ body.light .plan-leg-meta { color:#08101A; }
 <script>
 // ── STATE ──
 const PROXY_URL = 'https://lta-proxy-worker.shiokbus.workers.dev';
-// App Check token is fetched dynamically - no secret stored in HTML
+// App Check removed — CORS origin check in worker is sufficient protection
 async function getProxyHeaders() {
-  const token = window._getAppCheckToken ? await window._getAppCheckToken() : null;
-  return token ? { 'X-Firebase-AppCheck': token } : {};
+  return {};
 }
 let SUN_AZ = 180, SUN_ALT = 45;
 let ALL_STOPS = null;
@@ -1404,15 +1431,9 @@ async function fetchBusRoute(svc) {
     ALL_ROUTES = await res.json();
   }
   const svcNorm = svc.replace(/^0+/, '').toUpperCase();
-  // Find matching key (handles leading zeros, case)
-  const key = Object.keys(ALL_ROUTES).find(k =>
-    k.replace(/^0+/, '').toUpperCase() === svcNorm
-  );
-  if (!key) return [];
-  const dirs = ALL_ROUTES[key]; // { "1": [...stops], "2": [...stops] }
-  // Flatten back to the array format the rest of the code expects
-  return Object.entries(dirs).flatMap(([dir, stops]) =>
-    stops.map(s => ({ ...s, Direction: parseInt(dir) }))
+  // Filter flat array by ServiceNo (handles leading zeros, case)
+  return ALL_ROUTES.filter(s =>
+    s.ServiceNo.replace(/^0+/, '').toUpperCase() === svcNorm
   );
 }
 
@@ -2586,14 +2607,9 @@ async function toggleStopTiming(i, svcNo, stopCode) {
       await fetchBusRoute(svcNo); // triggers ALL_ROUTES load
     }
     const svcNorm = svcNo.replace(/^0+/,'').toUpperCase();
-    const key = Object.keys(ALL_ROUTES).find(k => k.replace(/^0+/,'').toUpperCase() === svcNorm);
-    if (!key) { inner.innerHTML = '<div class="rs-arrivals-placeholder">No timing data</div>'; return; }
-
-    let stopData = null;
-    for (const stops of Object.values(ALL_ROUTES[key])) {
-      stopData = stops.find(s => s.BusStopCode === stopCode);
-      if (stopData) break;
-    }
+    const stopData = ALL_ROUTES.find(s =>
+      s.ServiceNo.replace(/^0+/,'').toUpperCase() === svcNorm && s.BusStopCode === stopCode
+    );
     if (!stopData) { inner.innerHTML = '<div class="rs-arrivals-placeholder">No timing data for this stop</div>'; return; }
 
     const wd1 = fmtTime(stopData.WD_FirstBus), wd2 = fmtTime(stopData.WD_LastBus);
@@ -2677,12 +2693,9 @@ async function loadArrivalsInRoute(code) {
       // Fallback: find last stop from ALL_ROUTES for this service
       let fallbackDestCode = null;
       if (!stopName(liveDestCode) && ALL_ROUTES) {
-        const routeKey = Object.keys(ALL_ROUTES).find(k => k.toUpperCase() === s.ServiceNo.toUpperCase());
-        if (routeKey) {
-          const dirs = ALL_ROUTES[routeKey];
-          const dir1 = dirs['1'] || dirs[Object.keys(dirs)[0]];
-          if (dir1?.length) fallbackDestCode = dir1[dir1.length - 1].BusStopCode;
-        }
+        const svcUpper = s.ServiceNo.toUpperCase();
+        const dir1stops = ALL_ROUTES.filter(r => r.ServiceNo.toUpperCase() === svcUpper && r.Direction === 1);
+        if (dir1stops.length) fallbackDestCode = dir1stops[dir1stops.length - 1].BusStopCode;
       }
       const destName = stopName(liveDestCode) || stopName(fallbackDestCode);
       const destLabel = destName ? `<div style="font-size:8px;color:#FFFFFF;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px;text-transform:uppercase;letter-spacing:.3px">${destName}</div>` : '';
