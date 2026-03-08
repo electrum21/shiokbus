@@ -476,6 +476,8 @@ body.light .unified-name{color:#08101A}
 .plan-drop-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--card-border);transition:background .15s;display:flex;align-items:center;gap:10px}
 .plan-drop-item:last-child{border-bottom:none}
 .plan-drop-item:hover{background:#1A3070}
+.plan-near-me-item{padding:10px 14px;cursor:pointer;font-weight:700;font-size:13px;color:#00C8E0;background:#0D1F45;border-radius:8px;transition:background .15s}
+.plan-near-me-item:hover{background:#1A3070}
 .plan-drop-seq{font-size:11px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;min-width:24px;text-align:right;flex-shrink:0}
 .plan-drop-name{color:var(--white);font-weight:600;font-size:13px;line-height:1.2}
 .plan-drop-code{font-size:11px;color:var(--muted);margin-top:2px}
@@ -728,8 +730,11 @@ body.light #svc-dropdown{background:#FFFFFF}
 .fav-section{margin:16px 20px 0}
 .fav-header{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--yellow);margin-bottom:10px}
 .fav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
-.fav-card{background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:12px;padding:10px 12px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:3px;position:relative}
+.fav-card{background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:12px;padding:10px 12px;cursor:pointer;transition:border-color .2s,transform .2s,opacity .2s,box-shadow .2s;display:flex;flex-direction:column;gap:3px;position:relative;user-select:none}
 .fav-card:hover{border-color:var(--yellow);transform:translateY(-2px)}
+.fav-card.dragging{opacity:.4;transform:scale(.97);border-color:var(--yellow);box-shadow:0 0 0 2px var(--yellow)}
+.fav-card.drag-over{border-color:#00C8E0;box-shadow:0 0 0 2px #00C8E0;transform:scale(1.03)}
+.fav-card.long-press-ready{transform:scale(1.04);border-color:var(--yellow);box-shadow:0 0 0 3px var(--yellow);transition:transform .15s,box-shadow .15s}
 .fav-card-type{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:600}
 .fav-card-name{font-weight:700;font-size:14px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fav-card-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -863,7 +868,7 @@ body.light .legend-nosun-swatch { background: #4A6090; }
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   // ── FIREBASE CONFIG ──
   const firebaseConfig = {
@@ -891,6 +896,7 @@ body.light .legend-nosun-swatch { background: #4A6090; }
   window._fbSignInWithPopup = signInWithPopup;
   window._fbSignOut = signOut;
   window._fbDoc = doc;
+  window._fbGetDoc = getDoc;
   window._fbSetDoc = setDoc;
   window._fbDeleteDoc = deleteDoc;
   window._fbOnSnapshot = onSnapshot;
@@ -911,11 +917,14 @@ body.light .legend-nosun-swatch { background: #4A6090; }
       renderSettingsAlerts();
       // Subscribe to favourites
       if (unsubFavs) unsubFavs();
-      unsubFavs = onSnapshot(collection(db, 'users', user.uid, 'favourites'), snap => {
-        window._favs = {};
-        snap.forEach(d => { window._favs[d.id] = d.data(); });
-        renderFavourites();
-        updateFavButtons();
+      // Load fav order from Firestore first, then subscribe
+      loadFavOrder().then(() => {
+        unsubFavs = onSnapshot(collection(db, 'users', user.uid, 'favourites'), snap => {
+          window._favs = {};
+          snap.forEach(d => { window._favs[d.id] = d.data(); });
+          renderFavourites();
+          updateFavButtons();
+        });
       });
     } else {
       document.getElementById('auth-btn').innerHTML = '<span style="font-size:16px;margin-right:4px">👤</span><span class="auth-name"> Sign in</span>';
@@ -926,6 +935,7 @@ body.light .legend-nosun-swatch { background: #4A6090; }
       if (favTabBtn2) favTabBtn2.style.display = 'none';
       if (currentTab === 'favs') switchTab('service');
       window._favs = {};
+      FAV_ORDER = { service: [], stop: [], plan: [] };
       if (unsubFavs) { unsubFavs(); unsubFavs = null; }
       updateFavButtons();
     }
@@ -1082,6 +1092,8 @@ body.light .legend-nosun-swatch { background: #4A6090; }
               <input class="stop-input text-mode" type="text" id="planFromInput"
                 placeholder="Stop name…"
                 oninput="onPlanInput('from')"
+                onfocus="onPlanFocus('from')"
+                onblur="onPlanBlur('from')"
                 onkeydown="onPlanKey(event,'from')"
                 autocomplete="off" />
               <button class="go-btn slim" onclick="clearPlanInput('from')">
@@ -1096,6 +1108,8 @@ body.light .legend-nosun-swatch { background: #4A6090; }
               <input class="stop-input text-mode" type="text" id="planToInput"
                 placeholder="Stop name…"
                 oninput="onPlanInput('to')"
+                onfocus="onPlanFocus('to')"
+                onblur="onPlanBlur('to')"
                 onkeydown="onPlanKey(event,'to')"
                 autocomplete="off" />
               <button class="go-btn slim" onclick="clearPlanInput('to')">
@@ -1177,18 +1191,19 @@ body.light .legend-nosun-swatch { background: #4A6090; }
     <div class="settings-section-title">Preferences</div>
     <!-- Default tab -->
     <div class="settings-row-label" style="font-weight:700">Default Tab</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px">The first page you will be on after loading the app</div>
     <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:12px" id="settings-default-tab"></div>
     <!-- Theme -->
     <div class="settings-row-label" style="font-weight:700">Theme</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Preferred style to search for bus information</div>
     <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:12px" id="settings-theme-opts"></div>
-  </div>
-
-  <!-- Alerts section -->
-  <div class="settings-section">
-    <div class="settings-section-title">Alerts</div>
+    <div class="settings-row-label" style="font-weight:700">Alerts</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Train disruption banner at top of app</div>
     <div id="settings-alert-banner"></div>
   </div>
+
+  <!-- About section -->
+  <!-- About section -->
   <div class="settings-section">
     <div class="settings-section-title">About</div>
     <div class="settings-row" style="cursor:default">
@@ -1794,6 +1809,7 @@ function renderRoute(rd, allStops) {
             <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
               ${mrtPills(name)}
               ${(() => { const as = alertsForStopName(name); return as.length ? `<button onclick="event.stopPropagation();openTrainAlertModal()" title="Train disruption on ${as.map(a=>a.Line).join(', ')}" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1;flex-shrink:0">⚠️</button>` : ''; })()}
+              ${/Changi Airport Ter/i.test(name) ? '<span style="transform:rotate(-90deg)">✈</span>' : ''}
               <button class="fav-btn" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();addStopFav('${s.BusStopCode}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')" style="font-size:16px;color:var(--muted)">${(window._favs||{})['stop_'+s.BusStopCode]?'★':'☆'}</button>
               <div class="rs-chevron">›</div>
             </div>
@@ -2935,25 +2951,46 @@ function buildPanel(rec, isDD) {
 window._favs = {};
 window._currentUser = null;
 
+// Fav order storage (per section)
+let FAV_ORDER = { service: [], stop: [], plan: [] };
+
+function saveFavOrder() {
+  if (!window._currentUser || !window._fbDb || !window._fbDoc || !window._fbSetDoc) return;
+  try {
+    const ref = window._fbDoc(window._fbDb, 'users', window._currentUser.uid, 'preferences', 'favOrder');
+    window._fbSetDoc(ref, FAV_ORDER, { merge: false });
+  } catch(e) {}
+}
+
+async function loadFavOrder() {
+  if (!window._currentUser || !window._fbDb || !window._fbDoc || !window._fbGetDoc) return;
+  try {
+    const ref = window._fbDoc(window._fbDb, 'users', window._currentUser.uid, 'preferences', 'favOrder');
+    const snap = await window._fbGetDoc(ref);
+    if (snap.exists()) FAV_ORDER = { service: [], stop: [], plan: [], ...snap.data() };
+  } catch(e) {}
+}
+
+function applyFavOrder(keys, type) {
+  const order = FAV_ORDER[type] || [];
+  const ordered = order.filter(k => keys.includes(k));
+  const rest = keys.filter(k => !ordered.includes(k));
+  return [...ordered, ...rest];
+}
+
 function renderFavourites() {
   const svcGrid = document.getElementById('fav-grid-services');
   const stopGrid = document.getElementById('fav-grid-stops');
   if (!svcGrid || !stopGrid) return;
   const favs = window._favs || {};
-  const services = Object.keys(favs)
-    .filter(k => favs[k].type === 'service')
-    .sort((a, b) => {
-      const na = parseInt(favs[a].id), nb = parseInt(favs[b].id);
-      return (isNaN(na) || isNaN(nb)) ? favs[a].id.localeCompare(favs[b].id) : na - nb;
-    });
-  const stops = Object.keys(favs)
-    .filter(k => favs[k].type === 'stop')
-    .sort((a, b) => favs[a].name.localeCompare(favs[b].name));
+
+  const services = applyFavOrder(Object.keys(favs).filter(k => favs[k].type === 'service'), 'service');
+  const stops = applyFavOrder(Object.keys(favs).filter(k => favs[k].type === 'stop'), 'stop');
+  const plans = applyFavOrder(Object.keys(favs).filter(k => favs[k].type === 'plan'), 'plan');
 
   const renderCard = key => {
     const f = favs[key];
     const icon = f.type === 'stop' ? '🚏' : f.type === 'plan' ? '🗺' : '🚌';
-    // Fix stale sub for services: re-derive from ALL_SERVICES if it looks wrong (contains → but should be ↔ or ↻)
     let sub = f.sub || '';
     if (f.type === 'service' && ALL_SERVICES) {
       const svc = f.id;
@@ -2969,31 +3006,161 @@ function renderFavourites() {
         else sub = orig + ' → ' + dest;
       }
     }
-    return `<div class="fav-card" onclick="favCardClick('${key}')">
+    return `<div class="fav-card" data-key="${key}" draggable="true">
       <div class="fav-card-type">${icon} ${f.type}</div>
       <div class="fav-card-name">${f.name}</div>
       ${sub ? `<div class="fav-card-sub">${sub}</div>` : ''}
-      <div class="fav-remove" onclick="event.stopPropagation();promptRemoveFav('${key}')">✕</div>
+      <div class="fav-remove" data-remove="${key}">✕</div>
     </div>`;
   };
 
-  svcGrid.innerHTML = services.length
-    ? services.map(renderCard).join('')
-    : '<div class="fav-empty">No favourite services yet.</div>';
-
-  const plans = Object.keys(favs)
-    .filter(k => favs[k].type === 'plan')
-    .sort((a, b) => favs[a].name.localeCompare(favs[b].name));
+  svcGrid.innerHTML = services.length ? services.map(renderCard).join('') : '<div class="fav-empty">No favourite services yet.</div>';
   const planGrid = document.getElementById('fav-grid-plans');
-  if (planGrid) {
-    planGrid.innerHTML = plans.length
-      ? plans.map(renderCard).join('')
-      : '<div class="fav-empty">No favourite plans yet.</div>';
-  }
+  if (planGrid) planGrid.innerHTML = plans.length ? plans.map(renderCard).join('') : '<div class="fav-empty">No favourite plans yet.</div>';
+  stopGrid.innerHTML = stops.length ? stops.map(renderCard).join('') : '<div class="fav-empty">No favourite stops yet.</div>';
 
-  stopGrid.innerHTML = stops.length
-    ? stops.map(renderCard).join('')
-    : '<div class="fav-empty">No favourite stops yet.</div>';
+  // Wire up clicks and drag-reorder for each grid
+  [
+    { el: svcGrid, type: 'service', keys: services },
+    { el: stopGrid, type: 'stop', keys: stops },
+    { el: planGrid, type: 'plan', keys: plans },
+  ].forEach(({ el, type, keys }) => {
+    if (!el) return;
+    attachFavGridHandlers(el, type, keys);
+  });
+}
+
+function attachFavGridHandlers(grid, type, keys) {
+  let dragSrc = null;
+  let longPressTimer = null;
+  let isDragging = false;
+  let touchDragEl = null;
+  let touchClone = null;
+  let touchOver = null;
+
+  grid.querySelectorAll('.fav-card').forEach(card => {
+    // Remove button
+    const removeBtn = card.querySelector('[data-remove]');
+    if (removeBtn) {
+      removeBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        promptRemoveFav(removeBtn.dataset.remove);
+      });
+    }
+
+    // ── DESKTOP DRAG ──
+    card.addEventListener('dragstart', e => {
+      dragSrc = card;
+      isDragging = true;
+      setTimeout(() => card.classList.add('dragging'), 0);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      grid.querySelectorAll('.fav-card').forEach(c => c.classList.remove('drag-over'));
+      isDragging = false;
+      dragSrc = null;
+    });
+    card.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (card !== dragSrc) {
+        grid.querySelectorAll('.fav-card').forEach(c => c.classList.remove('drag-over'));
+        card.classList.add('drag-over');
+      }
+    });
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      if (dragSrc && dragSrc !== card) {
+        reorderFavs(grid, type, dragSrc.dataset.key, card.dataset.key);
+      }
+    });
+
+    // ── TOUCH LONG-PRESS + DRAG ──
+    card.addEventListener('touchstart', e => {
+      isDragging = false;
+      longPressTimer = setTimeout(() => {
+        isDragging = true;
+        touchDragEl = card;
+        card.classList.add('long-press-ready');
+        navigator.vibrate?.(40);
+        // Create floating clone
+        const rect = card.getBoundingClientRect();
+        touchClone = card.cloneNode(true);
+        touchClone.style.cssText = `position:fixed;top:${rect.top}px;left:${rect.left}px;width:${rect.width}px;opacity:.85;z-index:9999;pointer-events:none;border-radius:12px;transform:scale(1.05);transition:none;box-shadow:0 8px 24px #0008`;
+        document.body.appendChild(touchClone);
+        card.style.opacity = '.3';
+      }, 400);
+    }, { passive: true });
+
+    card.addEventListener('touchmove', e => {
+      if (!isDragging || !touchClone) {
+        clearTimeout(longPressTimer);
+        return;
+      }
+      e.preventDefault();
+      const t = e.touches[0];
+      const rect = touchClone.getBoundingClientRect();
+      touchClone.style.top = (t.clientY - rect.height / 2) + 'px';
+      touchClone.style.left = (t.clientX - rect.width / 2) + 'px';
+      // Find card under finger
+      touchClone.style.display = 'none';
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      touchClone.style.display = '';
+      const overCard = el?.closest('.fav-card');
+      grid.querySelectorAll('.fav-card').forEach(c => c.classList.remove('drag-over'));
+      if (overCard && overCard !== touchDragEl) {
+        overCard.classList.add('drag-over');
+        touchOver = overCard;
+      } else {
+        touchOver = null;
+      }
+    }, { passive: false });
+
+    card.addEventListener('touchend', e => {
+      clearTimeout(longPressTimer);
+      card.classList.remove('long-press-ready');
+      if (touchClone) { touchClone.remove(); touchClone = null; }
+      if (touchDragEl) touchDragEl.style.opacity = '';
+      grid.querySelectorAll('.fav-card').forEach(c => c.classList.remove('drag-over', 'long-press-ready'));
+      if (isDragging && touchOver && touchOver !== touchDragEl) {
+        reorderFavs(grid, type, touchDragEl.dataset.key, touchOver.dataset.key);
+      } else if (!isDragging) {
+        // Normal tap → card click
+        const key = card.dataset.key;
+        if (key) favCardClick(key);
+      }
+      isDragging = false;
+      touchDragEl = null;
+      touchOver = null;
+    });
+
+    card.addEventListener('touchcancel', () => {
+      clearTimeout(longPressTimer);
+      card.classList.remove('long-press-ready');
+      if (touchClone) { touchClone.remove(); touchClone = null; }
+      if (touchDragEl) touchDragEl.style.opacity = '';
+      grid.querySelectorAll('.fav-card').forEach(c => c.classList.remove('drag-over', 'long-press-ready'));
+      isDragging = false; touchDragEl = null; touchOver = null;
+    });
+
+    // Desktop click (only if not a drag)
+    card.addEventListener('click', e => {
+      if (e.target.closest('[data-remove]')) return;
+      if (!isDragging) favCardClick(card.dataset.key);
+    });
+  });
+}
+
+function reorderFavs(grid, type, srcKey, targetKey) {
+  const order = [...grid.querySelectorAll('.fav-card')].map(c => c.dataset.key);
+  const srcIdx = order.indexOf(srcKey);
+  const tgtIdx = order.indexOf(targetKey);
+  if (srcIdx === -1 || tgtIdx === -1) return;
+  order.splice(srcIdx, 1);
+  order.splice(tgtIdx, 0, srcKey);
+  FAV_ORDER[type] = order;
+  saveFavOrder();
+  renderFavourites();
 }
 
 function planStopClick(name) {
@@ -3359,13 +3526,67 @@ function toast(msg, duration=2800) {
 let planFromCode = null, planToCode = null;
 let planFromHighlight = -1, planToHighlight = -1;
 
+function showPlanNearMe(which) {
+  const resultsId = which === 'from' ? 'planFromResults' : 'planToResults';
+  const el = document.getElementById(resultsId);
+  el.innerHTML = `<div class="plan-near-me-item" id="plan-near-me-${which}">📍 Near me</div>`;
+  el.style.display = 'block';
+  document.getElementById(`plan-near-me-${which}`)?.addEventListener('mousedown', e => {
+    e.preventDefault();
+    selectGlobalNearestStop(which);
+  });
+}
+
+function onPlanFocus(which) {
+  const inputId = which === 'from' ? 'planFromInput' : 'planToInput';
+  const val = document.getElementById(inputId).value.trim();
+  if (!val) showPlanNearMe(which);
+}
+
+function onPlanBlur(which) {
+  const resultsId = which === 'from' ? 'planFromResults' : 'planToResults';
+  setTimeout(() => { document.getElementById(resultsId).style.display = 'none'; }, 200);
+}
+
+function selectGlobalNearestStop(which) {
+  const resultsId = which === 'from' ? 'planFromResults' : 'planToResults';
+  const nearEl = document.getElementById(`plan-near-me-${which}`);
+  if (nearEl) nearEl.textContent = '📍 Locating…';
+
+  const resolve = (lat, lng) => {
+    if (!ALL_STOPS) { toast('Stop data not loaded yet'); return; }
+    let nearest = null, minDist = Infinity;
+    ALL_STOPS.forEach(s => {
+      const d = haversine(lat, lng, parseFloat(s.Latitude), parseFloat(s.Longitude));
+      if (d < minDist) { minDist = d; nearest = s; }
+    });
+    if (!nearest) return;
+    selectGlobalPlanStop(which, nearest.BusStopCode, nearest.Description || nearest.BusStopCode);
+    document.getElementById(resultsId).style.display = 'none';
+  };
+
+  if (userLat && userLng) {
+    resolve(userLat, userLng);
+  } else {
+    navigator.geolocation.getCurrentPosition(
+      pos => { userLat = pos.coords.latitude; userLng = pos.coords.longitude; resolve(userLat, userLng); },
+      () => toast('Could not get your location'),
+      { timeout: 8000 }
+    );
+  }
+}
+
 function onPlanInput(which) {
   const inputId = which === 'from' ? 'planFromInput' : 'planToInput';
   const resultsId = which === 'from' ? 'planFromResults' : 'planToResults';
   const val = document.getElementById(inputId).value.trim();
   if (which === 'from') { planFromCode = null; planFromHighlight = -1; }
   else { planToCode = null; planToHighlight = -1; }
-  if (!val || !ALL_STOPS) { document.getElementById(resultsId).style.display = 'none'; return; }
+  if (!val || !ALL_STOPS) {
+    if (!val) showPlanNearMe(which);
+    else document.getElementById(resultsId).style.display = 'none';
+    return;
+  }
   const isCode = /^\d+$/.test(val);
   let matches;
   if (isCode) {
