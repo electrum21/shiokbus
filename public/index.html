@@ -834,6 +834,29 @@ body.light .plan-leg-meta { color:#08101A; }
 
 .legend-nosun-swatch { background: #FFFFFF; }
 body.light .legend-nosun-swatch { background: #4A6090; }
+/* ── TRAIN ALERTS ── */
+#train-alert-banner { display:none;position:sticky;top:0;z-index:999;background:#B8000A;color:#fff;padding:8px 14px;font-size:13px;font-family:'Barlow',sans-serif;cursor:pointer;gap:8px;align-items:flex-start; }
+#train-alert-banner.visible { display:flex; }
+#train-alert-banner .alert-icon { font-size:16px;flex-shrink:0;margin-top:1px; }
+#train-alert-banner .alert-body { flex:1;min-width:0; }
+#train-alert-banner .alert-title { font-weight:700;font-size:13px;margin-bottom:2px; }
+#train-alert-banner .alert-msg { font-size:11px;opacity:.9;line-height:1.4; }
+#train-alert-banner .alert-expand { font-size:11px;opacity:.7;flex-shrink:0;align-self:center; }
+.train-alert-inline { display:flex;align-items:flex-start;gap:8px;background:#B8000A18;border:1px solid #B8000A55;border-radius:8px;padding:8px 10px;margin:6px 0;font-size:12px;color:var(--white); }
+.train-alert-inline .tai-icon { font-size:14px;flex-shrink:0;margin-top:1px; }
+.train-alert-inline .tai-body { flex:1; }
+.train-alert-inline .tai-title { font-weight:700;margin-bottom:3px;font-size:12px; }
+.train-alert-inline .tai-detail { font-size:11px;opacity:.85;line-height:1.5; }
+.train-alert-inline .tai-pill { display:inline-block;padding:1px 6px;border-radius:4px;font-weight:700;font-size:10px;color:#fff;margin-right:3px; }
+#train-alert-modal { display:none;position:fixed;inset:0;z-index:10000;background:#00000088;align-items:flex-end; }
+#train-alert-modal.visible { display:flex; }
+#train-alert-modal-inner { background:var(--card-bg);border-radius:16px 16px 0 0;width:100%;max-height:80vh;overflow-y:auto;padding:20px 16px 32px; }
+#train-alert-modal-inner h3 { font-size:16px;font-weight:700;margin:0 0 12px;color:var(--white); }
+.tam-alert { background:#B8000A18;border:1px solid #B8000A55;border-radius:10px;padding:12px;margin-bottom:10px; }
+.tam-alert-line { font-weight:800;font-size:13px;margin-bottom:6px;display:flex;align-items:center;gap:6px; }
+.tam-alert-row { font-size:12px;margin-bottom:4px;line-height:1.5;color:var(--muted); }
+.tam-alert-row span { color:var(--white);font-weight:600; }
+.tam-alert-msg { font-size:12px;margin-top:8px;padding-top:8px;border-top:1px solid #ffffff18;line-height:1.6;color:var(--white);opacity:.9; }
 </style>
 
 <!-- Firebase -->
@@ -884,6 +907,8 @@ body.light .legend-nosun-swatch { background: #4A6090; }
       // Show favourites tab
       const favTabBtn = document.getElementById('tab-favs');
       if (favTabBtn) favTabBtn.style.display = '';
+      // Load alert banner preference
+      renderSettingsAlerts();
       // Subscribe to favourites
       if (unsubFavs) unsubFavs();
       unsubFavs = onSnapshot(collection(db, 'users', user.uid, 'favourites'), snap => {
@@ -941,6 +966,23 @@ body.light .legend-nosun-swatch { background: #4A6090; }
 </script>
 </head>
 <body>
+<!-- Train Service Alert Banner -->
+<div id="train-alert-banner" onclick="openTrainAlertModal()">
+  <div class="alert-icon">🚨</div>
+  <div class="alert-body">
+    <div class="alert-title" id="train-alert-banner-title">Train Service Disruption</div>
+    <div class="alert-msg" id="train-alert-banner-msg"></div>
+  </div>
+  <div class="alert-expand">Tap for details ›</div>
+</div>
+<!-- Train Service Alert Modal -->
+<div id="train-alert-modal" onclick="if(event.target===this)closeTrainAlertModal()">
+  <div id="train-alert-modal-inner">
+    <h3>🚨 Train Service Alerts</h3>
+    <div id="train-alert-modal-content"></div>
+    <button onclick="closeTrainAlertModal()" style="margin-top:8px;width:100%;padding:12px;background:var(--card-border);border:none;border-radius:10px;color:var(--white);font-size:14px;font-family:'Barlow',sans-serif;font-weight:600;cursor:pointer;">Close</button>
+  </div>
+</div>
 <div class="hero-stripe"></div>
 <div class="app">
 
@@ -1141,7 +1183,12 @@ body.light .legend-nosun-swatch { background: #4A6090; }
     <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:12px" id="settings-theme-opts"></div>
   </div>
 
-  <!-- About section -->
+  <!-- Alerts section -->
+  <div class="settings-section">
+    <div class="settings-section-title">Alerts</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Train disruption banner at top of app</div>
+    <div id="settings-alert-banner"></div>
+  </div>
   <div class="settings-section">
     <div class="settings-section-title">About</div>
     <div class="settings-row" style="cursor:default">
@@ -1200,19 +1247,55 @@ window.addEventListener('DOMContentLoaded', () => {
   if (!ALL_SERVICES) fetchAllServices().catch(() => {});
   if (!ALL_STOPS) fetchAllStops().catch(() => {});
   loadMrtData().then(() => {
+    startTrainAlertPolling();
     // Re-render stop title pills if a stop is currently displayed
     const titleEl = document.querySelector('[id^="stop-title-"]');
     if (titleEl) {
       const code = titleEl.id.replace('stop-title-', '');
       const stopInfo = ALL_STOPS?.find(s => s.BusStopCode === code);
       const name = stopInfo?.Description || '';
-      if (name) titleEl.innerHTML = stopLabel(name, true);
+      if (name) {
+        titleEl.innerHTML = stopLabel(name, true);
+        // Inject warning button after title if disrupted
+        const alerts = alertsForStopName(name);
+        if (alerts.length) {
+          const existing = titleEl.parentNode.querySelector('.train-warn-btn');
+          if (!existing) {
+            const btn = document.createElement('button');
+            btn.className = 'train-warn-btn';
+            btn.onclick = openTrainAlertModal;
+            btn.title = `Train disruption on ${alerts.map(a => a.Line).join(', ')}`;
+            btn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:20px;padding:0;line-height:1;flex-shrink:0';
+            btn.textContent = '⚠️';
+            titleEl.insertAdjacentElement('afterend', btn);
+          }
+        }
+      }
     }
     // Re-render route stop names with MRT pills if route is displayed
     document.querySelectorAll('[data-stop-name]').forEach(el => {
       const name = el.getAttribute('data-stop-name');
       if (name) el.innerHTML = stopLabel(name, true);
     });
+    // Inject warning buttons into route stop rows for disrupted MRT lines
+    if (TRAIN_ALERTS.length) {
+      document.querySelectorAll('[data-stop-name]').forEach(el => {
+        const name = el.getAttribute('data-stop-name');
+        const as = alertsForStopName(name);
+        if (!as.length) return;
+        const row = el.closest('.route-stop-card');
+        if (!row || row.querySelector('.route-warn-btn')) return;
+        const favBtn = row.querySelector('.fav-btn');
+        if (!favBtn) return;
+        const btn = document.createElement('button');
+        btn.className = 'route-warn-btn';
+        btn.onclick = e => { e.stopPropagation(); openTrainAlertModal(); };
+        btn.title = `Train disruption on ${as.map(a => a.Line).join(', ')}`;
+        btn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1;flex-shrink:0';
+        btn.textContent = '⚠️';
+        favBtn.insertAdjacentElement('beforebegin', btn);
+      });
+    }
     // Re-render nearby stop names
     document.querySelectorAll('[data-nearby-name]').forEach(el => {
       const name = el.getAttribute('data-nearby-name');
@@ -1221,6 +1304,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }).catch(() => {});
 
   const defaultTab = localStorage.getItem('shiokbus_default_tab') || 'service';
+  renderSettingsAlerts();
   switchTab(defaultTab);
   fetchRainForecast();
   setInterval(fetchRainForecast, 5 * 60 * 1000);
@@ -1275,6 +1359,7 @@ function switchTab(tab) {
   const resultsStop = document.getElementById('results-stop');
   if (resultsService) resultsService.style.display = tab==='service' ? 'block' : 'none';
   if (resultsStop) resultsStop.style.display = tab==='stop' ? 'block' : 'none';
+  updateTrainAlertBanner();
   const favMode = document.getElementById('mode-favs');
   const favTab = document.getElementById('tab-favs');
   if (favMode) favMode.style.display = tab==='favs' ? 'block' : 'none';
@@ -1436,6 +1521,9 @@ async function doServiceSearch() {
 
 // Cache routes.json in memory (it's ~8MB, only load once per session)
 let ALL_ROUTES = null; // only populated as a side-effect of route lookups, used for fallback dest name
+let TRAIN_ALERTS = []; // cached train service alerts from LTA
+let trainAlertsPollTimer = null;
+let alertBannerEnabled = true; // in-memory only, resets each session
 
 async function fetchBusRoute(svc) {
   const svcNorm = svc.replace(/^0+/, '').toUpperCase();
@@ -1705,6 +1793,7 @@ function renderRoute(rd, allStops) {
             </div>
             <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
               ${mrtPills(name)}
+              ${(() => { const as = alertsForStopName(name); return as.length ? `<button onclick="event.stopPropagation();openTrainAlertModal()" title="Train disruption on ${as.map(a=>a.Line).join(', ')}" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1;flex-shrink:0">⚠️</button>` : ''; })()}
               <button class="fav-btn" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();addStopFav('${s.BusStopCode}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')" style="font-size:16px;color:var(--muted)">${(window._favs||{})['stop_'+s.BusStopCode]?'★':'☆'}</button>
               <div class="rs-chevron">›</div>
             </div>
@@ -1761,6 +1850,20 @@ function renderRoute(rd, allStops) {
   const detailsSlot = document.getElementById('journey-details-here');
   if (detailsSlot) detailsSlot.outerHTML = tabsHtml;
 
+  // Inject train alerts for any affected stations in this route
+  const routeAlertSet = new Map();
+  dir.stops.forEach(s => {
+    const name = stopMap[s.BusStopCode]?.Description || '';
+    alertsForStopName(name).forEach(a => routeAlertSet.set(a.Line, a));
+  });
+  const routeAlerts = [...routeAlertSet.values()];
+  if (routeAlerts.length) {
+    const alertHtml = routeAlerts.map(renderInlineAlert).join('');
+    const firstCard = document.querySelector('#results-service .route-card-outer');
+    if (firstCard) firstCard.insertAdjacentHTML('afterbegin', alertHtml);
+  }
+  updateTrainAlertBanner();
+
   // Reset board/alight selection when route re-renders
   populatePlanDropdowns();
 }
@@ -1800,11 +1903,17 @@ function renderPlanDrop(which, query) {
     const info = planStopMap[s.BusStopCode];
     const name = info?.Description || s.BusStopCode;
     const road = info?.RoadName || '';
-    return `<div class="plan-drop-item" onmousedown="selectPlanStop('${which}', ${i}, '${name.replace(/'/g,"\'")}')">
+    return `<div class="plan-drop-item" data-which="${which}" data-idx="${i}" data-name="${name.replace(/"/g, '&quot;')}">
       <span class="plan-drop-seq">${s.StopSequence}</span>
       <div><div class="plan-drop-name">${name}</div><div class="plan-drop-code">${s.BusStopCode}${road ? ' · ' + road : ''}</div></div>
     </div>`;
   }).join('');
+
+  drop.querySelectorAll('.plan-drop-item').forEach(el => {
+    el.addEventListener('mousedown', () => {
+      selectPlanStop(el.dataset.which, parseInt(el.dataset.idx), el.dataset.name);
+    });
+  });
 }
 
 function filterPlanStops(which) {
@@ -2506,6 +2615,24 @@ function render(code, data) {
   });
 
   document.getElementById('results-stop').innerHTML = html;
+
+  // Inject train alert warning button if this stop's MRT lines are disrupted
+  // (only needed when MRT_LOOKUP is already populated; else loadMrtData().then() handles it)
+  if (Object.keys(MRT_LOOKUP).length && TRAIN_ALERTS.length) {
+    const titleEl = document.querySelector('[id^="stop-title-"]');
+    if (titleEl) {
+      const alerts = alertsForStopName(name);
+      if (alerts.length && !titleEl.parentNode.querySelector('.train-warn-btn')) {
+        const btn = document.createElement('button');
+        btn.className = 'train-warn-btn';
+        btn.onclick = openTrainAlertModal;
+        btn.title = `Train disruption on ${alerts.map(a => a.Line).join(', ')}`;
+        btn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:20px;padding:0;line-height:1;flex-shrink:0';
+        btn.textContent = '⚠️';
+        titleEl.insertAdjacentElement('afterend', btn);
+      }
+    }
+  }
 }
 
 function busTypeIcon(type, small=false, color='var(--muted)') {
@@ -3080,6 +3207,7 @@ function stopName(stopCode) {
 }
 // ── MRT STATION PILLS ──
 let MRT_LOOKUP = {};
+let MRT_CODE_LOOKUP = {}; // stn_code -> { name, codes: [all codes for this station] }
 
 async function loadMrtData() {
   try {
@@ -3090,8 +3218,31 @@ async function loadMrtData() {
       const key = mrt_station.toLowerCase();
       if (!MRT_LOOKUP[key]) MRT_LOOKUP[key] = [];
       MRT_LOOKUP[key].push({ stn_code, mrt_line });
+      // Build reverse lookup
+      MRT_CODE_LOOKUP[stn_code] = { name: mrt_station, nameKey: key };
+    });
+    // Now attach all codes for each station
+    Object.entries(MRT_LOOKUP).forEach(([key, entries]) => {
+      entries.forEach(({ stn_code }) => {
+        if (MRT_CODE_LOOKUP[stn_code]) MRT_CODE_LOOKUP[stn_code].codes = entries.map(e => e.stn_code);
+      });
     });
   } catch(e) {}
+}
+
+// Format a station code or "CODE1|CODE2" group into "Name (CODE1 | CODE2)"
+function stationLabel(codeOrGroup) {
+  const codes = codeOrGroup.split('|').map(c => c.trim());
+  const info = MRT_CODE_LOOKUP[codes[0]];
+  const name = info ? info.name : null;
+  const codeStr = codes.join(' | ');
+  return name ? `${name} (${codeStr})` : codeStr;
+}
+
+// Format a comma-separated list of station codes into labelled names
+function formatStationList(raw) {
+  if (!raw) return '';
+  return raw.split(',').map(s => stationLabel(s.trim())).join(', ');
 }
 
 function mrtLineColor(line) {
@@ -3192,6 +3343,8 @@ function toggleTheme() {
 }
 // Restore saved theme
 try { if (localStorage.getItem('shiokbus_theme') === 'light') { document.body.classList.add('light'); document.getElementById('themeToggle').textContent = '🌙 Dark'; } } catch(e) {}
+// Restore alert banner setting
+try { if (localStorage.getItem('shiokbus_alert_banner') === 'off') alertBannerEnabled = false; } catch(e) {}
 function minsFrom(iso) {
   const d=Math.floor((new Date(iso)-Date.now())/60000);
   return d<0?0:d;
@@ -3297,6 +3450,218 @@ function getTimeStr() {
   return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:00`;
 }
 
+// ── TRAIN SERVICE ALERTS ──
+async function fetchTrainAlerts() {
+  try {
+    const res = await fetch(`${PROXY_URL}?endpoint=TrainServiceAlerts`, { headers: await getProxyHeaders() });
+    if (!res.ok) return;
+    const data = await res.json();
+    const alerts = (data.value || []).filter(a => a.Status === 2);
+    TRAIN_ALERTS = alerts;
+    updateTrainAlertBanner();
+    updateAllInlineAlerts();
+  } catch(e) {}
+}
+
+function startTrainAlertPolling() {
+  fetchTrainAlerts();
+  if (trainAlertsPollTimer) clearInterval(trainAlertsPollTimer);
+  trainAlertsPollTimer = setInterval(fetchTrainAlerts, 2 * 60 * 1000);
+}
+
+// Get the set of line abbrs currently visible to the user
+function getVisibleMrtLines() {
+  const lines = new Set();
+  // From MRT pills in the DOM
+  document.querySelectorAll('.mrt-line-pill, [data-mrt-line]').forEach(el => {
+    const line = el.dataset.mrtLine || el.textContent.trim();
+    if (line) lines.add(line);
+  });
+  // From planStops if plan tab is active
+  if (planStops?.length) {
+    planStops.forEach(s => {
+      const info = planStopMap?.[s.BusStopCode];
+      if (info?.Description) {
+        const pills = mrtPillsForName(info.Description);
+        pills.forEach(l => lines.add(l));
+      }
+    });
+  }
+  return lines;
+}
+
+// Extract MRT line abbrs from a stop name via MRT_LOOKUP (mirrors mrtPills stripping logic)
+// Returns alerts where this stop's station codes are in the affected Stations list
+function alertsForStopName(name) {
+  if (!TRAIN_ALERTS.length || !name) return [];
+  if (!Object.keys(MRT_LOOKUP).length) return [];
+  // Get station codes for this stop name
+  let core = name
+    .replace(/^(Bef|Aft|Opp|Fr)\s+/i, '')
+    .replace(/\s+Lrt\b.*/i, '').replace(/\s+Stn\b.*/i, '')
+    .replace(/\s+Exit\s+\w+/i, '').replace(/\s+Ctrl\b.*/i, '')
+    .replace(/\s+Int\b.*/i, '').trim().toLowerCase()
+    .replace(/\blor\b/g,'lorong').replace(/\bave\b/g,'avenue')
+    .replace(/\brd\b/g,'road').replace(/\bst\b/g,'street')
+    .replace(/\bbt\b/g,'bukit').replace(/\bupp\b/g,'upper')
+    .replace(/\bnth\b/g,'north').replace(/\bsth\b/g,'south')
+    .replace(/\bholland v\b/g,'holland village')
+    .replace(/\bw'lands\b/g,'woodlands');
+  const matches = MRT_LOOKUP[core] || MRT_LOOKUP[Object.keys(MRT_LOOKUP).find(k => k.length >= 5 && core === k)] || [];
+  if (!matches.length) return [];
+  const stnCodes = matches.map(m => m.stn_code.toUpperCase());
+  return TRAIN_ALERTS.filter(a => {
+    if (!a.Stations) return false;
+    const affected = a.Stations.split(',').map(s => s.trim().toUpperCase());
+    return stnCodes.some(c => affected.includes(c));
+  });
+}
+
+function mrtPillsForName(name) {
+  if (!name || !Object.keys(MRT_LOOKUP).length) return [];
+  if (!/\b(Stn|Lrt|Int)\b/i.test(name)) return [];
+  let core = name
+    .replace(/^(Bef|Aft|Opp|Fr)\s+/i, '')
+    .replace(/\s+Lrt\b.*/i, '')
+    .replace(/\s+Stn\b.*/i, '')
+    .replace(/\s+Exit\s+\w+/i, '')
+    .replace(/\s+Ctrl\b.*/i, '')
+    .replace(/\s+Int\b.*/i, '')
+    .trim().toLowerCase()
+    .replace(/\blor\b/g, 'lorong').replace(/\bave\b/g, 'avenue')
+    .replace(/\bpk\b/g, 'park').replace(/\brd\b/g, 'road')
+    .replace(/\bst\b/g, 'street').replace(/\bdr\b/g, 'drive')
+    .replace(/\bcres\b/g, 'crescent').replace(/\bctrl\b/g, 'central')
+    .replace(/\bpl\b/g, 'place').replace(/\bbt\b/g, 'bukit')
+    .replace(/\bupp\b/g, 'upper').replace(/\bs'goon\b/g, 'serangoon')
+    .replace(/\bjln\b/g, 'jalan').replace(/\bsth\b/g, 'south')
+    .replace(/\bnth\b/g, 'north').replace(/\bholland v\b/g, 'holland village')
+    .replace(/\bw'lands\b/g, 'woodlands');
+  const matches = MRT_LOOKUP[core] || MRT_LOOKUP[Object.keys(MRT_LOOKUP).find(k => k.length >= 5 && core === k)] || [];
+  return [...new Set(matches.map(({ stn_code }) => mrtLineName(stn_code)?.abbr).filter(Boolean))];
+}
+
+function alertsForLines(lines) {
+  if (!lines?.size) return TRAIN_ALERTS;
+  return TRAIN_ALERTS.filter(a => lines.has(a.Line));
+}
+
+function renderSettingsAlerts() {
+  const enabled = alertBannerEnabled;
+  const el = document.getElementById('settings-alert-banner');
+  if (!el) return;
+  el.innerHTML = [
+    { id: true,  label: '🔔 Enabled' },
+    { id: false, label: '🔕 Disabled' },
+  ].map(t => `<div class="settings-tab-opt ${enabled === t.id ? 'active' : ''}" onclick="setAlertBanner(${t.id})">
+    <span>${t.label}</span>
+    <span class="check">✓</span>
+  </div>`).join('');
+}
+
+function setAlertBanner(enabled) {
+  alertBannerEnabled = enabled;
+  try { localStorage.setItem('shiokbus_alert_banner', enabled ? 'on' : 'off'); } catch(e) {}
+  if (!enabled) document.getElementById('train-alert-banner')?.classList.remove('visible');
+  else updateTrainAlertBanner();
+  renderSettingsAlerts();
+  toast(enabled ? '🔔 Train alerts enabled' : '🔕 Train alerts disabled');
+}
+
+function toggleAlertBannerSetting() { setAlertBanner(!alertBannerEnabled); }
+
+function updateTrainAlertBanner() {
+  if (!alertBannerEnabled) return;
+  const banner = document.getElementById('train-alert-banner');
+  const titleEl = document.getElementById('train-alert-banner-title');
+  const msgEl = document.getElementById('train-alert-banner-msg');
+  if (!banner) return;
+  const visible = getVisibleMrtLines();
+  const relevant = visible.size ? alertsForLines(visible) : TRAIN_ALERTS;
+  if (!relevant.length) {
+    banner.classList.remove('visible');
+    return;
+  }
+  const lines = [...new Set(relevant.map(a => a.Line))].join(', ');
+  titleEl.textContent = `Train Disruption: ${lines}`;
+  const msg = relevant[0]?.Message?.Content || '';
+  msgEl.textContent = msg.length > 80 ? msg.slice(0, 80) + '…' : msg;
+  banner.classList.add('visible');
+}
+
+function updateAllInlineAlerts() {
+  // Re-render any existing inline alert containers
+  document.querySelectorAll('[data-train-alert-for]').forEach(el => {
+    const line = el.dataset.trainAlertFor;
+    const alert = TRAIN_ALERTS.find(a => a.Line === line);
+    el.innerHTML = alert ? renderInlineAlert(alert) : '';
+    el.style.display = alert ? '' : 'none';
+  });
+}
+
+function renderInlineAlert(alert) {
+  if (!alert) return '';
+  const lineInfo = mrtLineName(alert.Stations?.split(',')[0]?.trim() || '');
+  const color = lineInfo?.color || '#B8000A';
+  const stations = alert.Stations || '';
+  const direction = alert.Direction || '';
+  const freebus = alert.FreePublicBus || '';
+  const shuttle = alert.FreeMRTShuttle || '';
+  const msg = alert.Message?.Content || '';
+  const date = alert.Message?.CreatedDate ? new Date(alert.Message.CreatedDate).toLocaleTimeString('en-SG', { hour:'2-digit', minute:'2-digit' }) : '';
+  return `<div class="train-alert-inline">
+    <div class="tai-icon">⚠️</div>
+    <div class="tai-body">
+      <div class="tai-title"><span class="tai-pill" style="background:${color}">${alert.Line}</span> Service Disruption</div>
+      ${direction ? `<div class="tai-detail"><b>Direction:</b> ${direction}</div>` : ''}
+      ${stations ? `<div class="tai-detail"><b>Affected:</b> ${formatStationList(stations)}</div>` : ''}
+      ${freebus ? `<div class="tai-detail"><b>Free bus:</b> ${formatStationList(freebus)}</div>` : ''}
+      ${shuttle ? `<div class="tai-detail"><b>Free shuttle:</b> ${formatStationList(shuttle)}</div>` : ''}
+      ${msg ? `<div class="tai-detail" style="margin-top:4px">${msg}${date ? ` <span style="opacity:.6">(${date})</span>` : ''}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function inlineAlertHtmlForStop(stopName) {
+  const alerts = alertsForStopName(stopName);
+  if (!alerts.length) return '';
+  return alerts.map(renderInlineAlert).join('');
+}
+
+function inlineAlertHtmlForLine(lineAbbr) {
+  const alert = TRAIN_ALERTS.find(a => a.Line === lineAbbr);
+  return alert ? renderInlineAlert(alert) : '';
+}
+
+function openTrainAlertModal() {
+  const modal = document.getElementById('train-alert-modal');
+  const content = document.getElementById('train-alert-modal-content');
+  if (!modal || !content) return;
+  if (!TRAIN_ALERTS.length) {
+    content.innerHTML = '<p style="color:var(--muted);font-size:13px">No active train disruptions.</p>';
+  } else {
+    content.innerHTML = TRAIN_ALERTS.map(a => {
+      const lineInfo = mrtLineName(a.Stations?.split(',')[0]?.trim() || '');
+      const color = lineInfo?.color || '#B8000A';
+      const msg = a.Message?.Content || '';
+      const date = a.Message?.CreatedDate ? new Date(a.Message.CreatedDate).toLocaleString('en-SG') : '';
+      return `<div class="tam-alert">
+        <div class="tam-alert-line"><span style="background:${color};padding:2px 8px;border-radius:4px;color:#fff;font-size:12px">${a.Line}</span> Service Disruption</div>
+        ${a.Direction ? `<div class="tam-alert-row">Direction: <span>${a.Direction}</span></div>` : ''}
+        ${a.Stations ? `<div class="tam-alert-row">Affected stations: <span>${formatStationList(a.Stations)}</span></div>` : ''}
+        ${a.FreePublicBus ? `<div class="tam-alert-row">🚌 Free bus at: <span>${formatStationList(a.FreePublicBus)}</span></div>` : ''}
+        ${a.FreeMRTShuttle ? `<div class="tam-alert-row">🚇 Free shuttle at: <span>${formatStationList(a.FreeMRTShuttle)}</span></div>` : ''}
+        ${msg ? `<div class="tam-alert-msg">${msg}${date ? `<br><span style="opacity:.5;font-size:10px">${date}</span>` : ''}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+  modal.classList.add('visible');
+}
+
+function closeTrainAlertModal() {
+  document.getElementById('train-alert-modal')?.classList.remove('visible');
+}
+
 function mrtLineName(code) {
   const c = (code || '').toUpperCase();
   if (c.startsWith('NS')) return { name: 'North South Line', abbr: 'NSL', color: '#D42E12' };
@@ -3396,6 +3761,18 @@ async function renderPlanResults(itineraries) {
             <span>→</span>
             <span>${leg.to?.name||''}</span>${stationPill(toCode)}
           </div>
+          ${(() => {
+            const legAffected = new Map();
+            [fromCode, toCode].forEach(c => {
+              if (!c) return;
+              TRAIN_ALERTS.forEach(a => {
+                if (!a.Stations) return;
+                const affected = a.Stations.split(',').map(s => s.trim().toUpperCase());
+                if (affected.includes(c.toUpperCase())) legAffected.set(a.Line, a);
+              });
+            });
+            return [...legAffected.values()].map(renderInlineAlert).join('');
+          })()}
         </div>`;
       }
     });
@@ -3417,6 +3794,23 @@ async function renderPlanResults(itineraries) {
     });
     const summaryHtml = summaryParts.join('<span class="plan-summary-arrow">›</span>');
 
+    // Check if any MRT leg uses affected stations
+    const itinAlerts = new Map();
+    itin.legs.forEach(leg => {
+      if (leg.mode !== 'SUBWAY' && leg.mode !== 'TRAM') return;
+      [leg.from?.stopCode, leg.to?.stopCode].forEach(code => {
+        if (!code) return;
+        TRAIN_ALERTS.forEach(a => {
+          if (!a.Stations) return;
+          const affected = a.Stations.split(',').map(s => s.trim().toUpperCase());
+          if (affected.includes(code.toUpperCase())) itinAlerts.set(a.Line, a);
+        });
+      });
+    });
+    const itinWarnHtml = itinAlerts.size
+      ? `<button onclick="event.stopPropagation();openTrainAlertModal()" title="Train disruption: ${[...itinAlerts.keys()].join(', ')}" style="background:none;border:none;cursor:pointer;font-size:18px;padding:0;line-height:1;flex-shrink:0">⚠️</button>`
+      : '';
+
     html += `
       <div class="plan-card" onclick="togglePlanCard(${idx})">
         <div class="plan-card-header">
@@ -3424,6 +3818,7 @@ async function renderPlanResults(itineraries) {
               <div class="plan-total-time">${formatMins(totalMins)}</div>
               <div class="plan-route-summary" style="margin-top:0">${summaryHtml}</div>
             </div>
+            ${itinWarnHtml}
             <div style="font-size:18px;color:#999;transition:transform .2s" id="plan-chevron-${idx}">›</div>
         </div>
         <div class="plan-card-legs" id="plan-legs-${idx}" style="display:none">${legHtml}</div>
@@ -3512,6 +3907,7 @@ function openSettings() {
   renderSettingsAccount();
   renderSettingsDefaultTab();
   renderSettingsTheme();
+  renderSettingsAlerts();
   document.getElementById('settings-overlay').style.display = 'block';
   requestAnimationFrame(() => {
     document.getElementById('settings-drawer').style.transform = 'translateX(0)';
