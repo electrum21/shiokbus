@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Shiok Bus – Ride Comfortable</title>
+<title>shiokbus</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🚌%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1182,13 +1182,20 @@ let userLat = null, userLng = null;
 
 // ── INIT ──
 window.addEventListener('DOMContentLoaded', () => {
-  // Restore cached stops from localStorage
-  const cachedSvcs = localStorage.getItem('lahbus_services');
-  if (cachedSvcs) { try { ALL_SERVICES = JSON.parse(cachedSvcs); } catch(e) {} }
-  const cached = localStorage.getItem('lahbus_stops');
-  if (cached) {
-    try { ALL_STOPS = JSON.parse(cached); } catch(e) {}
+  // Clear caches on first load of a new tab, but not on refresh
+  if (!sessionStorage.getItem('shiokbus_session_started')) {
+    sessionStorage.setItem('shiokbus_session_started', '1');
+    localStorage.removeItem('shiokbus_services');
+    localStorage.removeItem('shiokbus_stops');
   }
+
+  // Restore cached stops from localStorage
+  const cachedSvcs = localStorage.getItem('shiokbus_services');
+  if (cachedSvcs) { try { ALL_SERVICES = indexServices(JSON.parse(cachedSvcs)); } catch(e) {} }
+  try {
+    const cached = localStorage.getItem('shiokbus_stops');
+    if (cached) ALL_STOPS = JSON.parse(cached);
+  } catch(e) {}
   // Preload services silently for instant dropdown
   if (!ALL_SERVICES) fetchAllServices().catch(() => {});
   if (!ALL_STOPS) fetchAllStops().catch(() => {});
@@ -1284,10 +1291,9 @@ function onServiceInput() {
   const dd = document.getElementById('svc-dropdown');
   if (!val || !ALL_SERVICES) { dd.style.display = 'none'; return; }
 
-  const keys = Object.keys(ALL_SERVICES);
   const seen = new Set();
   const matches = [];
-  keys.forEach(k => {
+  Object.keys(ALL_SERVICES).forEach(k => {
     const svcNo = k.split('-')[0];
     if (!seen.has(svcNo) && svcNo.toUpperCase().startsWith(val.toUpperCase())) {
       seen.add(svcNo);
@@ -1303,10 +1309,8 @@ function onServiceInput() {
   if (!matches.length) { dd.style.display = 'none'; return; }
 
   dd.innerHTML = matches.slice(0, 20).map(svc => {
-    const key1 = Object.keys(ALL_SERVICES).find(k => k.startsWith(svc + '-1') || k.startsWith(svc.toUpperCase() + '-1'));
-    const key2 = Object.keys(ALL_SERVICES).find(k => k.startsWith(svc + '-2') || k.startsWith(svc.toUpperCase() + '-2'));
-    const info1 = key1 ? ALL_SERVICES[key1] : null;
-    const info2 = key2 ? ALL_SERVICES[key2] : null;
+    const info1 = ALL_SERVICES[svc + '-1'] || null;
+    const info2 = ALL_SERVICES[svc + '-2'] || null;
     const op = (info1?.Operator || info2?.Operator || '').toUpperCase();
     const opCls = op==='TTS'?'op-tts':(op==='SBST'||op==='SBS'||op.includes('SBS'))?'op-sbs':op==='GAS'?'op-gas':'op-smrt';
     const orig = info1?.OriginCode ? (stopName(info1.OriginCode) || info1.OriginCode) : '';
@@ -1465,8 +1469,8 @@ function computeRouteSeating(stops, stopMap) {
   const segments = [];
   let elapsed = 0; // seconds from now
   for (let i = 0; i < stops.length - 1; i++) {
-    const a = stopMap[stops[i].BusStopCode];
-    const b = stopMap[stops[i+1].BusStopCode];
+    const a = stopMap[String(stops[i].BusStopCode).padStart(5,'0')];
+    const b = stopMap[String(stops[i+1].BusStopCode).padStart(5,'0')];
     if (!a?.Latitude || !b?.Latitude) continue;
     const lat1=parseFloat(a.Latitude), lng1=parseFloat(a.Longitude);
     const lat2=parseFloat(b.Latitude), lng2=parseFloat(b.Longitude);
@@ -1576,21 +1580,18 @@ function formatFreq(freq) {
 function renderRoute(rd, allStops) {
   const dir = rd.directions[rd.currentDir];
   const stopMap = {};
-  if (allStops) allStops.forEach(s => stopMap[s.BusStopCode] = s);
+  const padCode = c => String(c).padStart(5, '0');
+  if (allStops) allStops.forEach(s => stopMap[padCode(s.BusStopCode)] = s);
 
   const firstStop = dir.stops[0];
   const lastStop = dir.stops[dir.stops.length - 1];
-  const fromName = stopMap[firstStop?.BusStopCode]?.Description || firstStop?.BusStopCode || '—';
-  const toName = stopMap[lastStop?.BusStopCode]?.Description || lastStop?.BusStopCode || '—';
+  const fromName = stopMap[padCode(firstStop?.BusStopCode)]?.Description || firstStop?.BusStopCode || '—';
+  const toName = stopMap[padCode(lastStop?.BusStopCode)]?.Description || lastStop?.BusStopCode || '—';
 
   // Look up service metadata for this direction
-  const svcKey = rd.svc + '-' + dir.dir;
-  const svcInfo = rd.svcMap ? (
-    rd.svcMap[svcKey] ||
-    rd.svcMap[svcKey.toLowerCase()] ||
-    rd.svcMap[Object.keys(rd.svcMap).find(k => k.toLowerCase() === svcKey.toLowerCase())] ||
-    null
-  ) : null;
+  const svcInfo = rd.svcMap
+    ? rd.svcMap[rd.svc + '-' + dir.dir] || null
+    : null;
   const category = svcInfo?.Category || null;
   const operator = svcInfo?.Operator || null;
   const loopDesc = svcInfo?.LoopDesc || null;
@@ -1646,8 +1647,8 @@ function renderRoute(rd, allStops) {
 
   const isLoop = rd.directions.length === 1;
   rd.directions.forEach((d, i) => {
-    const dFirst = stopMap[d.stops[0]?.BusStopCode]?.Description || d.stops[0]?.BusStopCode || '?';
-    const dLast = stopMap[d.stops[d.stops.length-1]?.BusStopCode]?.Description || d.stops[d.stops.length-1]?.BusStopCode || '?';
+    const dFirst = stopMap[padCode(d.stops[0]?.BusStopCode)]?.Description || d.stops[0]?.BusStopCode || '?';
+    const dLast = stopMap[padCode(d.stops[d.stops.length-1]?.BusStopCode)]?.Description || d.stops[d.stops.length-1]?.BusStopCode || '?';
     const loopLine = (isLoop && loopDesc) ? `<div class="dir-btn-loop">via ${loopDesc}</div>` : '';
     const label = isLoop
       ? `<div class="dir-btn-dest">${dFirst} → ${dLast}</div>${loopLine}`
@@ -1661,7 +1662,7 @@ function renderRoute(rd, allStops) {
   html += `<div class="stops-scroll-wrap"><div>`; // start scrollable stops
 
   dir.stops.forEach((s, i) => {
-    const info = stopMap[s.BusStopCode];
+    const info = stopMap[padCode(s.BusStopCode)];
     const name = info?.Description || s.BusStopCode;
     const road = info?.RoadName || '';
     const dist = s.Distance ? (s.Distance >= 1 ? s.Distance.toFixed(1)+'km' : Math.round(s.Distance*1000)+'m') : '';
@@ -2060,8 +2061,8 @@ function computeRouteSeatingSlice(stops, stopMap, startElapsed) {
   const segments = [];
   let elapsed = startElapsed;
   for (let i = 0; i < stops.length - 1; i++) {
-    const a = stopMap[stops[i].BusStopCode];
-    const b = stopMap[stops[i+1].BusStopCode];
+    const a = stopMap[String(stops[i].BusStopCode).padStart(5,'0')];
+    const b = stopMap[String(stops[i+1].BusStopCode).padStart(5,'0')];
     if (!a?.Latitude || !b?.Latitude) continue;
     const lat1=parseFloat(a.Latitude), lng1=parseFloat(a.Longitude);
     const lat2=parseFloat(b.Latitude), lng2=parseFloat(b.Longitude);
@@ -2268,31 +2269,38 @@ function setNearMeSub(text) {
 
 async function fetchAllStops() {
   if (ALL_STOPS) return ALL_STOPS;
-  // Try localStorage cache first
   try {
-    const cached = localStorage.getItem('lahbus_stops_v2');
+    const cached = localStorage.getItem('shiokbus_stops');
     if (cached) { ALL_STOPS = JSON.parse(cached); return ALL_STOPS; }
   } catch(e) {}
   setNearMeSub('Loading stop database…');
   const res = await fetch(`${PROXY_URL}?endpoint=static&file=stops.json`, { headers: await getProxyHeaders() });
   if (!res.ok) throw new Error('Failed to load stops.');
   ALL_STOPS = await res.json();
-  try { localStorage.setItem('lahbus_stops_v2', JSON.stringify(ALL_STOPS)); } catch(e) {}
+  try { localStorage.setItem('shiokbus_stops', JSON.stringify(ALL_STOPS)); } catch(e) {}
   setNearMeSub(`${ALL_STOPS.length.toLocaleString()} stops loaded`);
   return ALL_STOPS;
 }
 
 // ── FETCH ALL BUS SERVICES (paginated, cached) ──
+function indexServices(raw) {
+  if (!Array.isArray(raw)) return raw; // already indexed
+  const map = {};
+  raw.forEach(s => { if (s.ServiceNo != null && s.Direction != null) map[s.ServiceNo + '-' + s.Direction] = s; });
+  return map;
+}
+
 async function fetchAllServices() {
   if (ALL_SERVICES) return ALL_SERVICES;
   try {
-    const cached = localStorage.getItem('lahbus_services_v2');
-    if (cached) { ALL_SERVICES = JSON.parse(cached); return ALL_SERVICES; }
+    const cached = localStorage.getItem('shiokbus_services');
+    if (cached) { ALL_SERVICES = indexServices(JSON.parse(cached)); return ALL_SERVICES; }
   } catch(e) {}
   const res = await fetch(`${PROXY_URL}?endpoint=static&file=bus-services.json`, { headers: await getProxyHeaders() });
   if (!res.ok) throw new Error('Failed to load services.');
-  ALL_SERVICES = await res.json();
-  try { localStorage.setItem('lahbus_services_v2', JSON.stringify(ALL_SERVICES)); } catch(e) {}
+  const raw = await res.json();
+  try { localStorage.setItem('shiokbus_services', JSON.stringify(raw)); } catch(e) {}
+  ALL_SERVICES = indexServices(raw);
   return ALL_SERVICES;
 }
 
@@ -2810,17 +2818,16 @@ function renderFavourites() {
     // Fix stale sub for services: re-derive from ALL_SERVICES if it looks wrong (contains → but should be ↔ or ↻)
     let sub = f.sub || '';
     if (f.type === 'service' && ALL_SERVICES) {
-      const svc = f.id, svcUpper = svc.toUpperCase();
-      const key1 = Object.keys(ALL_SERVICES).find(k => k.startsWith(svc+'-1') || k.startsWith(svcUpper+'-1'));
-      const key2 = Object.keys(ALL_SERVICES).find(k => k.startsWith(svc+'-2') || k.startsWith(svcUpper+'-2'));
-      const info1 = key1 ? ALL_SERVICES[key1] : null;
+      const svc = f.id;
+      const info1 = ALL_SERVICES[svc + '-1'] || null;
+      const info2 = ALL_SERVICES[svc + '-2'] || null;
       if (info1) {
         const sn = c => ALL_STOPS?.find(s => s.BusStopCode === c)?.Description || c || '';
         const orig = sn(info1.OriginCode), dest = sn(info1.DestinationCode);
         const loopD = info1.LoopDesc || '';
-        const isLoop = !key2 && info1.OriginCode === info1.DestinationCode;
+        const isLoop = !info2 && info1.OriginCode === info1.DestinationCode;
         if (isLoop) sub = loopD ? orig + ' ↻ via ' + loopD : orig + ' ↻';
-        else if (key2) sub = orig + ' ↔ ' + dest;
+        else if (info2) sub = orig + ' ↔ ' + dest;
         else sub = orig + ' → ' + dest;
       }
     }
@@ -2938,11 +2945,8 @@ function favSvcKey(svc) { return 'svc_' + svc; }
 // ── FAV HELPER ──
 function addSvcFavSmart(svc) {
   // Use ALL_SERVICES to determine route type, ALL_STOPS for stop names
-  const svcUpper = svc.toUpperCase();
-  const key1 = ALL_SERVICES && Object.keys(ALL_SERVICES).find(k => k.startsWith(svc + '-1') || k.startsWith(svcUpper + '-1'));
-  const key2 = ALL_SERVICES && Object.keys(ALL_SERVICES).find(k => k.startsWith(svc + '-2') || k.startsWith(svcUpper + '-2'));
-  const info1 = key1 ? ALL_SERVICES[key1] : null;
-  const info2 = key2 ? ALL_SERVICES[key2] : null;
+  const info1 = ALL_SERVICES && (ALL_SERVICES[svc + '-1'] || null);
+  const info2 = ALL_SERVICES && (ALL_SERVICES[svc + '-2'] || null);
 
   if (!info1) { addSvcFav(svc, ''); return; }
 
@@ -3112,7 +3116,7 @@ function mrtPills(name) {
     .replace(/\brd\b/g, 'road')
     .replace(/\bst\b/g, 'street')
     .replace(/\bdr\b/g, 'drive')
-    .replace(/\bcr\b/g, 'crescent')
+    .replace(/\bcres\b/g, 'crescent')
     .replace(/\bctrl\b/g, 'central')
     .replace(/\bpl\b/g, 'place')
     .replace(/\bbt\b/g, 'bukit')
@@ -3299,11 +3303,7 @@ function mrtLineName(code) {
 function getBusLegInfo(svc) {
   let badgeColor = '#D7181C';
   if (ALL_SERVICES) {
-    const svcUpper = (svc || '').toUpperCase();
-    const key = Object.keys(ALL_SERVICES).find(k =>
-      k.startsWith(svc + '-') || k.startsWith(svcUpper + '-')
-    );
-    const info = key ? ALL_SERVICES[key] : null;
+    const info = ALL_SERVICES[svc + '-1'] || ALL_SERVICES[(svc||'').toUpperCase() + '-1'] || null;
     if (info?.Operator) {
       const op = info.Operator.toUpperCase();
       if (op === 'TTS') badgeColor = '#1A6B2A';
