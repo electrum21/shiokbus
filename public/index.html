@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>shiokbus</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🚌%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link rel="stylesheet" href="assets/leaflet.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1295,7 +1295,7 @@ function onServiceInput() {
   const matches = [];
   Object.keys(ALL_SERVICES).forEach(k => {
     const svcNo = k.split('-')[0];
-    if (!seen.has(svcNo) && svcNo.toUpperCase().startsWith(val.toUpperCase())) {
+    if (!seen.has(svcNo) && svcNo.toUpperCase().startsWith(val.toUpperCase()) && !EXCLUDED_SERVICES.has(svcNo.replace(/^0+/, ''))) {
       seen.add(svcNo);
       matches.push(svcNo);
     }
@@ -1386,10 +1386,17 @@ let planSunAnalysis = null;// sun analysis for current route/dir
 let planBoardIdx = -1;
 let planAlightIdx = -1;
 
+const EXCLUDED_SERVICES = new Set(['382']);
+
 async function doServiceSearch() {
   closeServiceDropdown();
   const svc = document.getElementById('serviceInput').value.trim().toUpperCase().replace(/E$/, 'e');
   if (!svc) return;
+  if (EXCLUDED_SERVICES.has(svc.replace(/^0+/, ''))) {
+    document.getElementById('results-service').style.display = 'block';
+    document.getElementById('results-service').innerHTML = `<div class="error-card" style="text-align:center">⚠️ No route found for service <strong>${svc}</strong>.</div>`;
+    return;
+  }
 
   document.getElementById('results-service').style.display = 'block';
   document.getElementById('results-service').innerHTML =
@@ -1428,19 +1435,20 @@ async function doServiceSearch() {
 }
 
 // Cache routes.json in memory (it's ~8MB, only load once per session)
-let ALL_ROUTES = null;
+let ALL_ROUTES = null; // only populated as a side-effect of route lookups, used for fallback dest name
 
 async function fetchBusRoute(svc) {
-  if (!ALL_ROUTES) {
-    const res = await fetch(`${PROXY_URL}?endpoint=static&file=bus-routes.json`, { headers: await getProxyHeaders() });
-    if (!res.ok) throw new Error('Failed to load routes. Check your Worker URL.');
-    ALL_ROUTES = await res.json();
-  }
   const svcNorm = svc.replace(/^0+/, '').toUpperCase();
-  // Filter flat array by ServiceNo (handles leading zeros, case)
-  return ALL_ROUTES.filter(s =>
-    s.ServiceNo.replace(/^0+/, '').toUpperCase() === svcNorm
-  );
+  // Fetch only this service's stops from the worker — no full file download
+  const res = await fetch(`${PROXY_URL}?endpoint=route&service=${encodeURIComponent(svcNorm)}`, { headers: await getProxyHeaders() });
+  if (!res.ok) throw new Error('Failed to load route. Check your Worker URL.');
+  const stops = await res.json();
+  // Cache in ALL_ROUTES for fallback dest name lookups
+  if (!ALL_ROUTES) ALL_ROUTES = [];
+  // Remove any previously cached stops for this service then add fresh ones
+  ALL_ROUTES = ALL_ROUTES.filter(s => s.ServiceNo.replace(/^0+/,'').toUpperCase() !== svcNorm);
+  ALL_ROUTES.push(...stops);
+  return stops;
 }
 
 
@@ -2286,7 +2294,10 @@ async function fetchAllStops() {
 function indexServices(raw) {
   if (!Array.isArray(raw)) return raw; // already indexed
   const map = {};
-  raw.forEach(s => { if (s.ServiceNo != null && s.Direction != null) map[s.ServiceNo + '-' + s.Direction] = s; });
+  raw.forEach(s => {
+    if (s.ServiceNo != null && s.Direction != null && !EXCLUDED_SERVICES.has(String(s.ServiceNo)))
+      map[s.ServiceNo + '-' + s.Direction] = s;
+  });
   return map;
 }
 
@@ -3704,6 +3715,6 @@ function rainBadgeHtml(forecast) {
 
 
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="assets/leaflet.js"></script>
 </body>
 </html>
