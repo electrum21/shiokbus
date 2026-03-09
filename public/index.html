@@ -385,7 +385,7 @@ body.light .unified-name{color:#08101A}
 .route-stop-card{flex:1;background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:12px;padding:10px 14px;margin-bottom:6px;margin-top:6px;display:flex;align-items:center;gap:10px;transition:all .2s}
 .route-seq{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--card-border);min-width:22px}
 .route-stop-info{flex:1;min-width:0}
-.route-stop-name{font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.route-stop-name{font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;line-height:1.2}
 .route-stop-code{font-size:12px;color:var(--muted);margin-top:2px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px}
 .route-dist-tag{font-size:11px;color:var(--muted);text-align:right;flex-shrink:0}
 .route-dist-km{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--white)}
@@ -1804,12 +1804,16 @@ function renderRoute(rd, allStops) {
             <div class="route-seq">${s.StopSequence}</div>
             <div class="route-stop-info">
               <div class="route-stop-name" data-stop-name="${name}">${stopLabel(name)}</div>
-              <div class="route-stop-code">${s.BusStopCode}${road?' · '+road:''}</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:5px;margin-top:2px">
+                <span class="route-stop-code" style="margin:0">${s.BusStopCode}${road?' · '+road:''}</span>
+                <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
+                  ${mrtPills(name, true)}
+                  ${(() => { const as = alertsForStopName(name); return as.length ? `<button onclick="event.stopPropagation();openTrainAlertModal()" title="Train disruption on ${as.map(a=>a.Line).join(', ')}" style="background:none;border:none;cursor:pointer;font-size:12px;padding:0;line-height:1;flex-shrink:0">⚠️</button>` : ''; })()}
+                  ${/Changi Airport Ter/i.test(name) ? '<span style="font-size:13px;flex-shrink:0" title="Changi Airport Terminal">✈️</span>' : ''}
+                </div>
+              </div>
             </div>
             <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-              ${mrtPills(name)}
-              ${(() => { const as = alertsForStopName(name); return as.length ? `<button onclick="event.stopPropagation();openTrainAlertModal()" title="Train disruption on ${as.map(a=>a.Line).join(', ')}" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1;flex-shrink:0">⚠️</button>` : ''; })()}
-              ${/Changi Airport Ter/i.test(name) ? '<span style="transform:rotate(-90deg)">✈</span>' : ''}
               <button class="fav-btn" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();addStopFav('${s.BusStopCode}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')" style="font-size:16px;color:var(--muted)">${(window._favs||{})['stop_'+s.BusStopCode]?'★':'☆'}</button>
               <div class="rs-chevron">›</div>
             </div>
@@ -3422,13 +3426,14 @@ function mrtLineColor(line) {
   return '#4A4A4A'; // all LRT lines
 }
 
-function mrtPills(name) {
+function mrtPills(name, small = false) {
   if (!name || !Object.keys(MRT_LOOKUP).length) return '';
   // Only attempt MRT lookup if the stop name explicitly references a station
   if (!/\b(Stn|Lrt|Int)\b/i.test(name)) return '';
   // Strip directional prefix and station suffix
   let core = name
     .replace(/^(Bef|Aft|Opp|Fr)\s+/i, '')
+    .replace(/^(Lot|Blk)\s+[\w]+\s*\/\s*/i, '')
     .replace(/\s+Lrt\b.*/i, '')
     .replace(/\s+Stn\b.*/i, '')
     .replace(/\s+Exit\s+\w+/i, '')
@@ -3463,18 +3468,44 @@ function mrtPills(name) {
     .replace(/\bholland v\b/g, 'holland village');
 
   const matches = MRT_LOOKUP[core];
+  const pillStyle = small
+    ? `display:inline-block;vertical-align:middle;background:\${c};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3px;padding:1px 5px;border-radius:3px;line-height:1.4;flex-shrink:0`
+    : `display:inline-block;vertical-align:middle;margin-left:5px;background:\${c};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:3px 8px;border-radius:4px;line-height:1.4;flex-shrink:0`;
+
   if (matches && matches.length) {
-    return matches.map(({ stn_code, mrt_line }) =>
-      `<span style="display:inline-block;vertical-align:middle;margin-left:5px;background:${mrtLineColor(mrt_line)};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:3px 8px;border-radius:4px;line-height:1.4;flex-shrink:0">${stn_code}</span>`
-    ).join('');
+    return matches.map(({ stn_code, mrt_line }) => {
+      const c = mrtLineColor(mrt_line);
+      const s = small
+        ? `display:inline-block;vertical-align:middle;background:${c};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3px;padding:1px 5px;border-radius:3px;line-height:1.4;flex-shrink:0`
+        : `display:inline-block;vertical-align:middle;margin-left:5px;background:${c};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:3px 8px;border-radius:4px;line-height:1.4;flex-shrink:0`;
+      return `<span style="${s}">${stn_code}</span>`;
+    }).join('');
   }
-  // Fuzzy fallback: only match if MRT key equals core exactly (already done above)
-  // or core ends with the MRT key (e.g. "admiralty" matches "admiralty mrt station")
+
+  // LRT fallback: if the stop name explicitly says "Lrt", show a line pill based on known LRT stations
+  if (/\bLrt\b/i.test(name)) {
+    const lrtMap = {
+      'punggol': { abbr: 'PGL', color: '#748477' },
+      'sengkang': { abbr: 'SKL', color: '#748477' },
+    };
+    const lrtLine = lrtMap[core];
+    if (lrtLine) {
+      const s = small
+        ? `display:inline-block;vertical-align:middle;background:${lrtLine.color};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3px;padding:1px 5px;border-radius:3px;line-height:1.4;flex-shrink:0`
+        : `display:inline-block;vertical-align:middle;margin-left:5px;background:${lrtLine.color};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:3px 8px;border-radius:4px;line-height:1.4;flex-shrink:0`;
+      return `<span style="${s}">${lrtLine.abbr}</span>`;
+    }
+  }
+  // Fuzzy fallback
   const fuzzyKey = Object.keys(MRT_LOOKUP).find(k => k.length >= 5 && core === k);
   if (!fuzzyKey) return '';
-  return MRT_LOOKUP[fuzzyKey].map(({ stn_code, mrt_line }) =>
-    `<span style="display:inline-block;vertical-align:middle;margin-left:5px;background:${mrtLineColor(mrt_line)};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:3px 8px;border-radius:4px;line-height:1.4;flex-shrink:0">${stn_code}</span>`
-  ).join('');
+  return MRT_LOOKUP[fuzzyKey].map(({ stn_code, mrt_line }) => {
+    const c = mrtLineColor(mrt_line);
+    const s = small
+      ? `display:inline-block;vertical-align:middle;background:${c};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3px;padding:1px 5px;border-radius:3px;line-height:1.4;flex-shrink:0`
+      : `display:inline-block;vertical-align:middle;margin-left:5px;background:${c};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:3px 8px;border-radius:4px;line-height:1.4;flex-shrink:0`;
+    return `<span style="${s}">${stn_code}</span>`;
+  }).join('');
 }
 
 function stopLabel(name, showPills = false) {

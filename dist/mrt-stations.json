@@ -1035,6 +1035,11 @@
     "mrt_line": "Punggol LRT"
   },
   {
+    "stn_code": "PW2",
+    "mrt_station": "Teck Lee",
+    "mrt_line": "Punggol LRT"
+  },
+  {
     "stn_code": "PW3",
     "mrt_station": "Punggol Point",
     "mrt_line": "Punggol LRT"
