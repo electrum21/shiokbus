@@ -985,6 +985,7 @@ body.light .legend-nosun-swatch { background: #4A6090; }
   </div>
   <div class="alert-expand">Tap for details ›</div>
 </div>
+
 <!-- Train Service Alert Modal -->
 <div id="train-alert-modal" onclick="if(event.target===this)closeTrainAlertModal()">
   <div id="train-alert-modal-inner">
@@ -1002,10 +1003,24 @@ body.light .legend-nosun-swatch { background: #4A6090; }
     </div>
     <div class="header-right">
       <div style="display:flex;align-items:center;gap:10px">
+        <button class="auth-btn" id="mrt-map-btn" onclick="toggleMrtMap()" title="MRT Map" style="padding:5px 10px;gap:6px"><span style="font-size:16px">🗺️</span><span class="auth-name">MRT Map</span></button>
         <button class="auth-btn" id="auth-btn" onclick="openSettings()"><span style="font-size:16px;margin-right:4px">👤</span><span class="auth-name"> Sign in</span></button>
       </div>
     </div>
   </header>
+
+  <!-- MRT Map Collapsible -->
+  <div id="mrt-map-panel" style="max-height:0;overflow:hidden;transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1)">
+    <div style="background:var(--card-bg);border-bottom:1px solid var(--card-border);border-radius:12px">
+      <div style="padding:8px 14px 6px;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase">MRT Network Map</span>
+        <span style="font-size:10px;color:var(--muted)">Pinch to zoom · drag to pan</span>
+      </div>
+      <div id="mrt-map-zoom-wrap" style="height:70vw;max-height:400px;overflow:hidden;position:relative;touch-action:none;cursor:grab">
+        <img id="mrt-map-img" src="assets/mrt_map.png" alt="MRT Map" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none">
+      </div>
+    </div>
+  </div>
 
   <div class="search-zone">
 
@@ -1231,6 +1246,125 @@ body.light .legend-nosun-swatch { background: #4A6090; }
 </footer>
 
 <script>
+// ── MRT MAP COLLAPSIBLE with pinch-zoom + pan ──
+let _mrtOpen = false;
+let _mrt = { zoom: 1, x: 0, y: 0, dragStartY: 0, panStartY: 0 };
+
+function toggleMrtMap() { _mrtOpen ? closeMrtMap() : openMrtMap(); }
+
+function openMrtMap() {
+  _mrtOpen = true;
+  document.getElementById('mrt-map-panel').style.maxHeight = '9999px';
+  document.getElementById('mrt-map-btn').style.borderColor = 'var(--cyan)';
+  document.getElementById('mrt-map-btn').style.color = 'var(--cyan)';
+  _mrt = { zoom: 1, x: 0, y: 0 };
+  setTimeout(_mrtApply, 50);
+}
+
+function closeMrtMap() {
+  _mrtOpen = false;
+  document.getElementById('mrt-map-panel').style.maxHeight = '0';
+  document.getElementById('mrt-map-btn').style.borderColor = '';
+  document.getElementById('mrt-map-btn').style.color = '';
+}
+
+function _mrtApply() {
+  const img = document.getElementById('mrt-map-img');
+  const wrap = document.getElementById('mrt-map-zoom-wrap');
+  if (!img || !wrap) return;
+  const ww = wrap.clientWidth;
+  const wh = wrap.clientHeight;
+  // Clamp pan: at zoom N, image is N× larger, so max pan is half the overflow
+  const maxX = Math.max(0, (ww * _mrt.zoom - ww) / 2);
+  const maxY = Math.max(0, (wh * _mrt.zoom - wh) / 2);
+  _mrt.x = Math.max(-maxX, Math.min(maxX, _mrt.x));
+  _mrt.y = Math.max(-maxY, Math.min(maxY, _mrt.y));
+  img.style.transformOrigin = 'center center';
+  img.style.transform = `scale(${_mrt.zoom}) translate(${_mrt.x / _mrt.zoom}px, ${_mrt.y / _mrt.zoom}px)`;
+}
+
+(function () {
+  function init() {
+    const wrap = document.getElementById('mrt-map-zoom-wrap');
+    if (!wrap) return;
+
+    let touches = {};
+    let lastDist = 0;
+    let dragStartX = 0, panStartX = 0;
+    let isDragging = false;
+
+    function getTouchDist(e) {
+      const t = e.touches;
+      return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    }
+
+    wrap.addEventListener('touchstart', e => {
+      if (e.touches.length === 2) {
+        lastDist = getTouchDist(e);
+        isDragging = false;
+      } else if (e.touches.length === 1) {
+        dragStartX = e.touches[0].clientX;
+        panStartX = _mrt.x;
+        _mrt.dragStartY = e.touches[0].clientY;
+        _mrt.panStartY = _mrt.y;
+        isDragging = true;
+      }
+    }, { passive: true });
+
+    wrap.addEventListener('touchmove', e => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dist = getTouchDist(e);
+        if (lastDist > 0) {
+          _mrt.zoom = Math.max(1, Math.min(8, _mrt.zoom * dist / lastDist));
+        }
+        lastDist = dist;
+        _mrtApply();
+      } else if (e.touches.length === 1 && isDragging && _mrt.zoom > 1) {
+        e.preventDefault();
+        _mrt.x = panStartX + (e.touches[0].clientX - dragStartX);
+        _mrt.y = _mrt.panStartY + (e.touches[0].clientY - _mrt.dragStartY);
+        _mrtApply();
+      }
+    }, { passive: false });
+
+    wrap.addEventListener('touchend', e => {
+      if (e.touches.length < 2) lastDist = 0;
+      if (e.touches.length === 0) isDragging = false;
+    }, { passive: true });
+
+    // Mouse drag
+    let mouseDown = false, mouseSX = 0, mouseSY = 0, mousePX = 0, mousePY = 0;
+    wrap.addEventListener('mousedown', e => {
+      mouseDown = true;
+      mouseSX = e.clientX; mouseSY = e.clientY;
+      mousePX = _mrt.x; mousePY = _mrt.y;
+      wrap.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', e => {
+      if (!mouseDown) return;
+      _mrt.x = mousePX + (e.clientX - mouseSX);
+      _mrt.y = mousePY + (e.clientY - mouseSY);
+      _mrtApply();
+    });
+    window.addEventListener('mouseup', () => {
+      mouseDown = false;
+      wrap.style.cursor = 'grab';
+    });
+
+    // Wheel zoom
+    wrap.addEventListener('wheel', e => {
+      e.preventDefault();
+      _mrt.zoom = Math.max(1, Math.min(8, _mrt.zoom * (e.deltaY < 0 ? 1.12 : 0.88)));
+      _mrtApply();
+    }, { passive: false });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
 // ── STATE ──
 const PROXY_URL = 'https://lta-proxy-worker.shiokbus.workers.dev';
 // App Check removed — CORS origin check in worker is sufficient protection
@@ -3434,6 +3568,7 @@ function mrtPills(name, small = false) {
   let core = name
     .replace(/^(Bef|Aft|Opp|Fr)\s+/i, '')
     .replace(/^(Lot|Blk)\s+[\w]+\s*\/\s*/i, '')
+    .replace(/\/.*$/i, '')
     .replace(/\s+Lrt\b.*/i, '')
     .replace(/\s+Stn\b.*/i, '')
     .replace(/\s+Exit\s+\w+/i, '')
@@ -3750,6 +3885,8 @@ function alertsForStopName(name) {
   // Get station codes for this stop name
   let core = name
     .replace(/^(Bef|Aft|Opp|Fr)\s+/i, '')
+    .replace(/^(Lot|Blk)\s+[\w]+\s*\/\s*/i, '')
+    .replace(/\/.*$/i, '')
     .replace(/\s+Lrt\b.*/i, '').replace(/\s+Stn\b.*/i, '')
     .replace(/\s+Exit\s+\w+/i, '').replace(/\s+Ctrl\b.*/i, '')
     .replace(/\s+Int\b.*/i, '').trim().toLowerCase()
@@ -3774,6 +3911,8 @@ function mrtPillsForName(name) {
   if (!/\b(Stn|Lrt|Int)\b/i.test(name)) return [];
   let core = name
     .replace(/^(Bef|Aft|Opp|Fr)\s+/i, '')
+    .replace(/^(Lot|Blk)\s+[\w]+\s*\/\s*/i, '')
+    .replace(/\/.*$/i, '')
     .replace(/\s+Lrt\b.*/i, '')
     .replace(/\s+Stn\b.*/i, '')
     .replace(/\s+Exit\s+\w+/i, '')
@@ -4364,5 +4503,8 @@ function rainBadgeHtml(forecast) {
 
 </script>
 <script src="assets/leaflet.js"></script>
+<script>
+</script>
+
 </body>
 </html>
