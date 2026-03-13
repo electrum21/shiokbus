@@ -1,0 +1,1317 @@
+{
+  "4": {
+    "BusStopCode": "97301",
+    "RoadName": "Changi Nth Way",
+    "Description": "Aft Changi Nth St 1",
+    "StopSequence": 14
+  },
+  "6": {
+    "BusStopCode": "98199",
+    "RoadName": "Loyang Cres",
+    "Description": "Aft Loyang Way",
+    "StopSequence": 16
+  },
+  "9": {
+    "BusStopCode": "95051",
+    "RoadName": "Airport Cargo Rd",
+    "Description": "3rd Cargo Agents",
+    "StopSequence": 41
+  },
+  "11": {
+    "BusStopCode": "90079",
+    "RoadName": "Rhu Cross",
+    "Description": "Opp Costa Rhu Condo",
+    "StopSequence": 13
+  },
+  "15": {
+    "BusStopCode": "92069",
+    "RoadName": "Marine Parade Rd",
+    "Description": "Tao Nan Sch",
+    "StopSequence": 32
+  },
+  "19": {
+    "BusStopCode": "95051",
+    "RoadName": "Airport Cargo Rd",
+    "Description": "3rd Cargo Agents",
+    "StopSequence": 28
+  },
+  "20": {
+    "BusStopCode": "96351",
+    "RoadName": "Changi Business Pk Ave 3",
+    "Description": "Changi Business Pk Ave 3",
+    "StopSequence": 22
+  },
+  "23": {
+    "BusStopCode": "07531",
+    "RoadName": "Rochor Canal Rd",
+    "Description": "Rochor Stn",
+    "StopSequence": 24
+  },
+  "24": {
+    "BusStopCode": "95129",
+    "RoadName": "PTB2 Basement",
+    "Description": "Changi Airport Ter 2",
+    "StopSequence": 51
+  },
+  "27": {
+    "BusStopCode": "95129",
+    "RoadName": "PTB2 Basement",
+    "Description": "Changi Airport Ter 2",
+    "StopSequence": 30
+  },
+  "29": {
+    "BusStopCode": "99009",
+    "RoadName": "Changi Village Rd",
+    "Description": "Changi Village Ter",
+    "StopSequence": 27
+  },
+  "34": {
+    "BusStopCode": "95129",
+    "RoadName": "PTB2 Basement",
+    "Description": "Changi Airport Ter 2",
+    "StopSequence": 36
+  },
+  "35": {
+    "BusStopCode": "95171",
+    "RoadName": "Alps Ave",
+    "Description": "Prologis",
+    "StopSequence": 18
+  },
+  "36": {
+    "BusStopCode": "09191",
+    "RoadName": "Tomlinson Rd",
+    "Description": "Aft Cuscaden Rd",
+    "StopSequence": 34
+  },
+  "37": {
+    "BusStopCode": "97151",
+    "RoadName": "Changi Nth Cres",
+    "Description": "Aft Changi Nth St 2",
+    "StopSequence": 10
+  },
+  "40": {
+    "BusStopCode": "70151",
+    "RoadName": "Merpati Rd",
+    "Description": "Aft Jln Anggerek",
+    "StopSequence": 28
+  },
+  "41": {
+    "BusStopCode": "42089",
+    "RoadName": "Jln Anak Bt",
+    "Description": "Opp Bt Timah Plaza",
+    "StopSequence": 19
+  },
+  "42": {
+    "BusStopCode": "83251",
+    "RoadName": "Fidelio St",
+    "Description": "Bef Jln Khairuddin",
+    "StopSequence": 10
+  },
+  "47": {
+    "BusStopCode": "92241",
+    "RoadName": "Amber Rd",
+    "Description": "Amber Gdns",
+    "StopSequence": 26
+  },
+  "49": {
+    "BusStopCode": "28541",
+    "RoadName": "Jurong West St 42",
+    "Description": "Blk 551",
+    "StopSequence": 24
+  },
+  "53": {
+    "BusStopCode": "95129",
+    "RoadName": "PTB2 Basement",
+    "Description": "Changi Airport Ter 2",
+    "StopSequence": 48
+  },
+  "60": {
+    "BusStopCode": "84009",
+    "RoadName": "Bedok Nth Dr",
+    "Description": "Bedok Int",
+    "StopSequence": 17
+  },
+  "62": {
+    "BusStopCode": "80051",
+    "RoadName": "Sims Ave",
+    "Description": "Aft Lor 1 Geylang",
+    "StopSequence": 45
+  },
+  "64": {
+    "BusStopCode": "11579",
+    "RoadName": "Mei Ling St",
+    "Description": "Blk 158",
+    "StopSequence": 41
+  },
+  "66": {
+    "BusStopCode": "42079",
+    "RoadName": "Upp Bt Timah Rd",
+    "Description": "Opp Pei Hwa Presby Pr Sch",
+    "StopSequence": 23
+  },
+  "68": {
+    "BusStopCode": "75009",
+    "RoadName": "Tampines Ctrl 1",
+    "Description": "Tampines Int",
+    "StopSequence": 22
+  },
+  "69": {
+    "BusStopCode": "84009",
+    "RoadName": "Bedok Nth Dr",
+    "Description": "Bedok Int",
+    "StopSequence": 18
+  },
+  "71": {
+    "BusStopCode": "53421",
+    "RoadName": "Bishan St 11",
+    "Description": "Blk 151A Mkt",
+    "StopSequence": 22
+  },
+  "73": {
+    "BusStopCode": "52361",
+    "RoadName": "Lor 6 Toa Payoh",
+    "Description": "Blk 1",
+    "StopSequence": 25
+  },
+  "78": {
+    "BusStopCode": "17239",
+    "RoadName": "Clementi Ave 3",
+    "Description": "NTUC Fairprice",
+    "StopSequence": 31
+  },
+  "79": {
+    "BusStopCode": "22009",
+    "RoadName": "Jurong West Ctrl 3",
+    "Description": "Boon Lay Int",
+    "StopSequence": 28
+  },
+  "81": {
+    "BusStopCode": "66351",
+    "RoadName": "S'goon Ctrl",
+    "Description": "S'goon Stn Exit E",
+    "StopSequence": 35
+  },
+  "82": {
+    "BusStopCode": "66351",
+    "RoadName": "S'goon Ctrl",
+    "Description": "S'goon Stn Exit E",
+    "StopSequence": 22
+  },
+  "83": {
+    "BusStopCode": "67009",
+    "RoadName": "Sengkang Sq",
+    "Description": "Sengkang Int",
+    "StopSequence": 16
+  },
+  "89": {
+    "BusStopCode": "95051",
+    "RoadName": "Airport Cargo Rd",
+    "Description": "3rd Cargo Agents",
+    "StopSequence": 48
+  },
+  "90": {
+    "BusStopCode": "71011",
+    "RoadName": "Airport Rd",
+    "Description": "Aft Paya Lebar Rd",
+    "StopSequence": 12
+  },
+  "91": {
+    "BusStopCode": "18021",
+    "RoadName": "Ayer Rajah Cres",
+    "Description": "Opp Tempco Mfg",
+    "StopSequence": 7
+  },
+  "94": {
+    "BusStopCode": "71031",
+    "RoadName": "Airport Rd",
+    "Description": "Opp Gordon Warehse Bldg",
+    "StopSequence": 9
+  },
+  "95": {
+    "BusStopCode": "11261",
+    "RoadName": "Holland Rd",
+    "Description": "Holland Village",
+    "StopSequence": 15
+  },
+  "96": {
+    "BusStopCode": "16199",
+    "RoadName": "Kent Ridge Cres",
+    "Description": "Aft Architecture Dr",
+    "StopSequence": 7
+  },
+  "98": {
+    "BusStopCode": "21099",
+    "RoadName": "Jurong Pier Way",
+    "Description": "Jurong Island Checkpt",
+    "StopSequence": 35
+  },
+  "101": {
+    "BusStopCode": "66601",
+    "RoadName": "Buangkok Cres",
+    "Description": "Blk 991A",
+    "StopSequence": 24
+  },
+  "102": {
+    "BusStopCode": "68099",
+    "RoadName": "Seletar Aerospace Dr",
+    "Description": "Bef Baker St",
+    "StopSequence": 28
+  },
+  "110": {
+    "BusStopCode": "95129",
+    "RoadName": "PTB2 Basement",
+    "Description": "Changi Airport Ter 2",
+    "StopSequence": 17
+  },
+  "111": {
+    "BusStopCode": "02161",
+    "RoadName": "Temasek Ave",
+    "Description": "Aft Promenade Stn Exit C",
+    "StopSequence": 26
+  },
+  "112": {
+    "BusStopCode": "64509",
+    "RoadName": "Hougang St 92",
+    "Description": "Blk 941A",
+    "StopSequence": 24
+  },
+  "113": {
+    "BusStopCode": "62059",
+    "RoadName": "Upp Paya Lebar Rd",
+    "Description": "Blk 161",
+    "StopSequence": 23
+  },
+  "115": {
+    "BusStopCode": "63099",
+    "RoadName": "Hougang Ave 3",
+    "Description": "Blk 106",
+    "StopSequence": 6
+  },
+  "116": {
+    "BusStopCode": "66379",
+    "RoadName": "S'goon Ctrl",
+    "Description": "Blk 206",
+    "StopSequence": 18
+  },
+  "119": {
+    "BusStopCode": "63221",
+    "RoadName": "Hougang St 21",
+    "Description": "Kovan Hub",
+    "StopSequence": 25
+  },
+  "120": {
+    "BusStopCode": "14349",
+    "RoadName": "Telok Blangah Hts",
+    "Description": "Blk 59",
+    "StopSequence": 23
+  },
+  "121": {
+    "BusStopCode": "14319",
+    "RoadName": "Telok Blangah Rise",
+    "Description": "Blk 28",
+    "StopSequence": 22
+  },
+  "122": {
+    "BusStopCode": "11439",
+    "RoadName": "C'wealth Dr",
+    "Description": "Blk 92",
+    "StopSequence": 20
+  },
+  "125": {
+    "BusStopCode": "80239",
+    "RoadName": "Sims Dr",
+    "Description": "Bef Blk 53",
+    "StopSequence": 22
+  },
+  "127": {
+    "BusStopCode": "75381",
+    "RoadName": "Tampines Ind Ave 5",
+    "Description": "T5@Tampines",
+    "StopSequence": 10
+  },
+  "134": {
+    "BusStopCode": "92229",
+    "RoadName": "Marine Terr",
+    "Description": "Blk 53",
+    "StopSequence": 18
+  },
+  "138": {
+    "BusStopCode": "48111",
+    "RoadName": "Mandai Lake Rd",
+    "Description": "Opp Bird Paradise",
+    "StopSequence": 29
+  },
+  "140": {
+    "BusStopCode": "60251",
+    "RoadName": "St. Wilfred Rd",
+    "Description": "Blk 15",
+    "StopSequence": 18
+  },
+  "142": {
+    "BusStopCode": "61061",
+    "RoadName": "Potong Pasir Ave 1",
+    "Description": "Blk 148",
+    "StopSequence": 8
+  },
+  "148": {
+    "BusStopCode": "61061",
+    "RoadName": "Potong Pasir Ave 1",
+    "Description": "Blk 148",
+    "StopSequence": 6
+  },
+  "150": {
+    "BusStopCode": "92229",
+    "RoadName": "Marine Terr",
+    "Description": "Blk 53",
+    "StopSequence": 10
+  },
+  "158": {
+    "BusStopCode": "90079",
+    "RoadName": "Rhu Cross",
+    "Description": "Opp Costa Rhu Condo",
+    "StopSequence": 36
+  },
+  "160": {
+    "BusStopCode": "47711",
+    "RoadName": "Jln Jim Quee",
+    "Description": "JB Sentral Bus Ter",
+    "StopSequence": 40
+  },
+  "162": {
+    "BusStopCode": "53519",
+    "RoadName": "Sin Ming Dr",
+    "Description": "Sin Ming Autocity",
+    "StopSequence": 31
+  },
+  "171": {
+    "BusStopCode": "44029",
+    "RoadName": "Upp Bt Timah Rd",
+    "Description": "Bt Panjang Stn Exit A/LRT",
+    "StopSequence": 21
+  },
+  "177": {
+    "BusStopCode": "44739",
+    "RoadName": "Jelebu Rd",
+    "Description": "Blk 180",
+    "StopSequence": 14
+  },
+  "179": {
+    "BusStopCode": "27061",
+    "RoadName": "Nanyang Dr",
+    "Description": "Sch of ADM",
+    "StopSequence": 11
+  },
+  "180": {
+    "BusStopCode": "44259",
+    "RoadName": "Bt Panjang Rd",
+    "Description": "Blk 183",
+    "StopSequence": 26
+  },
+  "181": {
+    "BusStopCode": "27459",
+    "RoadName": "Jurong West Ave 3",
+    "Description": "Blk 273B",
+    "StopSequence": 8
+  },
+  "182": {
+    "BusStopCode": "26211",
+    "RoadName": "Tuas Sth Ave 9",
+    "Description": "Framo S'pore Pte Ltd",
+    "StopSequence": 31
+  },
+  "183": {
+    "BusStopCode": "16101",
+    "RoadName": "Science Pk Rd",
+    "Description": "Inst of Micro-electronics",
+    "StopSequence": 27
+  },
+  "189": {
+    "BusStopCode": "16991",
+    "RoadName": "Clementi Ave 1",
+    "Description": "Opp Nan Hua High Sch",
+    "StopSequence": 17
+  },
+  "191": {
+    "BusStopCode": "18151",
+    "RoadName": "Portsdown Rd",
+    "Description": "Opp one-north Stn/Galaxis",
+    "StopSequence": 6
+  },
+  "194": {
+    "BusStopCode": "22011",
+    "RoadName": "Jln Ahmad Ibrahim",
+    "Description": "Bef Jurong Hill",
+    "StopSequence": 7
+  },
+  "199": {
+    "BusStopCode": "27011",
+    "RoadName": "Nanyang Cres",
+    "Description": "Hall 11 Blk 55",
+    "StopSequence": 9
+  },
+  "200": {
+    "BusStopCode": "16009",
+    "RoadName": "Clementi Rd",
+    "Description": "Kent Ridge Ter",
+    "StopSequence": 23
+  },
+  "201": {
+    "BusStopCode": "20199",
+    "RoadName": "Pandan Gdns",
+    "Description": "Blk 410",
+    "StopSequence": 23
+  },
+  "222": {
+    "BusStopCode": "84579",
+    "RoadName": "Chai Chee Dr",
+    "Description": "Aft Chai Chee St",
+    "StopSequence": 16
+  },
+  "228": {
+    "BusStopCode": "84609",
+    "RoadName": "Bedok Reservoir Rd",
+    "Description": "Waterfront Key",
+    "StopSequence": 7
+  },
+  "229": {
+    "BusStopCode": "84139",
+    "RoadName": "Bedok Sth Rd",
+    "Description": "Panasonic",
+    "StopSequence": 5
+  },
+  "231": {
+    "BusStopCode": "52281",
+    "RoadName": "Lor 5 Toa Payoh",
+    "Description": "Blk 68",
+    "StopSequence": 10
+  },
+  "232": {
+    "BusStopCode": "52311",
+    "RoadName": "Toa Payoh East",
+    "Description": "Blk 23",
+    "StopSequence": 11
+  },
+  "235": {
+    "BusStopCode": "52551",
+    "RoadName": "Toa Payoh Lk",
+    "Description": "Caldecott Stn Exit 4",
+    "StopSequence": 13
+  },
+  "238": {
+    "BusStopCode": "52489",
+    "RoadName": "Lor 8 Toa Payoh",
+    "Description": "Opp Toa Payoh Polyclinic",
+    "StopSequence": 6
+  },
+  "240": {
+    "BusStopCode": "21029",
+    "RoadName": "Jln Ahmad Ibrahim",
+    "Description": "Aft Corp Pl",
+    "StopSequence": 20
+  },
+  "241": {
+    "BusStopCode": "27271",
+    "RoadName": "Jurong West St 91",
+    "Description": "Blk 962",
+    "StopSequence": 7
+  },
+  "242": {
+    "BusStopCode": "27351",
+    "RoadName": "Jurong West Ave 5",
+    "Description": "Blk 715",
+    "StopSequence": 8
+  },
+  "246": {
+    "BusStopCode": "21451",
+    "RoadName": "Boon Lay Dr",
+    "Description": "Blk 206",
+    "StopSequence": 20
+  },
+  "247": {
+    "BusStopCode": "25671",
+    "RoadName": "Tuas Bay Link",
+    "Description": "Bef Offshore Marine Ctr",
+    "StopSequence": 28
+  },
+  "248": {
+    "BusStopCode": "25761",
+    "RoadName": "Tuas Sth Ave 14",
+    "Description": "Opp REC S'pore",
+    "StopSequence": 16
+  },
+  "249": {
+    "BusStopCode": "23469",
+    "RoadName": "Jln Samulun",
+    "Description": "Opp Tanoto Shipyard",
+    "StopSequence": 21
+  },
+  "251": {
+    "BusStopCode": "23439",
+    "RoadName": "Shipyard Rd",
+    "Description": "Opp LP 71",
+    "StopSequence": 14
+  },
+  "252": {
+    "BusStopCode": "24599",
+    "RoadName": "Joo Koon Rd",
+    "Description": "Bef Joo Koon Way",
+    "StopSequence": 20
+  },
+  "253": {
+    "BusStopCode": "23519",
+    "RoadName": "Benoi Rd",
+    "Description": "Opp FairPrice Hub",
+    "StopSequence": 2
+  },
+  "254": {
+    "BusStopCode": "26141",
+    "RoadName": "Tuas Ave 11",
+    "Description": "Mectron Engrg",
+    "StopSequence": 23
+  },
+  "255": {
+    "BusStopCode": "24209",
+    "RoadName": "Gul Cres",
+    "Description": "Aft Gul Lane",
+    "StopSequence": 9
+  },
+  "257": {
+    "BusStopCode": "24391",
+    "RoadName": "Pioneer Sector 2",
+    "Description": "Chem-Solv Technologies",
+    "StopSequence": 18
+  },
+  "258": {
+    "BusStopCode": "22599",
+    "RoadName": "Jurong West St 64",
+    "Description": "Blk 678D",
+    "StopSequence": 19
+  },
+  "261": {
+    "BusStopCode": "54389",
+    "RoadName": "Ang Mo Kio Ave 10",
+    "Description": "Blk 465",
+    "StopSequence": 5
+  },
+  "262": {
+    "BusStopCode": "56289",
+    "RoadName": "Ang Mo Kio Ave 2",
+    "Description": "Bef Shangri-La Wk",
+    "StopSequence": 13
+  },
+  "269": {
+    "BusStopCode": "55199",
+    "RoadName": "Ang Mo Kio St 61",
+    "Description": "Blk 645",
+    "StopSequence": 11
+  },
+  "272": {
+    "BusStopCode": "14319",
+    "RoadName": "Telok Blangah Rise",
+    "Description": "Blk 28",
+    "StopSequence": 5
+  },
+  "273": {
+    "BusStopCode": "10339",
+    "RoadName": "Henderson Rd",
+    "Description": "Aft Bt Merah Ctrl",
+    "StopSequence": 2
+  },
+  "282": {
+    "BusStopCode": "17269",
+    "RoadName": "Clementi West St 2",
+    "Description": "Blk 730",
+    "StopSequence": 5
+  },
+  "284": {
+    "BusStopCode": "17211",
+    "RoadName": "Clementi Ave 4",
+    "Description": "Bet Blks 315/318",
+    "StopSequence": 2
+  },
+  "285": {
+    "BusStopCode": "20341",
+    "RoadName": "Pandan Loop",
+    "Description": "Pan Tech Ind Cplx",
+    "StopSequence": 8
+  },
+  "291": {
+    "BusStopCode": "75099",
+    "RoadName": "Tampines St 81",
+    "Description": "Blk 897",
+    "StopSequence": 7
+  },
+  "292": {
+    "BusStopCode": "76291",
+    "RoadName": "Tampines St 22",
+    "Description": "Opp Blk 273",
+    "StopSequence": 7
+  },
+  "293": {
+    "BusStopCode": "75329",
+    "RoadName": "Tampines St 71",
+    "Description": "Poi Ching Sch",
+    "StopSequence": 10
+  },
+  "296": {
+    "BusStopCode": "75619",
+    "RoadName": "Tampines Nth Dr 2",
+    "Description": "T-Space",
+    "StopSequence": 9
+  },
+  "298": {
+    "BusStopCode": "75179",
+    "RoadName": "Tampines Ave 5",
+    "Description": "Blk 871C",
+    "StopSequence": 17
+  },
+  "300": {
+    "BusStopCode": "44521",
+    "RoadName": "Choa Chu Kang Ave 3",
+    "Description": "Blk 280",
+    "StopSequence": 10
+  },
+  "301": {
+    "BusStopCode": "44181",
+    "RoadName": "Keat Hong Cl",
+    "Description": "Blk 802B",
+    "StopSequence": 11
+  },
+  "302": {
+    "BusStopCode": "45401",
+    "RoadName": "Choa Chu Kang Cres",
+    "Description": "Blk 681",
+    "StopSequence": 10
+  },
+  "307": {
+    "BusStopCode": "44299",
+    "RoadName": "Teck Whye Ave",
+    "Description": "CCK Polyclinic",
+    "StopSequence": 24
+  },
+  "315": {
+    "BusStopCode": "66539",
+    "RoadName": "S'goon Nth Ave 5",
+    "Description": "Blk 531",
+    "StopSequence": 16
+  },
+  "317": {
+    "BusStopCode": "66201",
+    "RoadName": "Berwick Dr",
+    "Description": "Opp Brockhampton Dr",
+    "StopSequence": 15
+  },
+  "324": {
+    "BusStopCode": "62261",
+    "RoadName": "Upp Serangoon View",
+    "Description": "Opp S'goon Sec Sch",
+    "StopSequence": 6
+  },
+  "325": {
+    "BusStopCode": "64081",
+    "RoadName": "Hougang St 91",
+    "Description": "Hougang 1/Opp Blk 931A",
+    "StopSequence": 18
+  },
+  "329": {
+    "BusStopCode": "66589",
+    "RoadName": "Buangkok Cres",
+    "Description": "Buangkok Sports Pk",
+    "StopSequence": 10
+  },
+  "333": {
+    "BusStopCode": "28471",
+    "RoadName": "Jurong East St 32",
+    "Description": "Opp Blk 311",
+    "StopSequence": 10
+  },
+  "334": {
+    "BusStopCode": "28541",
+    "RoadName": "Jurong West St 42",
+    "Description": "Blk 551",
+    "StopSequence": 13
+  },
+  "335": {
+    "BusStopCode": "28581",
+    "RoadName": "Jurong West St 41",
+    "Description": "Blk 491",
+    "StopSequence": 17
+  },
+  "354": {
+    "BusStopCode": "78099",
+    "RoadName": "Jln Loyang Besar",
+    "Description": "Aft Loyang Gdns",
+    "StopSequence": 3
+  },
+  "358": {
+    "BusStopCode": "77221",
+    "RoadName": "Pasir Ris Dr 10",
+    "Description": "Blk 651",
+    "StopSequence": 5
+  },
+  "359": {
+    "BusStopCode": "77291",
+    "RoadName": "Pasir Ris St 71",
+    "Description": "Blk 753",
+    "StopSequence": 10
+  },
+  "371": {
+    "BusStopCode": "67661",
+    "RoadName": "Rivervale Cres",
+    "Description": "Opp Blk 178A",
+    "StopSequence": 7
+  },
+  "372": {
+    "BusStopCode": "65031",
+    "RoadName": "Punggol Rd",
+    "Description": "Blk 227D",
+    "StopSequence": 10
+  },
+  "374": {
+    "BusStopCode": "67741",
+    "RoadName": "Fernvale Rd",
+    "Description": "Thanggam Stn Exit B",
+    "StopSequence": 10
+  },
+  "381": {
+    "BusStopCode": "65231",
+    "RoadName": "Punggol East",
+    "Description": "Riviera Stn Exit B",
+    "StopSequence": 12
+  },
+  "382": {
+    "BusStopCode": "65491",
+    "RoadName": "Sumang Walk",
+    "Description": "Opp Blk 259 CP",
+    "StopSequence": 8
+  },
+  "384": {
+    "BusStopCode": "65641",
+    "RoadName": "Northshore Dr",
+    "Description": "Marina Country Club",
+    "StopSequence": 6
+  },
+  "386": {
+    "BusStopCode": "65221",
+    "RoadName": "Punggol Ctrl",
+    "Description": "Blk 303D",
+    "StopSequence": 2
+  },
+  "400": {
+    "BusStopCode": "03419",
+    "RoadName": "Marina Coastal Dr",
+    "Description": "Marina Sth Pier Stn",
+    "StopSequence": 13
+  },
+  "401": {
+    "BusStopCode": "91089",
+    "RoadName": "Fort Rd",
+    "Description": "Opp Katong Pk Stn",
+    "StopSequence": 26
+  },
+  "403": {
+    "BusStopCode": "77111",
+    "RoadName": "Pasir Ris Rd",
+    "Description": "Bef Pasir Ris Way",
+    "StopSequence": 10
+  },
+  "405": {
+    "BusStopCode": "31149",
+    "RoadName": "Old Choa Chu Kang Rd",
+    "Description": "Bef Gdn of Remembrance",
+    "StopSequence": 11
+  },
+  "454": {
+    "BusStopCode": "75041",
+    "RoadName": "Tampines Street 86",
+    "Description": "Blk 875B",
+    "StopSequence": 9
+  },
+  "455": {
+    "BusStopCode": "45401",
+    "RoadName": "Choa Chu Kang Cres",
+    "Description": "Blk 681",
+    "StopSequence": 5
+  },
+  "502": {
+    "BusStopCode": "03539",
+    "RoadName": "Central Blvd",
+    "Description": "Marina Bay Stn",
+    "StopSequence": 45
+  },
+  "518": {
+    "BusStopCode": "03509",
+    "RoadName": "Bayfront Ave",
+    "Description": "Bayfront Stn Exit B/MBS",
+    "StopSequence": 57
+  },
+  "800": {
+    "BusStopCode": "57129",
+    "RoadName": "Sembawang Rd",
+    "Description": "Blk 114",
+    "StopSequence": 9
+  },
+  "801": {
+    "BusStopCode": "59781",
+    "RoadName": "Yishun Ave 1",
+    "Description": "Aft Yishun Ave 6",
+    "StopSequence": 11
+  },
+  "803": {
+    "BusStopCode": "59821",
+    "RoadName": "Yishun Ave 6",
+    "Description": "Blk 334B",
+    "StopSequence": 6
+  },
+  "804": {
+    "BusStopCode": "59461",
+    "RoadName": "Yishun Ave 11",
+    "Description": "Opp Blk 419",
+    "StopSequence": 14
+  },
+  "806": {
+    "BusStopCode": "59591",
+    "RoadName": "Yishun Ave 6",
+    "Description": "Bet Blks 405/406",
+    "StopSequence": 7
+  },
+  "807": {
+    "BusStopCode": "59111",
+    "RoadName": "Yishun Ave 5",
+    "Description": "Blk 701",
+    "StopSequence": 19
+  },
+  "811": {
+    "BusStopCode": "59119",
+    "RoadName": "Yishun Ave 5",
+    "Description": "Opp Blk 701A",
+    "StopSequence": 13
+  },
+  "812": {
+    "BusStopCode": "59291",
+    "RoadName": "Yishun Ave 4",
+    "Description": "Blk 666",
+    "StopSequence": 8
+  },
+  "825": {
+    "BusStopCode": "55339",
+    "RoadName": "Lentor Loop",
+    "Description": "Aft Florissa Pk",
+    "StopSequence": 5
+  },
+  "857": {
+    "BusStopCode": "02161",
+    "RoadName": "Temasek Ave",
+    "Description": "Aft Promenade Stn Exit C",
+    "StopSequence": 31
+  },
+  "858": {
+    "BusStopCode": "95129",
+    "RoadName": "PTB2 Basement",
+    "Description": "Changi Airport Ter 2",
+    "StopSequence": 39
+  },
+  "859": {
+    "BusStopCode": "59073",
+    "RoadName": "Yishun Ave 2",
+    "Description": "Opp Yishun Stn",
+    "StopSequence": 25
+  },
+  "860": {
+    "BusStopCode": "59059",
+    "RoadName": "Yishun Ave 2",
+    "Description": "Blk 608",
+    "StopSequence": 25
+  },
+  "861": {
+    "BusStopCode": "59761",
+    "RoadName": "Yishun Ring Rd",
+    "Description": "Blk 504C",
+    "StopSequence": 25
+  },
+  "871": {
+    "BusStopCode": "42079",
+    "RoadName": "Upp Bt Timah Rd",
+    "Description": "Opp Pei Hwa Presby Pr Sch",
+    "StopSequence": 27
+  },
+  "872": {
+    "BusStopCode": "28471",
+    "RoadName": "Jurong East St 32",
+    "Description": "Opp Blk 311",
+    "StopSequence": 13
+  },
+  "882": {
+    "BusStopCode": "58051",
+    "RoadName": "Sembawang Rd",
+    "Description": "Blk 592C",
+    "StopSequence": 8
+  },
+  "883": {
+    "BusStopCode": "59619",
+    "RoadName": "Yishun Ctrl 2",
+    "Description": "Yishun Community Hosp",
+    "StopSequence": 17
+  },
+  "900": {
+    "BusStopCode": "46991",
+    "RoadName": "Woodlands Ave 1",
+    "Description": "Blk 589",
+    "StopSequence": 12
+  },
+  "901": {
+    "BusStopCode": "47539",
+    "RoadName": "Woodlands Ave 6",
+    "Description": "Opp Woodgrove Sec Sch",
+    "StopSequence": 9
+  },
+  "903": {
+    "BusStopCode": "46069",
+    "RoadName": "Woodlands Ctr Rd",
+    "Description": "W'lands Train Checkpt",
+    "StopSequence": 11
+  },
+  "904": {
+    "BusStopCode": "47661",
+    "RoadName": "Woodlands Cres",
+    "Description": "Blk 788E",
+    "StopSequence": 10
+  },
+  "911": {
+    "BusStopCode": "46279",
+    "RoadName": "Woodlands Ave 2",
+    "Description": "Blk 803",
+    "StopSequence": 8
+  },
+  "912": {
+    "BusStopCode": "46779",
+    "RoadName": "Woodlands Ave 7",
+    "Description": "Admiralty Stn",
+    "StopSequence": 10
+  },
+  "913": {
+    "BusStopCode": "46811",
+    "RoadName": "Woodlands Circle",
+    "Description": "Blk 726",
+    "StopSequence": 8
+  },
+  "920": {
+    "BusStopCode": "44301",
+    "RoadName": "Bangkit Rd",
+    "Description": "Opp Blk 271",
+    "StopSequence": 17
+  },
+  "922": {
+    "BusStopCode": "44301",
+    "RoadName": "Bangkit Rd",
+    "Description": "Opp Blk 271",
+    "StopSequence": 14
+  },
+  "927": {
+    "BusStopCode": "48111",
+    "RoadName": "Mandai Lake Rd",
+    "Description": "Opp Bird Paradise",
+    "StopSequence": 18
+  },
+  "941": {
+    "BusStopCode": "40339",
+    "RoadName": "Bukit Batok West Avenue 9",
+    "Description": "Blk 448B",
+    "StopSequence": 11
+  },
+  "945": {
+    "BusStopCode": "43659",
+    "RoadName": "Bt Batok St 34",
+    "Description": "St. Anthony's Pr Sch",
+    "StopSequence": 12
+  },
+  "947": {
+    "BusStopCode": "43679",
+    "RoadName": "Bt Batok Rd",
+    "Description": "Blk 402",
+    "StopSequence": 8
+  },
+  "950": {
+    "BusStopCode": "47711",
+    "RoadName": "Jln Jim Quee",
+    "Description": "JB Sentral Bus Ter",
+    "StopSequence": 12
+  },
+  "962": {
+    "BusStopCode": "58369",
+    "RoadName": "Admiralty St",
+    "Description": "Bef Acacia Hme",
+    "StopSequence": 23
+  },
+  "965": {
+    "BusStopCode": "67009",
+    "RoadName": "Sengkang Sq",
+    "Description": "Sengkang Int",
+    "StopSequence": 27
+  },
+  "966": {
+    "BusStopCode": "92059",
+    "RoadName": "Marine Parade Rd",
+    "Description": "Marine Pde Stn Exit 6",
+    "StopSequence": 25
+  },
+  "967": {
+    "BusStopCode": "47749",
+    "RoadName": "Woodlands Dr 17",
+    "Description": "W'lands Hosp",
+    "StopSequence": 15
+  },
+  "973": {
+    "BusStopCode": "43811",
+    "RoadName": "Hume Ave",
+    "Description": "Bef Summerhill",
+    "StopSequence": 14
+  },
+  "974": {
+    "BusStopCode": "44029",
+    "RoadName": "Upp Bt Timah Rd",
+    "Description": "Bt Panjang Stn Exit A/LRT",
+    "StopSequence": 27
+  },
+  "975": {
+    "BusStopCode": "32121",
+    "RoadName": "Lim Chu Kang Rd",
+    "Description": "Aft Old Choa Chu Kang Rd",
+    "StopSequence": 28
+  },
+  "979": {
+    "BusStopCode": "45401",
+    "RoadName": "Choa Chu Kang Cres",
+    "Description": "Blk 681",
+    "StopSequence": 18
+  },
+  "990": {
+    "BusStopCode": "28211",
+    "RoadName": "Jurong Gateway Rd",
+    "Description": "Bef Jurong East Stn",
+    "StopSequence": 15
+  },
+  "993": {
+    "BusStopCode": "40321",
+    "RoadName": "Bt Batok West Ave 8",
+    "Description": "Dulwich College",
+    "StopSequence": 8
+  },
+  "382G": {
+    "BusStopCode": "65491",
+    "RoadName": "Sumang Walk",
+    "Description": "Opp Blk 259 CP",
+    "StopSequence": 8
+  },
+  "382W": {
+    "BusStopCode": "65459",
+    "RoadName": "Sumang Walk",
+    "Description": "Opp Blk 322 CP",
+    "StopSequence": 6
+  },
+  "84G": {
+    "BusStopCode": "65699",
+    "RoadName": "New Punggol Rd",
+    "Description": "Blk 437B",
+    "StopSequence": 10
+  },
+  "84W": {
+    "BusStopCode": "65101",
+    "RoadName": "New Punggol Rd",
+    "Description": "Opp My First Skool PCC10",
+    "StopSequence": 4
+  },
+  "107M": {
+    "BusStopCode": "02089",
+    "RoadName": "Raffles Blvd",
+    "Description": "Promenade Stn/Pan Pacific",
+    "StopSequence": 35
+  },
+  "123M": {
+    "BusStopCode": "10169",
+    "RoadName": "Tiong Bahru Rd",
+    "Description": "Tiong Bahru Stn/Plaza",
+    "StopSequence": 12
+  },
+  "138M": {
+    "BusStopCode": "54059",
+    "RoadName": "Ang Mo Kio Ave 6",
+    "Description": "Bef Ang Mo Kio Lib",
+    "StopSequence": 2
+  },
+  "225G": {
+    "BusStopCode": "84381",
+    "RoadName": "Bedok Nth St 3",
+    "Description": "Blk 544",
+    "StopSequence": 4
+  },
+  "225W": {
+    "BusStopCode": "84449",
+    "RoadName": "Bedok Nth St 3",
+    "Description": "Blk 509",
+    "StopSequence": 4
+  },
+  "35M": {
+    "BusStopCode": "96219",
+    "RoadName": "Tanah Merah Ferry Rd",
+    "Description": "Tanah Merah Ferry Ter",
+    "StopSequence": 12
+  },
+  "410G": {
+    "BusStopCode": "53291",
+    "RoadName": "Shunfu Rd",
+    "Description": "Shunfu Mart",
+    "StopSequence": 9
+  },
+  "410W": {
+    "BusStopCode": "53299",
+    "RoadName": "Shunfu Rd",
+    "Description": "Bef Jadescape",
+    "StopSequence": 14
+  },
+  "53M": {
+    "BusStopCode": "66379",
+    "RoadName": "S'goon Ctrl",
+    "Description": "Blk 206",
+    "StopSequence": 11
+  },
+  "63M": {
+    "BusStopCode": "70201",
+    "RoadName": "Circuit Rd",
+    "Description": "Opp MacPherson Stn Exit D",
+    "StopSequence": 15
+  },
+  "70M": {
+    "BusStopCode": "02161",
+    "RoadName": "Temasek Ave",
+    "Description": "Aft Promenade Stn Exit C",
+    "StopSequence": 51
+  },
+  "179A": {
+    "BusStopCode": "27061",
+    "RoadName": "Nanyang Dr",
+    "Description": "Sch of ADM",
+    "StopSequence": 5
+  },
+  "181M": {
+    "BusStopCode": "27479",
+    "RoadName": "Jurong West St 23",
+    "Description": "Opp Corporation Pr Sch",
+    "StopSequence": 10
+  },
+  "182M": {
+    "BusStopCode": "26211",
+    "RoadName": "Tuas Sth Ave 9",
+    "Description": "Framo S'pore Pte Ltd",
+    "StopSequence": 30
+  },
+  "243G": {
+    "BusStopCode": "27431",
+    "RoadName": "Jurong West Ave 5",
+    "Description": "Blk 762",
+    "StopSequence": 5
+  },
+  "243W": {
+    "BusStopCode": "27369",
+    "RoadName": "Jurong West Ave 5",
+    "Description": "Blk 834",
+    "StopSequence": 7
+  },
+  "248M": {
+    "BusStopCode": "25059",
+    "RoadName": "Tuas Sth Way",
+    "Description": "Aft Tuas Sth Blvd",
+    "StopSequence": 16
+  },
+  "258M": {
+    "BusStopCode": "21449",
+    "RoadName": "Boon Lay Pl",
+    "Description": "Boon Lay Shop Ctr",
+    "StopSequence": 23
+  },
+  "901M": {
+    "BusStopCode": "46779",
+    "RoadName": "Woodlands Ave 7",
+    "Description": "Admiralty Stn",
+    "StopSequence": 13
+  },
+  "903M": {
+    "BusStopCode": "46249",
+    "RoadName": "Marsiling Lane",
+    "Description": "Blk 15",
+    "StopSequence": 5
+  },
+  "925M": {
+    "BusStopCode": "49249",
+    "RoadName": "Neo Tiew Cres",
+    "Description": "Aft Neo Tiew Rd",
+    "StopSequence": 19
+  },
+  "143M": {
+    "BusStopCode": "20199",
+    "RoadName": "Pandan Gdns",
+    "Description": "Blk 410",
+    "StopSequence": 13
+  },
+  "831G": {
+    "BusStopCode": "40499",
+    "RoadName": "Tengah Gdn Ave",
+    "Description": "Aft Plantation Cres",
+    "StopSequence": 5
+  },
+  "831W": {
+    "BusStopCode": "40411",
+    "RoadName": "Tengah Gdn Ave",
+    "Description": "Blk 221B",
+    "StopSequence": 4
+  },
+  "859A": {
+    "BusStopCode": "58401",
+    "RoadName": "Admiralty Link",
+    "Description": "Opp Blk 491",
+    "StopSequence": 6
+  },
+  "859B": {
+    "BusStopCode": "58379",
+    "RoadName": "Sembawang Cres",
+    "Description": "Opp Blk 325",
+    "StopSequence": 3
+  },
+  "883M": {
+    "BusStopCode": "58041",
+    "RoadName": "Sembawang Rd",
+    "Description": "Blk 590C",
+    "StopSequence": 5
+  },
+  "98M": {
+    "BusStopCode": "21229",
+    "RoadName": "Corporation Rd",
+    "Description": "Opp S'pore A'space Mfg",
+    "StopSequence": 15
+  },
+
+  "964": {
+    "BusStopCode": "46901",
+    "RoadName": "Nth Woodlands Link",
+    "Description": "Nth Woodlands Link",
+    "StopSequence": 13
+  },
+  "972": {
+    "BusStopCode": "08057",
+    "RoadName": "Bencoolen St",
+    "Description": "Bencoolen St",
+    "StopSequence": 29
+  },
+  "972M": {
+    "BusStopCode": "08057",
+    "RoadName": "Bencoolen St",
+    "Description": "Bencoolen St",
+    "StopSequence": 37
+  },
+  "983": {
+    "BusStopCode": "44031",
+    "RoadName": "Jelebu Rd",
+    "Description": "Jelebu Rd",
+    "StopSequence": 16
+  }
+}

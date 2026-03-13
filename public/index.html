@@ -3226,6 +3226,79 @@ const DOUBLE_LOOP_LABELS = {
 };
 const DOUBLE_LOOP_SERVICES = new Set(['291','293','358','359','812']);
 
+// ── LOOP SERVICE DESTINATION LABELS ──
+// For loop services (same origin + destination), the bus pill shows:
+//   - outbound leg (seq <= mid): from=terminal,  to=loopDesc
+//   - inbound leg  (seq >  mid): from=loopDesc,  to=terminal
+// mid = max StopSequence of stops sharing the prefix of the middle stop in route.
+
+let LOOP_SVC_MIDPOINTS= {};
+
+// Fetch the external JSON file
+fetch('./assets/loop-midpoints.json')
+  .then(response => response.json())
+  .then(data => {
+    LOOP_SVC_MIDPOINTS = data;
+  })
+  .catch(err => console.error("Failed to load loop midpoints:", err));
+
+// Cache: serviceNo -> { stopCode: StopSequence, _midSeq: number }
+const _loopSeqCache = {};
+
+function getLoopDestLabel(serviceNo, currentStopCode) {
+  const info = LOOP_SVC_MIDPOINTS[serviceNo];
+  if (!info) return { from: null, to: null };
+
+  // Support both old format ({terminalCode, loopDesc, mid}) and new format ({BusStopCode, Description, StopSequence})
+  const mid          = info.mid != null ? info.mid : info.StopSequence;
+  // loopLabel = the waypoint road name (e.g. "Bencoolen St", "Temasek Ave")
+  const loopLabel    = info.loopDesc || info.RoadName || info.Description || '';
+  // homeName = the scheduled terminal from ALL_SERVICES (e.g. "Bt Panjang Int" for 972)
+  const svcData      = ALL_SERVICES?.[serviceNo + '-1'];
+  const homeCode     = svcData?.OriginCode;
+  const homeName     = (homeCode ? stopName(homeCode) : null) || loopLabel;
+  const outbound = { from: homeName,  to: loopLabel };
+  const inbound  = { from: loopLabel, to: homeName  };
+
+  // Check static mid first (synchronous, no fetch needed)
+  const cached = _loopSeqCache[serviceNo];
+  if (cached) {
+    const seq = cached[currentStopCode];
+    return (seq != null && seq > mid) ? inbound : outbound;
+  }
+
+  // Fetch route once to get stop sequences, then re-render
+  if (!_loopSeqCache[serviceNo + '_pending']) {
+    _loopSeqCache[serviceNo + '_pending'] = true;
+    fetchBusRoute(serviceNo).then(stops => {
+      const map = {};
+      // Store MAX sequence per stop — stops appearing on both outbound and inbound
+      // legs get their higher (inbound) sequence, so seq > mid correctly resolves them.
+      stops.forEach(s => {
+        const prev = map[s.BusStopCode];
+        if (prev == null || s.StopSequence > prev) map[s.BusStopCode] = s.StopSequence;
+      });
+      _loopSeqCache[serviceNo] = map;
+      delete _loopSeqCache[serviceNo + '_pending'];
+      const seq = map[currentStopCode];
+      const labels = (seq != null && seq > mid) ? inbound : outbound;
+      document.querySelectorAll('.bus-num-col').forEach(col => {
+        const numEl = col.querySelector('.bus-num');
+        if (!numEl) return;
+        const norm = t => t.trim().replace(/^0+/, '').toUpperCase();
+        if (norm(numEl.textContent) !== norm(serviceNo)) return;
+        const fromEl = col.querySelector('.bus-num-from');
+        const toEl   = col.querySelector('.bus-num-to');
+        if (fromEl) fromEl.textContent = labels.from || '';
+        if (toEl)   toEl.textContent   = labels.to   || '';
+      });
+    }).catch(() => { delete _loopSeqCache[serviceNo + '_pending']; });
+  }
+
+  return outbound; // best guess while fetch is in-flight
+}
+
+
 function normalizeServiceNo(svc) {
   // Normalize trailing E to lowercase to match user input normalization
   return String(svc).replace(/^(\d+)E$/, '$1e');
@@ -3406,8 +3479,38 @@ function render(code, data) {
     const op = (s.Operator||'').toUpperCase();
     const opCls = op==='GAS'?'op-gas':op==='TTS'?'op-tts':(op==='SBST'||op==='SBS'||op.includes('SBS'))?'op-sbs':'op-smrt';
     // Use origin/destination directly from the live arrival data (per-bus, correct direction)
-    const originName = stopName(nb.OriginCode);
-    const destName   = stopName(nb.DestinationCode);
+    // For loop services, getLoopDestLabel returns { from, to } labels.
+    // For normal services, use live arrival origin/destination.
+    const svcNormKey = s.ServiceNo.replace(/^0+/, '');
+    const isLoopSvc  = svcNormKey in LOOP_SVC_MIDPOINTS;
+    let originName, destName;
+    if (isLoopSvc) {
+      const loopLabels = getLoopDestLabel(svcNormKey, code);
+      originName = loopLabels.from;
+      destName   = loopLabels.to;
+    } else {
+      // Use scheduled terminals from ALL_SERVICES to avoid confusing short-working origins
+      const svcD1 = ALL_SERVICES?.[svcNormKey + '-1'];
+      const svcD2 = ALL_SERVICES?.[svcNormKey + '-2'];
+      const liveDestCode = nb.DestinationCode;
+      let svcInfo;
+      if (svcD1 && svcD2) {
+        svcInfo = (svcD1.DestinationCode === liveDestCode) ? svcD1 : svcD2;
+      } else if (svcD1 && svcD1.OriginCode === svcD1.DestinationCode) {
+        // Loop service missing from LOOP_SVC_MIDPOINTS — just show terminal on both
+        originName = stopName(svcD1.OriginCode);
+        destName   = stopName(svcD1.DestinationCode);
+      } else {
+        svcInfo = svcD1 || svcD2;
+      }
+      if (svcInfo) {
+        originName = stopName(svcInfo.OriginCode);
+        destName   = stopName(svcInfo.DestinationCode);
+      } else if (!originName) {
+        originName = stopName(nb.OriginCode);
+        destName   = stopName(nb.DestinationCode);
+      }
+    }
     html += `
     <div class="bus-card" style="animation-delay:${i*.09}s">
       <div class="card-top">

@@ -1,0 +1,70 @@
+const fs = require("fs");
+
+let routes = require("./dist/bus-routes.json");
+let stops = require("./dist/stops.json");
+let services = require("./dist/bus-services.json");
+
+// Handle LTA "value" wrapper if present
+if (routes.value) routes = routes.value;
+if (stops.value) stops = stops.value;
+if (services.value) services = services.value;
+
+// If routes is a flat array, convert to grouped object: { "119": { "1": [...], "2": [...] } }
+if (Array.isArray(routes)) {
+  const grouped = {};
+  for (const r of routes) {
+    if (!grouped[r.ServiceNo]) grouped[r.ServiceNo] = {};
+    if (!grouped[r.ServiceNo][r.Direction]) grouped[r.ServiceNo][r.Direction] = [];
+    grouped[r.ServiceNo][r.Direction].push(r);
+  }
+  routes = grouped;
+}
+
+// Create a lookup map for bus stops for performance
+const stopMap = {};
+for (const stop of stops) {
+  stopMap[stop.BusStopCode] = stop;
+}
+
+const result = {};
+
+// Use Object.values because 'services' is an object, not an array
+for (const svc of Object.values(services)) {
+  const { ServiceNo, OriginCode, DestinationCode, LoopDesc } = svc;
+
+  // Only process loop services (where start and end are the same)
+  if (OriginCode !== DestinationCode) continue;
+  // Skip if no LoopDesc is provided
+  if (!LoopDesc) continue;
+
+  // Loop services typically operate on Direction 1
+  const serviceRoutes = routes[ServiceNo] ? routes[ServiceNo]["1"] : null;
+  if (!serviceRoutes) continue;
+
+  let midpoint = null;
+
+  for (const stop of serviceRoutes) {
+    const stopInfo = stopMap[stop.BusStopCode];
+    if (!stopInfo) continue;
+
+    // Check if the current stop's road matches the Loop Description
+    if (stopInfo.RoadName === LoopDesc) {
+      midpoint = {
+        BusStopCode: stop.BusStopCode,
+        RoadName: stopInfo.RoadName,
+        Description: stopInfo.Description,
+        StopSequence: stop.StopSequence
+      };
+      // We break at the first match in that road
+      break;
+    }
+  }
+
+  if (midpoint) {
+    result[ServiceNo] = midpoint;
+  }
+}
+
+// Output the results to a file
+fs.writeFileSync("./public/assets/loop-midpoints.json", JSON.stringify(result, null, 2));
+console.log("Midpoints generated successfully in ./public/assets/loop-midpoints.json");
