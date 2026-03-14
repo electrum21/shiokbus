@@ -479,6 +479,18 @@
     "Description": "Panasonic",
     "StopSequence": 5
   },
+  "230": {
+    "BusStopCode": "52389",
+    "RoadName": "Lor 8 Toa Payoh",
+    "Description": "Blk 227",
+    "StopSequence": 14
+  },
+  "230M": {
+    "BusStopCode": "52561",
+    "RoadName": "Kim Keat Ave",
+    "Description": "Blk 269A",
+    "StopSequence": 7
+  },
   "231": {
     "BusStopCode": "52281",
     "RoadName": "Lor 5 Toa Payoh",

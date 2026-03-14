@@ -65,6 +65,24 @@ for (const svc of Object.values(services)) {
   }
 }
 
+// Hardcoded entries for services that can't be auto-detected
+const hardcoded = {
+  "230": {
+    "BusStopCode": "52389",
+    "RoadName": "Lor 8 Toa Payoh",
+    "Description": "Blk 227",
+    "StopSequence": 14
+  },
+  "230M": {
+    "BusStopCode": "52561",
+    "RoadName": "Kim Keat Ave",
+    "Description": "Blk 269A",
+    "StopSequence": 7
+  },
+};
+
+Object.assign(result, hardcoded);
+
 // Output the results to a file
 fs.writeFileSync("./public/assets/loop-midpoints.json", JSON.stringify(result, null, 2));
 console.log("Midpoints generated successfully in ./public/assets/loop-midpoints.json");

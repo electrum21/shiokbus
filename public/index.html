@@ -3311,6 +3311,15 @@ function indexServices(raw) {
     if (s.ServiceNo != null && s.Direction != null && !EXCLUDED_SERVICES.has(String(s.ServiceNo).toUpperCase()))
       map[normalizeServiceNo(s.ServiceNo) + '-' + s.Direction] = s;
   });
+
+  // Hardcoded LoopDesc overrides for services missing them in the source data
+  const LOOPDESC_OVERRIDES = {
+    '230M-1': 'Kim Keat Ave' // replace with the exact RoadName from stops.json
+  };
+  for (const [key, loopDesc] of Object.entries(LOOPDESC_OVERRIDES)) {
+    if (map[key]) map[key] = { ...map[key], LoopDesc: loopDesc };
+  }
+
   return map;
 }
 
