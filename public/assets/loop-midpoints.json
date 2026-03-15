@@ -342,10 +342,10 @@
     "StopSequence": 19
   },
   "119": {
-    "BusStopCode": "63231",
+    "BusStopCode": "63221",
     "RoadName": "Hougang St 21",
-    "Description": "Bet Blks 210/211",
-    "StopSequence": 26
+    "Description": "Kovan Hub",
+    "StopSequence": 25
   },
   "120": {
     "BusStopCode": "14391",
@@ -418,6 +418,12 @@
     "RoadName": "Pandan Gdns",
     "Description": "Opp Ayer Rajah CC",
     "StopSequence": 14
+  },
+  "146": {
+    "BusStopCode": "63221",
+    "RoadName": "Hougang St 21",
+    "Description": "Kovan Hub",
+    "StopSequence": 19
   },
   "148": {
     "BusStopCode": "61079",
@@ -797,6 +803,12 @@
     "Description": "Blk 871C",
     "StopSequence": 17
   },
+  "299": {
+    "BusStopCode": "74969",
+    "RoadName": "Tampines St 96",
+    "Description": "Opp Blk 966",
+    "StopSequence": 13
+  },
   "300": {
     "BusStopCode": "44511",
     "RoadName": "Choa Chu Kang Ave 3",
@@ -988,6 +1000,12 @@
     "RoadName": "Choa Chu Kang Cres",
     "Description": "Blk 689A",
     "StopSequence": 7
+  },
+  "456": {
+    "BusStopCode": "50038",
+    "RoadName": "Thomson Rd",
+    "Description": "Novena Stn",
+    "StopSequence": 8
   },
   "502": {
     "BusStopCode": "03539",

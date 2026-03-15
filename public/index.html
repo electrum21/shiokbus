@@ -1251,276 +1251,11 @@ body.light .legend-nosun-swatch { background: #4A6090; }
 </footer>
 
 <script>
+
 // ── MRT INTERACTIVE SVG MAP ──
 let _mrtOpen = false;
 let _mrt = { zoom: 1, x: 0, y: 0 };
 let _mrtDragged = false;
-
-// Station coordinates [x, y] on 800×600 viewBox
-// Laid out to approximate real Singapore MRT geography schematically
-const MRT_COORDS = {
-  // North South Line (red) — vertical spine
-  'NS1':  [148, 370], // Jurong East
-  'NS2':  [175, 310], // Bukit Batok
-  'NS3':  [175, 285], // Bukit Gombak
-  'NS4':  [148, 248], // Choa Chu Kang
-  'NS5':  [175, 225], // Yew Tee
-  'NS7':  [200, 192], // Kranji
-  'NS8':  [218, 165], // Marsiling
-  'NS9':  [240, 142], // Woodlands
-  'NS10': [264, 125], // Admiralty
-  'NS11': [290, 110], // Sembawang
-  'NS12': [315, 105], // Canberra
-  'NS13': [340, 100], // Yishun
-  'NS14': [360, 115], // Khatib
-  'NS15': [368, 145], // Yio Chu Kang
-  'NS16': [372, 170], // Ang Mo Kio
-  'NS17': [372, 200], // Bishan
-  'NS18': [372, 230], // Braddell
-  'NS19': [372, 255], // Toa Payoh
-  'NS20': [372, 285], // Novena
-  'NS21': [372, 310], // Newton
-  'NS22': [372, 340], // Orchard
-  'NS23': [372, 365], // Somerset
-  'NS24': [372, 390], // Dhoby Ghaut
-  'NS25': [398, 415], // City Hall
-  'NS26': [398, 440], // Raffles Place
-  'NS27': [398, 465], // Marina Bay
-  'NS28': [398, 495], // Marina South Pier
-
-  // East West Line (green) — horizontal spine
-  'EW1':  [660, 310], // Pasir Ris
-  'EW2':  [630, 310], // Tampines
-  'EW3':  [605, 310], // Simei
-  'EW4':  [580, 330], // Tanah Merah
-  'EW5':  [565, 310], // Bedok
-  'EW6':  [540, 310], // Kembangan
-  'EW7':  [518, 310], // Eunos
-  'EW8':  [495, 320], // Paya Lebar
-  'EW9':  [470, 330], // Aljunied
-  'EW10': [450, 340], // Kallang
-  'EW11': [430, 350], // Lavender
-  'EW12': [410, 360], // Bugis
-  'EW13': [398, 415], // City Hall (shared NS25)
-  'EW14': [398, 440], // Raffles Place (shared NS26)
-  'EW15': [398, 460], // Tanjong Pagar
-  'EW16': [370, 460], // Outram Park
-  'EW17': [348, 460], // Tiong Bahru
-  'EW18': [325, 460], // Redhill
-  'EW19': [300, 460], // Queenstown
-  'EW20': [275, 460], // Commonwealth
-  'EW21': [252, 440], // Buona Vista
-  'EW22': [230, 430], // Dover
-  'EW23': [208, 420], // Clementi
-  'EW24': [148, 370], // Jurong East (shared NS1)
-  'EW25': [118, 370], // Chinese Garden
-  'EW26': [95, 365],  // Lakeside
-  'EW27': [68, 360],  // Boon Lay
-  'EW28': [45, 355],  // Pioneer
-  'EW29': [22, 350],  // Joo Koon
-  'EW30': [22, 400],  // Gul Circle
-  'EW31': [22, 430],  // Tuas Crescent
-  'EW32': [22, 455],  // Tuas West Road
-  'EW33': [22, 480],  // Tuas Link
-
-  // Changi Airport branch
-  'CG1':  [628, 355], // Expo
-  'CG2':  [660, 380], // Changi Airport
-
-  // North East Line (purple) — diagonal
-  'NE1':  [348, 510], // HarbourFront
-  'NE3':  [370, 460], // Outram Park (shared EW16)
-  'NE4':  [382, 443], // Chinatown
-  'NE5':  [382, 420], // Clarke Quay
-  'NE6':  [372, 390], // Dhoby Ghaut (shared NS24)
-  'NE7':  [395, 360], // Little India
-  'NE8':  [410, 335], // Farrer Park
-  'NE9':  [420, 312], // Boon Keng
-  'NE10': [432, 290], // Potong Pasir
-  'NE11': [445, 268], // Woodleigh
-  'NE12': [456, 245], // Serangoon
-  'NE13': [475, 225], // Kovan
-  'NE14': [495, 205], // Hougang
-  'NE15': [515, 185], // Buangkok
-  'NE16': [535, 170], // Sengkang
-  'NE17': [555, 150], // Punggol
-  'NE18': [580, 138], // Punggol Coast
-
-  // Circle Line (orange) — loop
-  'CC1':  [372, 390], // Dhoby Ghaut (shared)
-  'CC2':  [395, 395], // Bras Basah
-  'CC3':  [415, 400], // Esplanade
-  'CC4':  [432, 390], // Promenade
-  'CC5':  [450, 375], // Nicoll Highway
-  'CC6':  [462, 358], // Stadium
-  'CC7':  [470, 342], // Mountbatten
-  'CC8':  [478, 325], // Dakota
-  'CC9':  [495, 320], // Paya Lebar (shared EW8)
-  'CC10': [510, 302], // MacPherson
-  'CC11': [520, 282], // Tai Seng
-  'CC12': [530, 262], // Bartley
-  'CC13': [456, 245], // Serangoon (shared NE12)
-  'CC14': [445, 222], // Lorong Chuan
-  'CC15': [372, 200], // Bishan (shared NS17)
-  'CC16': [352, 185], // Marymount
-  'CC17': [335, 200], // Caldecott
-  'CC19': [305, 225], // Botanic Gardens
-  'CC20': [282, 248], // Farrer Road
-  'CC21': [262, 268], // Holland Village
-  'CC22': [252, 440], // Buona Vista (shared EW21)
-  'CC23': [242, 420], // one-north
-  'CC24': [232, 400], // Kent Ridge
-  'CC25': [225, 468], // Haw Par Villa
-  'CC26': [240, 490], // Pasir Panjang
-  'CC27': [265, 505], // Labrador Park
-  'CC28': [295, 510], // Telok Blangah
-  'CC29': [332, 510], // HarbourFront (same area as NE1)
-  'CE1':  [430, 478], // Bayfront
-  'CE2':  [398, 465], // Marina Bay (shared NS27)
-
-  // Downtown Line (blue)
-  'DT1':  [148, 248], // Bukit Panjang (same area as NS4/CCK)
-  'DT2':  [168, 265], // Cashew
-  'DT3':  [188, 282], // Hillview
-  'DT4':  [200, 298], // Hume
-  'DT5':  [212, 315], // Beauty World
-  'DT6':  [222, 332], // King Albert Park
-  'DT7':  [235, 348], // Sixth Avenue
-  'DT8':  [248, 362], // Tan Kah Kee
-  'DT9':  [305, 225], // Botanic Gardens (shared CC19)
-  'DT10': [355, 310], // Stevens
-  'DT11': [372, 310], // Newton (shared NS21)
-  'DT12': [395, 360], // Little India (shared NE7)
-  'DT13': [402, 378], // Rochor
-  'DT14': [410, 360], // Bugis (shared EW12)
-  'DT15': [432, 390], // Promenade (shared CC4)
-  'DT16': [430, 478], // Bayfront (shared CE1)
-  'DT17': [415, 460], // Downtown
-  'DT18': [412, 448], // Telok Ayer
-  'DT19': [382, 443], // Chinatown (shared NE4)
-  'DT20': [368, 428], // Fort Canning
-  'DT21': [358, 408], // Bencoolen
-  'DT22': [368, 388], // Jalan Besar
-  'DT23': [380, 368], // Bendemeer
-  'DT24': [400, 348], // Geylang Bahru
-  'DT25': [420, 330], // Mattar
-  'DT26': [510, 302], // MacPherson (shared CC10)
-  'DT27': [525, 318], // Ubi
-  'DT28': [542, 328], // Kaki Bukit
-  'DT29': [558, 318], // Bedok North
-  'DT30': [572, 305], // Bedok Reservoir
-  'DT31': [590, 295], // Tampines West
-  'DT32': [630, 310], // Tampines (shared EW2)
-  'DT33': [648, 295], // Tampines East
-  'DT34': [648, 340], // Upper Changi
-  'DT35': [628, 355], // Expo (shared CG1)
-
-  // Thomson-East Coast Line (brown/maroon)
-  'TE1':  [218, 128], // Woodlands North
-  'TE2':  [240, 142], // Woodlands (shared NS9)
-  'TE3':  [258, 158], // Woodlands South
-  'TE4':  [278, 172], // Springleaf
-  'TE5':  [295, 185], // Lentor
-  'TE6':  [312, 192], // Mayflower
-  'TE7':  [330, 195], // Bright Hill
-  'TE8':  [348, 202], // Upper Thomson
-  'TE9':  [335, 200], // Caldecott (shared CC17)
-  'TE11': [355, 310], // Stevens (shared DT10)
-  'TE12': [368, 328], // Napier
-  'TE13': [368, 342], // Orchard Boulevard
-  'TE14': [372, 340], // Orchard (shared NS22)
-  'TE15': [382, 392], // Great World
-  'TE16': [390, 408], // Havelock
-  'TE17': [370, 460], // Outram Park (shared EW16/NE3)
-  'TE18': [400, 455], // Maxwell
-  'TE19': [408, 468], // Shenton Way
-  'TE20': [398, 465], // Marina Bay (shared NS27)
-  'TE22': [420, 490], // Gardens by the Bay
-  'TE23': [448, 492], // Tanjong Rhu
-  'TE24': [480, 490], // Katong Park
-  'TE25': [505, 490], // Tanjong Katong
-  'TE26': [528, 490], // Marine Parade
-  'TE27': [552, 490], // Marine Terrace
-  'TE28': [575, 490], // Siglap
-  'TE29': [600, 490], // Bayshore
-
-  // Bukit Panjang LRT
-  'BP1':  [148, 248], // Choa Chu Kang (hub)
-  'BP2':  [122, 258], // South View
-  'BP3':  [110, 245], // Keat Hong
-  'BP4':  [110, 232], // Teck Whye
-  'BP5':  [122, 220], // Phoenix
-  'BP6':  [140, 212], // Bukit Panjang
-  'BP7':  [138, 228], // Petir
-  'BP8':  [130, 238], // Pending
-  'BP9':  [128, 250], // Bangkit
-  'BP10': [120, 260], // Fajar
-  'BP11': [112, 256], // Segar
-  'BP12': [115, 242], // Jelapang
-  'BP13': [120, 230], // Senja
-
-  // Sengkang LRT
-  'STC':  [535, 170], // Sengkang hub
-  'SE1':  [548, 158], // Compassvale
-  'SE2':  [562, 152], // Rumbia
-  'SE3':  [576, 158], // Bakau
-  'SE4':  [582, 170], // Kangkar
-  'SE5':  [575, 182], // Ranggung
-  'SW1':  [522, 158], // Cheng Lim
-  'SW2':  [510, 148], // Farmway
-  'SW3':  [498, 152], // Kupang
-  'SW4':  [490, 162], // Thanggam
-  'SW5':  [498, 175], // Fernvale
-  'SW6':  [510, 180], // Layar
-  'SW7':  [522, 176], // Tongkang
-  'SW8':  [530, 168], // Renjong
-
-  // Punggol LRT
-  'PTC':  [555, 150], // Punggol hub
-  'PE1':  [568, 138], // Cove
-  'PE2':  [582, 128], // Meridian
-  'PE3':  [596, 128], // Coral Edge
-  'PE4':  [608, 135], // Riviera
-  'PE5':  [614, 148], // Kadaloor
-  'PE6':  [608, 158], // Oasis
-  'PE7':  [596, 162], // Damai
-  'PW1':  [540, 138], // Sam Kee
-  'PW2':  [528, 128], // Teck Lee
-  'PW3':  [518, 120], // Punggol Point
-  'PW4':  [510, 128], // Samudera
-  'PW5':  [512, 140], // Nibong
-  'PW6':  [520, 148], // Sumang
-  'PW7':  [530, 143], // Soo Teck
-};
-
-// Line definitions: color, station codes in order
-const MRT_LINES = [
-  { id:'NSL', color:'#D42E12', codes:['NS1','NS2','NS3','NS4','NS5','NS7','NS8','NS9','NS10','NS11','NS12','NS13','NS14','NS15','NS16','NS17','NS18','NS19','NS20','NS21','NS22','NS23','NS24','NS25','NS26','NS27','NS28'] },
-  { id:'EWL', color:'#009645', codes:['EW33','EW32','EW31','EW30','EW29','EW28','EW27','EW26','EW25','EW24','EW23','EW22','EW21','EW20','EW19','EW18','EW17','EW16','EW15','EW14','EW13','EW12','EW11','EW10','EW9','EW8','EW7','EW6','EW5','EW4','EW3','EW2','EW1'] },
-  { id:'CGL', color:'#009645', codes:['EW4','CG1','CG2'] },
-  { id:'NEL', color:'#9900AA', codes:['NE1','NE3','NE4','NE5','NE6','NE7','NE8','NE9','NE10','NE11','NE12','NE13','NE14','NE15','NE16','NE17','NE18'] },
-  { id:'CCL', color:'#FA9E0D', codes:['CC1','CC2','CC3','CC4','CC5','CC6','CC7','CC8','CC9','CC10','CC11','CC12','CC13','CC14','CC15','CC16','CC17','CC19','CC20','CC21','CC22','CC23','CC24','CC25','CC26','CC27','CC28','CC29'] },
-  { id:'CEL', color:'#FA9E0D', codes:['CC29','CE1','CE2'] },
-  { id:'DTL', color:'#005EC4', codes:['DT1','DT2','DT3','DT4','DT5','DT6','DT7','DT8','DT9','DT10','DT11','DT12','DT13','DT14','DT15','DT16','DT17','DT18','DT19','DT20','DT21','DT22','DT23','DT24','DT25','DT26','DT27','DT28','DT29','DT30','DT31','DT32','DT33','DT34','DT35'] },
-  { id:'TEL', color:'#9D5B25', codes:['TE1','TE2','TE3','TE4','TE5','TE6','TE7','TE8','TE9','TE11','TE12','TE13','TE14','TE15','TE16','TE17','TE18','TE19','TE20','TE22','TE23','TE24','TE25','TE26','TE27','TE28','TE29'] },
-  { id:'BPL', color:'#748477', codes:['BP1','BP2','BP3','BP4','BP5','BP6','BP7','BP8','BP9','BP10','BP11','BP12','BP13'] },
-  { id:'SKL', color:'#748477', codes:['STC','SE1','SE2','SE3','SE4','SE5','SW1','SW2','SW3','SW4','SW5','SW6','SW7','SW8'] },
-  { id:'PGL', color:'#748477', codes:['PTC','PE1','PE2','PE3','PE4','PE5','PE6','PE7','PW1','PW2','PW3','PW4','PW5','PW6','PW7'] },
-];
-
-// Station names for display and search
-const MRT_NAMES = {};
-
-// Labels to show (not every station — too cluttered at small scale)
-const MRT_SHOW_LABELS = new Set([
-  'NS1','NS4','NS9','NS13','NS17','NS21','NS22','NS24','NS25','NS26','NS27','NS28',
-  'EW1','EW2','EW4','EW8','EW12','EW13','EW14','EW21','EW24','EW27','EW33',
-  'CG2','NE1','NE6','NE12','NE16','NE17',
-  'CC9','CC13','CC15','CC17','CC19','CC22','CC29','CE1','CE2',
-  'DT1','DT11','DT14','DT16','DT19','DT32','DT35',
-  'TE1','TE2','TE9','TE14','TE20','TE29',
-  'BP1','STC','PTC'
-]);
 
 const MRT_PNG_COORDS = {
   'NS1': [17.762, 54.382], // Jurong East
@@ -2204,7 +1939,7 @@ function onServiceInput() {
     const isLoop = info1 && !info2 && (info1.OriginCode === info1.DestinationCode || !!info1.LoopDesc);
     const isBidi = !!info2;
     const midpoint = LOOP_SVC_MIDPOINTS[svc];
-    const loopDesc = midpoint ? (/int|stn|ter|ctr|zoo/i.test(midpoint.Description) ? midpoint.Description : midpoint.RoadName)
+    const loopDesc = midpoint ? (/int|stn|hub|ter|ctr|zoo/i.test(midpoint.Description) ? midpoint.Description : midpoint.RoadName)
   : (info1?.LoopDesc || '');
     let route = '';
     if (orig) {
@@ -2499,7 +2234,7 @@ function renderRoute(rd, allStops) {
   const operator = svcInfo?.Operator || null;
   const _midpoint = LOOP_SVC_MIDPOINTS?.[rd.svc];
   const loopDesc = (_midpoint
-    ? (/int|stn|ter|ctr|zoo/i.test(_midpoint.Description) ? _midpoint.Description : _midpoint.RoadName)
+    ? (/int|stn|hub|ter|ctr|zoo/i.test(_midpoint.Description) ? _midpoint.Description : _midpoint.RoadName)
     : null)
     || svcInfo?.LoopDesc || null;
   const amPeak   = formatFreq(svcInfo?.AM_Peak_Freq);
@@ -3265,7 +3000,7 @@ function getLoopDestLabel(serviceNo, currentStopCode) {
   // Support both old format ({terminalCode, loopDesc, mid}) and new format ({BusStopCode, Description, StopSequence})
   const mid          = info.mid != null ? info.mid : info.StopSequence;
   // loopLabel = the waypoint road name (e.g. "Bencoolen St", "Temasek Ave")
-  const loopLabel = info.loopDesc || (/int|stn|ter|ctr|zoo/i.test(info.Description) ? info.Description : null) || info.RoadName || '';
+  const loopLabel = info.loopDesc || (/int|stn|hub|ter|ctr|zoo/i.test(info.Description) ? info.Description : null) || info.RoadName || '';
   // homeName = the scheduled terminal from ALL_SERVICES (e.g. "Bt Panjang Int" for 972)
   const svcData      = ALL_SERVICES?.[serviceNo + '-1'];
   const homeCode     = svcData?.OriginCode;
@@ -3339,10 +3074,12 @@ function indexServices(raw) {
 
   // Hardcoded LoopDesc overrides for services missing them in the source data, or inaccurate ones
   const LOOPDESC_OVERRIDES = {
-    '92': 'Science Pk Dr',
-    '191': 'Media Circle',
-    '230M': 'Kim Keat Ave',
-    '805-1': 'Yishun Ave 1'
+    '92-1':   'Science Pk Dr',
+    '146-1':  "Hougang St 21",
+    '230M-1': 'Kim Keat Ave',
+    '299-1':  'Tampines St 96',
+    '456-1':  'Thomson Rd',
+    '805-1':  'Yishun Ave 1',
   };
   for (const [key, loopDesc] of Object.entries(LOOPDESC_OVERRIDES)) {
     if (map[key]) map[key] = { ...map[key], LoopDesc: loopDesc };

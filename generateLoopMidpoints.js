@@ -58,10 +58,11 @@ for (const svc of Object.values(services)) {
   const window = roadStops.slice(Math.max(0, midIndex - 1), midIndex + 2);
   const intMatch = window.find(s => /int/i.test(stopMap[s.BusStopCode]?.Description));
   const terMatch = window.find(s => /ter/i.test(stopMap[s.BusStopCode]?.Description));
+  const hubMatch = window.find(s => /hub/i.test(stopMap[s.BusStopCode]?.Description));
   const stnMatch = window.find(s => /stn/i.test(stopMap[s.BusStopCode]?.Description));
   const ctrMatch = window.find(s => /ctr/i.test(stopMap[s.BusStopCode]?.Description));
   const zooMatch = window.find(s => /zoo/i.test(stopMap[s.BusStopCode]?.Description));
-  const best = intMatch || terMatch || stnMatch || ctrMatch || zooMatch;
+  const best = intMatch || terMatch || hubMatch || stnMatch || ctrMatch || zooMatch;
   const chosen = best ? stopMap[best.BusStopCode] : midStopInfo;
   const chosenStop = best || midStop;
 
@@ -84,6 +85,12 @@ const hardcoded = {
     "Description": "Opp Normanton Pk/R'ford",
     "StopSequence": 12
   },
+  "146": {
+    "BusStopCode": "63221",
+    "RoadName": "Hougang St 21",
+    "Description": "Kovan Hub",
+    "StopSequence": 19
+  },
   "191": {
     "BusStopCode": "18201",
     "RoadName": "Mediacorp Campus",
@@ -102,6 +109,12 @@ const hardcoded = {
     "Description": "Blk 269A",
     "StopSequence": 7
   },
+  "299": {
+    "BusStopCode": "74969",
+    "RoadName": "Tampines St 96",
+    "Description": "Opp Blk 966",
+    "StopSequence": 13
+  },
   "381": {
     "BusStopCode": "65561",
     "RoadName": "Punggol East",
@@ -119,6 +132,12 @@ const hardcoded = {
     "RoadName": "Marina Coastal Dr",
     "Description": "Marina Bay Cruise Ctr",
     "StopSequence": 14
+  },
+  "456": {
+    "BusStopCode": "50038",
+    "RoadName": "Thomson Rd",
+    "Description": "Novena Stn",
+    "StopSequence": 8
   },
   "805": {
     "BusStopCode": "59751",
