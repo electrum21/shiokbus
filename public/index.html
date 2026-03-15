@@ -3252,13 +3252,20 @@ function getLoopDestLabel(serviceNo, currentStopCode) {
   // Support both old format ({terminalCode, loopDesc, mid}) and new format ({BusStopCode, Description, StopSequence})
   const mid          = info.mid != null ? info.mid : info.StopSequence;
   // loopLabel = the waypoint road name (e.g. "Bencoolen St", "Temasek Ave")
-  const loopLabel    = info.loopDesc || info.RoadName || info.Description || '';
+  const loopLabel = info.loopDesc || (/int|stn|ter/i.test(info.Description) ? info.Description : null) || info.RoadName || '';
   // homeName = the scheduled terminal from ALL_SERVICES (e.g. "Bt Panjang Int" for 972)
   const svcData      = ALL_SERVICES?.[serviceNo + '-1'];
   const homeCode     = svcData?.OriginCode;
   const homeName     = (homeCode ? stopName(homeCode) : null) || loopLabel;
   const outbound = { from: homeName,  to: loopLabel };
   const inbound  = { from: loopLabel, to: homeName  };
+
+  const loopStopCode = info.BusStopCode;
+
+  // If the current stop IS the midpoint, always show it on top
+  if (currentStopCode === loopStopCode) {
+    return { from: loopLabel, to: homeName };
+  }
 
   // Check static mid first (synchronous, no fetch needed)
   const cached = _loopSeqCache[serviceNo];
@@ -3271,17 +3278,22 @@ function getLoopDestLabel(serviceNo, currentStopCode) {
   if (!_loopSeqCache[serviceNo + '_pending']) {
     _loopSeqCache[serviceNo + '_pending'] = true;
     fetchBusRoute(serviceNo).then(stops => {
-      const map = {};
-      // Store MAX sequence per stop — stops appearing on both outbound and inbound
-      // legs get their higher (inbound) sequence, so seq > mid correctly resolves them.
-      stops.forEach(s => {
-        const prev = map[s.BusStopCode];
+    const map = {};
+    stops.forEach(s => {
+      const prev = map[s.BusStopCode];
+      // For the terminal stop, use MIN sequence (it's stop 1 on outbound, not inbound)
+      // For all other stops, use MAX sequence (inbound leg takes priority)
+      if (s.BusStopCode === homeCode) {
+        if (prev == null || s.StopSequence < prev) map[s.BusStopCode] = s.StopSequence;
+      } else {
         if (prev == null || s.StopSequence > prev) map[s.BusStopCode] = s.StopSequence;
-      });
+      }
+    });
       _loopSeqCache[serviceNo] = map;
       delete _loopSeqCache[serviceNo + '_pending'];
       const seq = map[currentStopCode];
       const labels = (seq != null && seq > mid) ? inbound : outbound;
+
       document.querySelectorAll('.bus-num-col').forEach(col => {
         const numEl = col.querySelector('.bus-num');
         if (!numEl) return;

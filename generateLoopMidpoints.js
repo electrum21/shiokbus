@@ -42,23 +42,33 @@ for (const svc of Object.values(services)) {
   if (!serviceRoutes) continue;
 
   let midpoint = null;
+  let stnMatch = null;
+  let firstMatch = null;
 
   for (const stop of serviceRoutes) {
     const stopInfo = stopMap[stop.BusStopCode];
     if (!stopInfo) continue;
 
-    // Check if the current stop's road matches the Loop Description
     if (stopInfo.RoadName === LoopDesc) {
-      midpoint = {
+      const entry = {
         BusStopCode: stop.BusStopCode,
         RoadName: stopInfo.RoadName,
         Description: stopInfo.Description,
         StopSequence: stop.StopSequence
       };
-      // We break at the first match in that road
-      break;
+
+      if (!firstMatch) firstMatch = entry;
+
+      if (/int/i.test(stopInfo.Description)) {
+        midpoint = entry;
+        break; // Int is highest priority, stop immediately
+      } else if (/stn|terminal/i.test(stopInfo.Description)) {
+        if (!stnMatch) stnMatch = entry; // keep first Stn as fallback
+      }
     }
   }
+
+  midpoint = midpoint || stnMatch || firstMatch;
 
   if (midpoint) {
     result[ServiceNo] = midpoint;
