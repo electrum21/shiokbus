@@ -2201,9 +2201,10 @@ function onServiceInput() {
     const opCls = op==='TTS'?'op-tts':(op==='SBST'||op==='SBS'||op.includes('SBS'))?'op-sbs':op==='GAS'?'op-gas':'op-smrt';
     const orig = info1?.OriginCode ? (stopName(info1.OriginCode) || info1.OriginCode) : '';
     const dest = info1?.DestinationCode ? (stopName(info1.DestinationCode) || info1.DestinationCode) : '';
-    const isLoop = info1 && !info2 && info1.OriginCode === info1.DestinationCode;
+    const isLoop = info1 && !info2 && (info1.OriginCode === info1.DestinationCode || !!info1.LoopDesc);
     const isBidi = !!info2;
-    const loopDesc = info1?.LoopDesc || '';
+    const midpoint = LOOP_SVC_MIDPOINTS[svc];
+    const loopDesc = (midpoint && (/int|stn|ter/i.test(midpoint.Description) ? midpoint.Description : null)) || info1?.LoopDesc || '';
     let route = '';
     if (orig) {
       if (isBidi) route = `${orig} ↔ ${dest}`;
@@ -3326,7 +3327,8 @@ function indexServices(raw) {
 
   // Hardcoded LoopDesc overrides for services missing them in the source data
   const LOOPDESC_OVERRIDES = {
-    '230M-1': 'Kim Keat Ave' // replace with the exact RoadName from stops.json
+    '230M-1': 'Kim Keat Ave', 
+    '805-1': 'Yishun Ave 1'
   };
   for (const [key, loopDesc] of Object.entries(LOOPDESC_OVERRIDES)) {
     if (map[key]) map[key] = { ...map[key], LoopDesc: loopDesc };
@@ -3950,7 +3952,7 @@ function renderFavourites() {
         const sn = c => ALL_STOPS?.find(s => s.BusStopCode === c)?.Description || c || '';
         const orig = sn(info1.OriginCode), dest = sn(info1.DestinationCode);
         const loopD = info1.LoopDesc || '';
-        const isLoop = !info2 && info1.OriginCode === info1.DestinationCode;
+        const isLoop = info1 && !info2 && (info1.OriginCode === info1.DestinationCode || !!info1.LoopDesc);
         if (isLoop) sub = loopD ? orig + ' ↻ via ' + loopD : orig + ' ↻';
         else if (info2) sub = orig + ' ↔ ' + dest;
         else sub = orig + ' → ' + dest;
@@ -4209,7 +4211,7 @@ function addSvcFavSmart(svc) {
   const orig = stopName(info1.OriginCode);
   const dest = stopName(info1.DestinationCode);
   const loopD = info1.LoopDesc || '';
-  const isLoop = !info2 && info1.OriginCode === info1.DestinationCode;
+  const isLoop = info1 && !info2 && (info1.OriginCode === info1.DestinationCode || !!info1.LoopDesc);
   const isBidir = !!info2;
 
   let sub = '';

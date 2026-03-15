@@ -24,10 +24,10 @@
     "StopSequence": 13
   },
   "15": {
-    "BusStopCode": "92059",
+    "BusStopCode": "92051",
     "RoadName": "Marine Parade Rd",
-    "Description": "Marine Pde Stn Exit 6",
-    "StopSequence": 33
+    "Description": "Marine Pde Stn Exit 4",
+    "StopSequence": 36
   },
   "19": {
     "BusStopCode": "95051",
@@ -426,10 +426,10 @@
     "StopSequence": 17
   },
   "191": {
-    "BusStopCode": "18151",
+    "BusStopCode": "18159",
     "RoadName": "Portsdown Rd",
-    "Description": "Opp one-north Stn/Galaxis",
-    "StopSequence": 6
+    "Description": "one-north Stn/Galaxis",
+    "StopSequence": 15
   },
   "194": {
     "BusStopCode": "22011",
@@ -492,10 +492,10 @@
     "StopSequence": 11
   },
   "235": {
-    "BusStopCode": "52551",
+    "BusStopCode": "52559",
     "RoadName": "Toa Payoh Lk",
-    "Description": "Caldecott Stn Exit 4",
-    "StopSequence": 13
+    "Description": "Caldecott Stn Exit 1",
+    "StopSequence": 14
   },
   "238": {
     "BusStopCode": "52489",
@@ -774,10 +774,10 @@
     "StopSequence": 10
   },
   "381": {
-    "BusStopCode": "65231",
+    "BusStopCode": "65561",
     "RoadName": "Punggol East",
-    "Description": "Riviera Stn Exit B",
-    "StopSequence": 12
+    "Description": "Blk 659A",
+    "StopSequence": 14
   },
   "382": {
     "BusStopCode": "65491",
@@ -792,16 +792,16 @@
     "StopSequence": 6
   },
   "386": {
-    "BusStopCode": "65221",
+    "BusStopCode": "65269",
     "RoadName": "Punggol Ctrl",
-    "Description": "Blk 303D",
-    "StopSequence": 2
+    "Description": "Blk 162B",
+    "StopSequence": 12
   },
   "400": {
-    "BusStopCode": "03419",
+    "BusStopCode": "03411",
     "RoadName": "Marina Coastal Dr",
-    "Description": "Marina Sth Pier Stn",
-    "StopSequence": 13
+    "Description": "Opp Marina Sth Pier Stn",
+    "StopSequence": 15
   },
   "401": {
     "BusStopCode": "91089",
@@ -834,16 +834,16 @@
     "StopSequence": 5
   },
   "502": {
-    "BusStopCode": "03539",
+    "BusStopCode": "03529",
     "RoadName": "Central Blvd",
-    "Description": "Marina Bay Stn",
-    "StopSequence": 45
+    "Description": "Downtown Stn Exit E",
+    "StopSequence": 46
   },
   "518": {
-    "BusStopCode": "03509",
+    "BusStopCode": "03519",
     "RoadName": "Bayfront Ave",
-    "Description": "Bayfront Stn Exit B/MBS",
-    "StopSequence": 57
+    "Description": "Bayfront Stn Exit A",
+    "StopSequence": 58
   },
   "800": {
     "BusStopCode": "57129",
@@ -868,6 +868,12 @@
     "RoadName": "Yishun Ave 11",
     "Description": "Opp Blk 419",
     "StopSequence": 14
+  },
+  "805": {
+    "BusStopCode": "59751",
+    "RoadName": "Yishun Ave 1",
+    "Description": "Opp The Shaughnessy",
+    "StopSequence": 9
   },
   "806": {
     "BusStopCode": "59591",
@@ -1050,10 +1056,10 @@
     "StopSequence": 27
   },
   "966": {
-    "BusStopCode": "92059",
+    "BusStopCode": "92051",
     "RoadName": "Marine Parade Rd",
-    "Description": "Marine Pde Stn Exit 6",
-    "StopSequence": 25
+    "Description": "Marine Pde Stn Exit 4",
+    "StopSequence": 28
   },
   "967": {
     "BusStopCode": "47749",
@@ -1084,6 +1090,12 @@
     "RoadName": "Choa Chu Kang Cres",
     "Description": "Blk 681",
     "StopSequence": 18
+  },
+  "983": {
+    "BusStopCode": "44031",
+    "RoadName": "Upp Bt Timah Rd",
+    "Description": "Aft Bt Panjang Stn",
+    "StopSequence": 16
   },
   "990": {
     "BusStopCode": "28211",
@@ -1128,10 +1140,10 @@
     "StopSequence": 35
   },
   "123M": {
-    "BusStopCode": "10169",
+    "BusStopCode": "10161",
     "RoadName": "Tiong Bahru Rd",
-    "Description": "Tiong Bahru Stn/Plaza",
-    "StopSequence": 12
+    "Description": "Opp Tiong Bahru Stn/Plaza",
+    "StopSequence": 16
   },
   "138M": {
     "BusStopCode": "54059",
@@ -1284,10 +1296,10 @@
     "StopSequence": 5
   },
   "98M": {
-    "BusStopCode": "21219",
+    "BusStopCode": "21211",
     "RoadName": "Corporation Rd",
-    "Description": "Lakepoint Condo",
-    "StopSequence": 16
+    "Description": "Opp Lakepoint Condo",
+    "StopSequence": 33
   },
   "230M": {
     "BusStopCode": "52561",

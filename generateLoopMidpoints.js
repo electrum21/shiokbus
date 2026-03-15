@@ -60,10 +60,9 @@ for (const svc of Object.values(services)) {
       if (!firstMatch) firstMatch = entry;
 
       if (/int/i.test(stopInfo.Description)) {
-        midpoint = entry;
-        break; // Int is highest priority, stop immediately
+        midpoint = entry; // keep overwriting — last Int on the road wins
       } else if (/stn|terminal/i.test(stopInfo.Description)) {
-        if (!stnMatch) stnMatch = entry; // keep first Stn as fallback
+        if (!midpoint) stnMatch = entry; // only use Stn if no Int found yet
       }
     }
   }
@@ -75,7 +74,8 @@ for (const svc of Object.values(services)) {
   }
 }
 
-// Hardcoded entries for services that can't be auto-detected
+// Hardcoded entries for services that can't be auto-detected, or with wrong prioritisation of Int/Stn/Ter
+// Purpose is to provide better directions/contexts for loop services
 const hardcoded = {
   "230": {
     "BusStopCode": "52389",
@@ -89,6 +89,30 @@ const hardcoded = {
     "Description": "Blk 269A",
     "StopSequence": 7
   },
+  "381": {
+    "BusStopCode": "65561",
+    "RoadName": "Punggol East",
+    "Description": "Blk 659A",
+    "StopSequence": 14
+  },
+  "386": {
+    "BusStopCode": "65269",
+    "RoadName": "Punggol Ctrl",
+    "Description": "Blk 162B",
+    "StopSequence": 12
+  },
+  "805": {
+    "BusStopCode": "59751",
+    "RoadName": "Yishun Ave 1",
+    "Description": "Opp The Shaughnessy",
+    "StopSequence": 9
+  },
+  "983": {
+    "BusStopCode": "44031",
+    "RoadName": "Upp Bt Timah Rd",
+    "Description": "Aft Bt Panjang Stn",
+    "StopSequence": 16
+  }
 };
 
 Object.assign(result, hardcoded);
