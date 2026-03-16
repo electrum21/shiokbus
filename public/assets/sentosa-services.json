@@ -1,0 +1,362 @@
+{
+  "SentosaBusA": {
+    "ServiceNo": "Sentosa Bus A",
+    "Operator": "TTS",
+    "Category": "FREE",
+    "Fare": "Free",
+    "Frequency": "10 min",
+    "OperatingHours": "Daily 7:00am – 12:10am",
+    "LoopDesc": "Opp Amara Sanctuary Resort",
+    "Directions": {
+      "1": {
+        "Direction": 1,
+        "OriginCode": "14539",
+        "OriginDesc": "Beach Station",
+        "DestinationCode": "14539",
+        "DestinationDesc": "Beach Station",
+        "OperatingHours": "Daily 7:00am – 12:10am",
+        "Frequency": "10 min",
+        "DepartureTimes": [],
+        "Stops": [
+          {
+            "StopSequence": 1,
+            "BusStopCode": "14539",
+            "Description": "Beach Station",
+            "RoadName": "Beach View",
+            "Latitude": 1.25427,
+            "Longitude": 103.81887,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 2,
+            "BusStopCode": null,
+            "Description": "Imbiah Lookout",
+            "RoadName": "Imbiah Road",
+            "Latitude": 1.25475,
+            "Longitude": 103.81532,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 3,
+            "BusStopCode": null,
+            "Description": "Siloso Point",
+            "RoadName": "Siloso Beach Walk",
+            "Latitude": 1.25127,
+            "Longitude": 103.81058,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 4,
+            "BusStopCode": "14529",
+            "Description": "Opp Village Hotel",
+            "RoadName": "Artillery Ave",
+            "Latitude": 1.25363,
+            "Longitude": 103.81993,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 5,
+            "BusStopCode": null,
+            "Description": "Opp Amara Sanctuary Resort",
+            "RoadName": "Artillery Ave",
+            "Latitude": 1.2529,
+            "Longitude": 103.82143,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 6,
+            "BusStopCode": null,
+            "Description": "Resorts World Sentosa (Basement 1)",
+            "RoadName": "Sentosa Gateway",
+            "Latitude": 1.25617,
+            "Longitude": 103.82379,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 7,
+            "BusStopCode": null,
+            "Description": "Amara Sanctuary Resort",
+            "RoadName": "Artillery Ave",
+            "Latitude": 1.25239,
+            "Longitude": 103.822,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 8,
+            "BusStopCode": "14521",
+            "Description": "Village Hotel",
+            "RoadName": "Artillery Ave",
+            "Latitude": 1.25322,
+            "Longitude": 103.82038,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 9,
+            "BusStopCode": "14539",
+            "Description": "Beach Station",
+            "RoadName": "Beach View",
+            "Latitude": 1.25427,
+            "Longitude": 103.81887,
+            "Timings": {}
+          }
+        ]
+      }
+    }
+  },
+  "SentosaBusB": {
+    "ServiceNo": "Sentosa Bus B",
+    "Operator": "TTS",
+    "Category": "FREE",
+    "Fare": "Free",
+    "Frequency": "10 min",
+    "OperatingHours": "Daily 7:00am – 12:10am (no W Hotel stop after 10pm)",
+    "LoopDesc": "Opp Sentosa Pavillion",
+    "Directions": {
+      "1": {
+        "Direction": 1,
+        "OriginCode": "14539",
+        "OriginDesc": "Beach Station",
+        "DestinationCode": "14539",
+        "DestinationDesc": "Beach Station",
+        "OperatingHours": "Daily 7:00am – 12:10am",
+        "Frequency": "10 min",
+        "DepartureTimes": [],
+        "Stops": [
+          {
+            "StopSequence": 1,
+            "BusStopCode": "14539",
+            "Description": "Beach Station",
+            "RoadName": "Beach View",
+            "Latitude": 1.25427,
+            "Longitude": 103.81887,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 2,
+            "BusStopCode": "14529",
+            "Description": "Opp Village Hotel",
+            "RoadName": "Artillery Ave",
+            "Latitude": 1.25363,
+            "Longitude": 103.81993,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 3,
+            "BusStopCode": null,
+            "Description": "Opp Amara Sanctuary Resort",
+            "RoadName": "Artillery Ave",
+            "Latitude": 1.2529,
+            "Longitude": 103.82143,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 4,
+            "BusStopCode": null,
+            "Description": "Sentosa Pavilion",
+            "RoadName": "Allanbrooke Road",
+            "Latitude": 1.24946,
+            "Longitude": 103.82801,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 5,
+            "BusStopCode": null,
+            "Description": "W Hotel / Quayside Isle",
+            "RoadName": "Ocean Way",
+            "Latitude": 1.24773,
+            "Longitude": 103.83038,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 6,
+            "BusStopCode": null,
+            "Description": "Sentosa Cove Village",
+            "RoadName": "Cove Drive",
+            "Latitude": 1.24573,
+            "Longitude": 103.83303,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 7,
+            "BusStopCode": null,
+            "Description": "Opp Sentosa Pavilion",
+            "RoadName": "Allanbrooke Road",
+            "Latitude": 1.24984,
+            "Longitude": 103.82751,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 8,
+            "BusStopCode": null,
+            "Description": "Sentosa Golf Club",
+            "RoadName": "Bukit Manis Road",
+            "Latitude": 1.25034,
+            "Longitude": 103.82562,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 9,
+            "BusStopCode": null,
+            "Description": "Raffles Sentosa Singapore",
+            "RoadName": "Bukit Manis Road",
+            "Latitude": 1.25119,
+            "Longitude": 103.82381,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 10,
+            "BusStopCode": null,
+            "Description": "Palawan Beach",
+            "RoadName": "Artillery Ave South",
+            "Latitude": 1.25165,
+            "Longitude": 103.81988,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 11,
+            "BusStopCode": null,
+            "Description": "Opp Raffles Sentosa Spa",
+            "RoadName": "Artillery Ave South",
+            "Latitude": 1.25214,
+            "Longitude": 103.82083,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 12,
+            "BusStopCode": null,
+            "Description": "Amara Sanctuary Resort",
+            "RoadName": "Artillery Avenue",
+            "Latitude": 1.25239,
+            "Longitude": 103.822,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 13,
+            "BusStopCode": "14521",
+            "Description": "Village Hotel",
+            "RoadName": "Artillery Ave",
+            "Latitude": 1.25322,
+            "Longitude": 103.82038,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 14,
+            "BusStopCode": "14539",
+            "Description": "Beach Station",
+            "RoadName": "Beach View",
+            "Latitude": 1.25427,
+            "Longitude": 103.81887,
+            "Timings": {}
+          }
+        ]
+      }
+    }
+  },
+  "SentosaBusD": {
+    "ServiceNo": "Sentosa Bus D",
+    "Operator": "TTS",
+    "Category": "FREE",
+    "Fare": "Free",
+    "Frequency": "On-demand",
+    "OperatingHours": "Fri/Sat/Sun & PH, 6:00pm – 9:00pm",
+    "Directions": {
+      "1": {
+        "Direction": 1,
+        "OriginCode": "14539",
+        "OriginDesc": "Beach Station",
+        "DestinationCode": "14219",
+        "DestinationDesc": "HarbourFront Int",
+        "OperatingHours": "Fri/Sat/Sun & PH, 6:00pm – 9:00pm",
+        "Frequency": "On-demand",
+        "DepartureTimes": [],
+        "Stops": [
+          {
+            "StopSequence": 1,
+            "BusStopCode": "14539",
+            "Description": "Beach Station",
+            "RoadName": "Beach View",
+            "Latitude": 1.25427,
+            "Longitude": 103.81887,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 2,
+            "BusStopCode": "14009",
+            "Description": "HarbourFront Int",
+            "RoadName": "Seah Im Rd",
+            "Latitude": 1.26703502614245,
+            "Longitude": 103.81901469907409,
+            "Timings": {}
+          }
+        ]
+      }
+    }
+  },
+  "RWS8": {
+    "ServiceNo": "RWS8",
+    "Operator": "Tong Tar Transport",
+    "Category": "SHUTTLE",
+    "Fare": "$1.00 inbound (EZ-Link/Cash); free outbound",
+    "Frequency": "8 min",
+    "OperatingHours": "Daily 5:15am – 11:45pm",
+    "Directions": {
+      "1": {
+        "Direction": 1,
+        "OriginCode": null,
+        "OriginDesc": "Resorts World Sentosa",
+        "DestinationCode": null,
+        "DestinationDesc": "Resorts World Sentosa",
+        "OperatingHours": "Daily 5:15am – 11:45pm",
+        "Frequency": "8 min",
+        "DepartureTimes": [],
+        "Stops": [
+          {
+            "StopSequence": 1,
+            "BusStopCode": null,
+            "Description": "Resorts World Sentosa",
+            "RoadName": "Sentosa Gateway",
+            "Latitude": 1.25617,
+            "Longitude": 103.82379,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 2,
+            "BusStopCode": "14141",
+            "Description": "HarbourFront Stn/VivoCity",
+            "RoadName": "Telok Blangah Rd",
+            "Latitude": 1.26434,
+            "Longitude": 103.82064,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 3,
+            "BusStopCode": "14121",
+            "Description": "Opp HarbourFront Int",
+            "RoadName": "Telok Blangah Rd",
+            "Latitude": 1.26526,
+            "Longitude": 103.82135,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 4,
+            "BusStopCode": "14139",
+            "Description": "Bef Seah Im Rd",
+            "RoadName": "Telok Blangah Rd",
+            "Latitude": 1.26573,
+            "Longitude": 103.82213,
+            "Timings": {}
+          },
+          {
+            "StopSequence": 5,
+            "BusStopCode": null,
+            "Description": "Resorts World Sentosa",
+            "RoadName": "Sentosa Gateway",
+            "Latitude": 1.25617,
+            "Longitude": 103.82379,
+            "Timings": {}
+          }
+        ]
+      }
+    }
+  }
+}
