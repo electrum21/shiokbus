@@ -12,10 +12,10 @@
     "StopSequence": 18
   },
   "9": {
-    "BusStopCode": "95041",
+    "BusStopCode": "95039",
     "RoadName": "Airport Cargo Rd",
-    "Description": "CIAS Cargo Ters",
-    "StopSequence": 42
+    "Description": "AirFreight Ter Bldg",
+    "StopSequence": 43
   },
   "11": {
     "BusStopCode": "90079",
@@ -30,10 +30,10 @@
     "StopSequence": 34
   },
   "19": {
-    "BusStopCode": "95041",
+    "BusStopCode": "95039",
     "RoadName": "Airport Cargo Rd",
-    "Description": "CIAS Cargo Ters",
-    "StopSequence": 29
+    "Description": "AirFreight Ter Bldg",
+    "StopSequence": 30
   },
   "23": {
     "BusStopCode": "07531",
@@ -234,10 +234,10 @@
     "StopSequence": 6
   },
   "89": {
-    "BusStopCode": "95041",
+    "BusStopCode": "95039",
     "RoadName": "Airport Cargo Rd",
-    "Description": "CIAS Cargo Ters",
-    "StopSequence": 49
+    "Description": "AirFreight Ter Bldg",
+    "StopSequence": 50
   },
   "90": {
     "BusStopCode": "73041",
@@ -282,10 +282,10 @@
     "StopSequence": 35
   },
   "98M": {
-    "BusStopCode": "21219",
+    "BusStopCode": "21179",
     "RoadName": "Corporation Rd",
-    "Description": "Lakepoint Condo",
-    "StopSequence": 16
+    "Description": "Corp Pl",
+    "StopSequence": 24
   },
   "101": {
     "BusStopCode": "66571",
@@ -366,10 +366,10 @@
     "StopSequence": 21
   },
   "123M": {
-    "BusStopCode": "10151",
+    "BusStopCode": "10141",
     "RoadName": "Tiong Bahru Rd",
-    "Description": "Ctrl Green Condo",
-    "StopSequence": 15
+    "Description": "Blk 18",
+    "StopSequence": 14
   },
   "125": {
     "BusStopCode": "80229",
@@ -480,10 +480,10 @@
     "StopSequence": 8
   },
   "180": {
-    "BusStopCode": "44259",
-    "RoadName": "Bt Panjang Rd",
-    "Description": "Blk 183",
-    "StopSequence": 26
+    "BusStopCode": "45009",
+    "RoadName": "Petir Rd",
+    "Description": "Bt Panjang Int",
+    "StopSequence": 25
   },
   "181": {
     "BusStopCode": "27461",

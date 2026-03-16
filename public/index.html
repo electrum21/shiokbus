@@ -415,6 +415,9 @@ body.light .unified-name{color:#08101A}
 .rs-svc-col.op-tts{background:#1A6B2A}
 .rs-svc-col.op-sbs{background:#5B2D8E}
 .rs-svc-col.op-smrt{background:var(--red)}
+.rs-svc-col.op-pbs{background:#1A2C5B;color:#fff}
+.bus-num-col.op-pbs{background:#1A2C5B}
+.svc-drop-num.op-pbs{background:#1A2C5B !important;color:#fff !important}
 .rs-time-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 2px}
 .rs-arrival-row .rs-time-cell:first-of-type{padding-left:10px}
 .rs-time-main{font-family:'Barlow Condensed',sans-serif;font-weight:650;font-size:17px;line-height:1;color:var(--white)}
@@ -1020,7 +1023,7 @@ body.light .legend-nosun-swatch { background: #4A6090; }
       </div>
       <div id="mrt-map-zoom-wrap" style="height:75vw;max-height:440px;overflow:hidden;position:relative;touch-action:none;cursor:grab;border-radius:12px;margin:0 14px 12px;background:#e8f0f8">
         <div id="mrt-map-inner" style="position:absolute;top:0;left:0;width:100%;height:100%;transform-origin:center center">
-          <img src="assets/mrt_map.png" id="mrt-map-img" style="width:100%;height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none" draggable="false">
+          <img src="assets/mrt-map.png" id="mrt-map-img" style="width:100%;height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none" draggable="false">
           <div id="mrt-hotspots" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></div>
         </div>
       </div>
@@ -1093,7 +1096,7 @@ body.light .legend-nosun-swatch { background: #4A6090; }
     <!-- BUS SERVICE MODE -->
     <div id="mode-service">
       <div class="search-bar" style="position:relative">
-        <input class="stop-input" type="text" id="serviceInput" placeholder="Search bus service" maxlength="6"
+        <input class="stop-input" type="text" id="serviceInput" placeholder="Bus service no."
           oninput="onServiceInput()" onkeydown="if(event.key==='Enter'){closeServiceDropdown();doServiceSearch()}" style="letter-spacing:3px" autocomplete="off" />
         <button class="go-btn" onclick="doServiceSearch()">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1761,6 +1764,7 @@ async function getProxyHeaders() {
 let SUN_AZ = 180, SUN_ALT = 45;
 let ALL_STOPS = null;
 let ALL_SERVICES = null; // cache of BusServices keyed by "ServiceNo-Direction"
+let PBS_SERVICES = null;
 let userLat = null, userLng = null;
 
 // ── INIT ──
@@ -1782,6 +1786,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // Preload services silently for instant dropdown
   if (!ALL_SERVICES) fetchAllServices().catch(() => {});
   if (!ALL_STOPS) fetchAllStops().catch(() => {});
+  fetchPBSServices().catch(() => {});
   loadMrtData().then(() => {
     startTrainAlertPolling();
     // Re-render stop title pills if a stop is currently displayed
@@ -1933,7 +1938,7 @@ function onServiceInput() {
     const info1 = ALL_SERVICES[svc + '-1'] || null;
     const info2 = ALL_SERVICES[svc + '-2'] || null;
     const op = (info1?.Operator || info2?.Operator || '').toUpperCase();
-    const opCls = op==='TTS'?'op-tts':(op==='SBST'||op==='SBS'||op.includes('SBS'))?'op-sbs':op==='GAS'?'op-gas':'op-smrt';
+    const opCls = opClass(op, !!(info1?._isPBS||info2?._isPBS));
     const orig = info1?.OriginCode ? (stopName(info1.OriginCode) || info1.OriginCode) : '';
     const dest = info1?.DestinationCode ? (stopName(info1.DestinationCode) || info1.DestinationCode) : '';
     const isLoop = info1 && !info2 && (info1.OriginCode === info1.DestinationCode || !!info1.LoopDesc);
@@ -1941,15 +1946,21 @@ function onServiceInput() {
     const midpoint = LOOP_SVC_MIDPOINTS[svc];
     const loopDesc = midpoint ? (/int|stn|hub|ter|ctr|zoo/i.test(midpoint.Description) ? midpoint.Description : midpoint.RoadName)
   : (info1?.LoopDesc || '');
+    const isPBS = !!(info1?._isPBS || info2?._isPBS);
     let route = '';
-    if (orig) {
+    if (isPBS) {
+      const origDesc = info1?.OriginDesc || orig;
+      const destDesc = info1?.DestinationDesc || dest;
+      route = isBidi ? `${origDesc} ↔ ${destDesc}` : `${origDesc} → ${destDesc}`;
+    } else if (orig) {
       if (isBidi) route = `${orig} ↔ ${dest}`;
       else if (isLoop) route = loopDesc ? `${orig} ↻ via ${loopDesc}` : `${orig} ↻`;
       else route = `${orig} → ${dest}`;
     }
+    const pbsBadge = isPBS ? `<span style="font-size:9px;background:#1A2C5B20;color:#1A2C5B;border:1px solid #1A2C5B40;border-radius:4px;padding:1px 4px;margin-left:4px;font-weight:700;flex-shrink:0">PBS</span>` : '';
     return `<div class="svc-drop-item" onclick="selectService('${svc}')">
       <span class="svc-drop-num ${opCls}">${formatSvcNo(svc)}</span>
-      <span class="svc-drop-cat">${route}</span>
+      <span class="svc-drop-cat" style="display:flex;align-items:center;gap:0">${route}${pbsBadge}</span>
     </div>`;
   }).join('');
   dd.style.display = 'block';
@@ -2014,6 +2025,15 @@ const SVC_DISPLAY_UPPER_E = new Set(['850e', '982e']);
 function formatSvcNo(svc) {
   return SVC_DISPLAY_UPPER_E.has((svc||'').toLowerCase()) ? svc.slice(0,-1) + 'E' : svc;
 }
+// Resolve operator CSS class, respecting PBS services' actual operator
+function opClass(op, isPBS) {
+  const u = (op||'').toUpperCase();
+  if (u === 'TTS') return 'op-tts';
+  if (u === 'SBST' || u === 'SBS' || u.includes('SBS')) return 'op-sbs';
+  if (u === 'GAS') return 'op-gas';
+  if (u === 'SMRT') return 'op-smrt';
+  return isPBS ? 'op-pbs' : 'op-smrt';
+}
 
 async function doServiceSearch() {
   closeServiceDropdown();
@@ -2069,6 +2089,41 @@ let alertBannerEnabled = true; // in-memory only, resets each session
 
 async function fetchBusRoute(svc) {
   const svcNorm = svc.replace(/^0+/, '').toUpperCase();
+
+  // Check if this is a PBS service — serve from local PBS_SERVICES instead of worker
+  if (PBS_SERVICES) {
+    const pbsKey = Object.keys(PBS_SERVICES).find(k =>
+      k.toUpperCase() === svcNorm ||
+      PBS_SERVICES[k].ServiceNo.toUpperCase().replace(/\s+/g,'') === svcNorm ||
+      PBS_SERVICES[k].ServiceNo.toUpperCase().replace(/[^A-Z0-9]/g,'') === svcNorm.replace(/[^A-Z0-9]/g,'')
+    );
+    if (pbsKey) {
+      const pbsSvc = PBS_SERVICES[pbsKey];
+      const stops = [];
+      for (const [dirKey, dir] of Object.entries(pbsSvc.Directions)) {
+        for (const stop of dir.Stops) {
+          stops.push({
+            ServiceNo: pbsSvc.ServiceNo,
+            Operator: pbsSvc.Operator,
+            Direction: parseInt(dirKey),
+            StopSequence: stop.StopSequence,
+            BusStopCode: stop.BusStopCode || '',
+            Distance: 0,
+            WD_FirstBus: (() => { const t = Object.values(stop.Timings||{}); return t.length ? t[0].replace(':','') : '-'; })(),
+            WD_LastBus: (() => { const t = Object.values(stop.Timings||{}); return t.length ? t[t.length-1].replace(':','') : '-'; })(),
+            SAT_FirstBus: '-', SAT_LastBus: '-',
+            SUN_FirstBus: '-', SUN_LastBus: '-',
+            _pbsStop: stop,
+          });
+        }
+      }
+      if (!ALL_ROUTES) ALL_ROUTES = [];
+      ALL_ROUTES = ALL_ROUTES.filter(s => s.ServiceNo.replace(/^0+/,'').toUpperCase() !== svcNorm);
+      ALL_ROUTES.push(...stops);
+      return stops;
+    }
+  }
+
   // Fetch only this service's stops from the worker — no full file download
   const res = await fetch(`${PROXY_URL}?endpoint=route&service=${encodeURIComponent(svcNorm)}`, { headers: await getProxyHeaders() });
   if (!res.ok) throw new Error('Failed to load route. Check your Worker URL.');
@@ -2245,14 +2300,15 @@ function renderRoute(rd, allStops) {
   const opLabel = operator === 'SBST' ? 'SBS Transit' : operator === 'SMRT' ? 'SMRT Buses' : operator === 'TTS' ? 'Tower Transit' : operator === 'GAS' ? 'Go-Ahead' : operator || '';
   const catColor = 'var(--white)';
   const catLabel = category === 'CITY_LINK' ? 'CITY DIRECT' : category;
-  function opToColor(op) {
+  function opToColor(op, isPBS) {
     const u = (op||'').toUpperCase();
     if (u === 'TTS') return '#1A6B2A';
     if (u === 'SBST' || u === 'SBS' || u.includes('SBS')) return '#5B2D8E';
     if (u === 'GAS') return '#9A7000';
-    return '#D7181C';
+    if (u === 'SMRT') return '#D7181C';
+    return isPBS ? '#1A2C5B' : '#D7181C';
   }
-  const opBg = opToColor(operator);
+  const opBg = opToColor(operator, !!(rd.svcMap?.[rd.svc + '-1']?._isPBS || rd.svcMap?.[rd.svc + '-2']?._isPBS));
 
   const freqPills = [
     amPeak ? `<span class="svc-freq-pill"><span class="svc-freq-pill-label">AM</span>${amPeak}</span>` : '',
@@ -2289,8 +2345,8 @@ function renderRoute(rd, allStops) {
 
   const isLoop = rd.directions.length === 1;
   rd.directions.forEach((d, i) => {
-    const dFirst = stopMap[padCode(d.stops[0]?.BusStopCode)]?.Description || d.stops[0]?.BusStopCode || '?';
-    const dLast = stopMap[padCode(d.stops[d.stops.length-1]?.BusStopCode)]?.Description || d.stops[d.stops.length-1]?.BusStopCode || '?';
+    const dFirst = stopMap[padCode(d.stops[0]?.BusStopCode)]?.Description || d.stops[0]?._pbsStop?.Description || d.stops[0]?.BusStopCode || '?';
+    const dLast = stopMap[padCode(d.stops[d.stops.length-1]?.BusStopCode)]?.Description || d.stops[d.stops.length-1]?._pbsStop?.Description || d.stops[d.stops.length-1]?.BusStopCode || '?';
     const loopLine = (isLoop && loopDesc) ? `<div class="dir-btn-loop">via ${loopDesc}</div>` : '';
     const label = isLoop
       ? `<div class="dir-btn-dest">${dFirst} → ${dLast}</div>${loopLine}`
@@ -2305,8 +2361,11 @@ function renderRoute(rd, allStops) {
 
   dir.stops.forEach((s, i) => {
     const info = stopMap[padCode(s.BusStopCode)];
-    const name = info?.Description || s.BusStopCode;
-    const road = info?.RoadName || '';
+    const name = info?.Description || s._pbsStop?.Description || s.BusStopCode || '—';
+    const road = info?.RoadName || s._pbsStop?.RoadName || '';
+    const displayCode = s.BusStopCode || '-';
+    // For PBS stops without a bus stop code, use a synthetic key so IDs remain unique/valid
+    const stopKey = s.BusStopCode || ('pbs-seq-' + s.StopSequence);
     const dist = s.Distance ? (s.Distance >= 1 ? s.Distance.toFixed(1)+'km' : Math.round(s.Distance*1000)+'m') : '';
     const isFirst = i === 0, isLast = i === dir.stops.length - 1;
     const wdFirst = s.WD_FirstBus && s.WD_FirstBus !== '-' ? s.WD_FirstBus : null;
@@ -2331,12 +2390,12 @@ function renderRoute(rd, allStops) {
           ${!isLast ? '<div class="route-connector"></div>' : ''}
         </div>
         <div style="flex:1;min-width:0">
-          <div class="route-stop-card" onclick="toggleRouteStop('rs-${s.BusStopCode}-${i}', '${s.BusStopCode}', this)">
+          <div class="route-stop-card" onclick="toggleRouteStop('rs-${stopKey}-${i}', '${stopKey}', this)">
             <div class="route-seq">${s.StopSequence}</div>
             <div class="route-stop-info">
               <div class="route-stop-name" data-stop-name="${name}">${stopLabel(name)}</div>
               <div style="display:flex;align-items:center;justify-content:space-between;gap:5px;margin-top:2px">
-                <span class="route-stop-code" style="margin:0">${s.BusStopCode}${road?' · '+road:''}</span>
+                <span class="route-stop-code" style="margin:0">${displayCode}${road?' · '+road:''}</span>
                 <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
                   ${mrtPills(name, true)}
                   ${(() => { const as = alertsForStopName(name); return as.length ? `<button onclick="event.stopPropagation();openTrainAlertModal()" title="Train disruption on ${as.map(a=>a.Line).join(', ')}" style="background:none;border:none;cursor:pointer;font-size:12px;padding:0;line-height:1;flex-shrink:0">⚠️</button>` : ''; })()}
@@ -2349,13 +2408,13 @@ function renderRoute(rd, allStops) {
               <div class="rs-chevron">›</div>
             </div>
           </div>
-          <div class="rs-expand" id="rs-${s.BusStopCode}-${i}">
+          <div class="rs-expand" id="rs-${stopKey}-${i}">
             <div class="rs-expand-inner">
-              ${timingRows ? `<div class="rs-actions" style="display:flex;align-items:center;justify-content:space-between;gap:6px"><button class="rs-action-btn" style="color:var(--cyan);background:#00C8E015;border-color:#00C8E030" onclick="toggleRouteTiming('rtp-${s.BusStopCode}-${i}', this)">🕐 First / Last</button><button class="rs-action-btn" style="color:var(--muted)" onclick="event.stopPropagation();loadArrivalsInRoute('${s.BusStopCode}')">↻ Refresh</button></div>` : ''}
-              <div class="rs-arrivals" id="ra-${s.BusStopCode}-${i}">
+              ${timingRows ? `<div class="rs-actions" style="display:flex;align-items:center;justify-content:space-between;gap:6px"><button class="rs-action-btn" style="color:var(--cyan);background:#00C8E015;border-color:#00C8E030" onclick="toggleRouteTiming('rtp-${stopKey}-${i}', this)">🕐 First / Last</button><button class="rs-action-btn" style="color:var(--muted)" onclick="event.stopPropagation();loadArrivalsInRoute('${stopKey}', s.StopSequence)">↻ Refresh</button></div>` : ''}
+              <div class="rs-arrivals" id="ra-${stopKey}-${i}">
                 <div class="rs-arrivals-placeholder">Loading…</div>
               </div>
-              ${timingRows ? `<div class="rs-timing-panel" id="rtp-${s.BusStopCode}-${i}" style="display:none">${timingRows}</div>` : ''}
+              ${timingRows ? `<div class="rs-timing-panel" id="rtp-${stopKey}-${i}" style="display:none">${timingRows}</div>` : ''}
             </div>
           </div>
         </div>
@@ -2946,6 +3005,7 @@ async function fetchAllStops() {
   if (!res.ok) throw new Error('Failed to load stops.');
   ALL_STOPS = await res.json();
   try { localStorage.setItem('shiokbus_stops', JSON.stringify(ALL_STOPS)); } catch(e) {}
+  if (PBS_SERVICES) injectPBSIntoStops();
   setNearMeSub(`${ALL_STOPS.length.toLocaleString()} stops loaded`);
   return ALL_STOPS;
 }
@@ -3093,6 +3153,69 @@ function indexServices(raw) {
   return map;
 }
 
+
+async function fetchPBSServices() {
+  if (PBS_SERVICES) return PBS_SERVICES;
+  try {
+    const res = await fetch('./assets/pbs-services.json');
+    if (!res.ok) return null;
+    PBS_SERVICES = await res.json();
+    if (ALL_SERVICES) injectPBSIntoServices();
+    if (ALL_STOPS) injectPBSIntoStops();
+    return PBS_SERVICES;
+  } catch(e) {
+    console.error('Failed to load PBS services:', e);
+    return null;
+  }
+}
+
+function injectPBSIntoServices() {
+  if (!PBS_SERVICES || !ALL_SERVICES) return;
+  for (const [key, svc] of Object.entries(PBS_SERVICES)) {
+    for (const [dirKey, dir] of Object.entries(svc.Directions)) {
+      const serviceKey = normalizeServiceNo(svc.ServiceNo) + '-' + dirKey;
+      ALL_SERVICES[serviceKey] = {
+        ServiceNo: svc.ServiceNo,
+        Operator: svc.Operator,
+        Direction: parseInt(dirKey),
+        Category: 'PREMIUM',
+        OriginCode: dir.OriginCode || '',
+        OriginDesc: dir.OriginDesc || '',
+        DestinationCode: dir.DestinationCode || '',
+        DestinationDesc: dir.DestinationDesc || '',
+        AM_Peak_Freq: '-', AM_Offpeak_Freq: '-', PM_Peak_Freq: '-', PM_Offpeak_Freq: '-',
+        LoopDesc: '',
+        Fare: svc.Fare,
+        OperatingHours: dir.OperatingHours,
+        _isPBS: true,
+      };
+    }
+  }
+}
+
+function injectPBSIntoStops() {
+  if (!PBS_SERVICES || !ALL_STOPS) return;
+  const existingCodes = new Set(ALL_STOPS.map(s => s.BusStopCode));
+  const toAdd = [];
+  for (const svc of Object.values(PBS_SERVICES)) {
+    for (const dir of Object.values(svc.Directions)) {
+      for (const stop of dir.Stops) {
+        if (!stop.BusStopCode || existingCodes.has(stop.BusStopCode)) continue;
+        existingCodes.add(stop.BusStopCode);
+        toAdd.push({
+          BusStopCode: stop.BusStopCode,
+          RoadName: stop.RoadName || '',
+          Description: stop.Description || '',
+          Latitude: stop.Latitude || 0,
+          Longitude: stop.Longitude || 0,
+          _isPBS: true,
+        });
+      }
+    }
+  }
+  if (toAdd.length) ALL_STOPS = ALL_STOPS.concat(toAdd);
+}
+
 async function fetchAllServices() {
   if (ALL_SERVICES) return ALL_SERVICES;
   try {
@@ -3104,6 +3227,7 @@ async function fetchAllServices() {
   const raw = await res.json();
   try { localStorage.setItem('shiokbus_services', JSON.stringify(raw)); } catch(e) {}
   ALL_SERVICES = indexServices(raw);
+  if (PBS_SERVICES) injectPBSIntoServices();
   return ALL_SERVICES;
 }
 
@@ -3256,7 +3380,11 @@ function render(code, data) {
     const loadColor = {SEA:'var(--green)', SDA:'#FF8C00', LSD:'#FF3333'};
     const nextPills = [[m2,nb2],[m3,nb3]].filter(([m])=>m!==null).map(([m,nb])=>`<div class="next-pill"><span>${m<=0?'ARR':m+' min'}</span>${busTypeIcon(nb.Type,true,loadColor[nb.Load]||'var(--muted)')}</div>`).join('');
     const op = (s.Operator||'').toUpperCase();
-    const opCls = op==='GAS'?'op-gas':op==='TTS'?'op-tts':(op==='SBST'||op==='SBS'||op.includes('SBS'))?'op-sbs':'op-smrt';
+    const svcKey1 = s.ServiceNo.replace(/^0+/,'') + '-1';
+    const svcKey2 = s.ServiceNo.replace(/^0+/,'') + '-2';
+    const info1 = ALL_SERVICES?.[svcKey1] || null;
+    const info2 = ALL_SERVICES?.[svcKey2] || null;
+    const opCls = opClass(op, !!(info1?._isPBS||info2?._isPBS));
     // Use origin/destination directly from the live arrival data (per-bus, correct direction)
     // For loop services, getLoopDestLabel returns { from, to } labels.
     // For normal services, use live arrival origin/destination.
@@ -3511,24 +3639,110 @@ function toggleRouteStop(id, code, cardEl) {
   } else {
     panel.classList.add('open');
     cardEl.querySelector('.rs-chevron')?.classList.add('rotated');
-    loadArrivalsInRoute(code);
+    // Extract stop sequence from synthetic key for null-code PBS stops
+    const seq = code?.startsWith('pbs-seq-') ? parseInt(code.split('-')[2]) : undefined;
+    loadArrivalsInRoute(code, seq);
   }
 }
 
-async function loadArrivalsInRoute(code) {
+// Build PBS static arrival rows for a given stop code in the current route direction.
+// Returns an HTML string of rs-arrival-row(s), or '' if not applicable.
+function buildPBSArrivalRows(code, stopSeq) {
+  if (!routeData || !PBS_SERVICES) return '';
+  const dir = routeData.directions[routeData.currentDir];
+  if (!dir) return '';
+  // Find the stop entry: match by code first, fall back to stop sequence for null-code PBS stops
+  const stopEntry = dir.stops.find(s => s._pbsStop && (
+    (s.BusStopCode && s.BusStopCode === code) ||
+    (!s.BusStopCode && stopSeq != null && s.StopSequence === stopSeq)
+  ));
+  if (!stopEntry) return '';
+  const pbsStop = stopEntry._pbsStop;
+  const timings = pbsStop.Timings; // { "07:00": "07:03", "07:30": "07:33", ... }
+  if (!timings || !Object.keys(timings).length) return '';
+
+  // Compute upcoming scheduled arrivals (next 3) relative to now
+  const now = new Date();
+  const todayMins = now.getHours() * 60 + now.getMinutes();
+
+  function hhmmmToMins(hhmm) {
+    const [h, m] = hhmm.split(':').map(Number);
+    return h * 60 + m;
+  }
+  function minsUntil(hhmm) {
+    return hhmmmToMins(hhmm) - todayMins;
+  }
+
+  // Get all scheduled arrival times for this stop, sorted
+  const upcoming = Object.values(timings)
+    .map(t => ({ t, diff: minsUntil(t) }))
+    .filter(x => x.diff > -2 && x.diff <= 45) // match LTA convention: -2 min to 45 min window
+    .sort((a, b) => a.diff - b.diff)
+    .slice(0, 3);
+
+  if (!upcoming.length) return '';
+
+  const svcNo = stopEntry.ServiceNo;
+  const destDesc = (() => {
+    // Find destination description from PBS_SERVICES
+    const pbsKey = Object.keys(PBS_SERVICES).find(k =>
+      PBS_SERVICES[k].ServiceNo === svcNo ||
+      PBS_SERVICES[k].ServiceNo.toUpperCase().replace(/\s+/g,'') === svcNo.toUpperCase().replace(/\s+/g,'')
+    );
+    if (!pbsKey) return '';
+    const pbsSvc = PBS_SERVICES[pbsKey];
+    const dirKey = String(stopEntry.Direction || 1);
+    return pbsSvc.Directions?.[dirKey]?.DestinationDesc || '';
+  })();
+
+  function pbsTimeCell(diff, hhmm) {
+    const label = diff <= 0 ? 'Arr' : `${diff} min`;
+    const arriving = diff <= 1;
+    return `<div class="rs-time-cell">
+      <span class="rs-time-main${arriving ? ' arriving' : ''}">${label}</span>
+      <div class="rs-time-meta"><span style="font-size:9px;color:var(--muted);font-family:'Barlow',sans-serif;white-space:nowrap">${hhmm} Scheduled</span></div>
+    </div>`;
+  }
+
+  // Pad to 3 cells
+  const cells = [0, 1, 2].map(i =>
+    upcoming[i]
+      ? pbsTimeCell(upcoming[i].diff, upcoming[i].t)
+      : '<div class="rs-time-cell"><span class="rs-time-next">—</span></div>'
+  ).join('');
+
+  const destLabel = destDesc
+    ? `<div style="font-size:8px;color:#FFFFFF;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px;text-transform:uppercase;letter-spacing:.3px">${destDesc}</div>`
+    : '';
+
+  const schedBadge = '';
+
+  return `<div class="rs-arrival-row">
+    <div class="rs-svc-col ${opClass(stopEntry.Operator, true)}" onclick="goToService('${svcNo}', '${code}')" style="display:flex;flex-direction:column;align-items:center;padding:3px 2px">${formatSvcNo(svcNo)}${destLabel}</div>
+    ${cells}
+  </div>`;
+}
+
+async function loadArrivalsInRoute(code, stopSeq) {
   // Find all arrival containers for this stop code
   const containers = document.querySelectorAll(`[id^="ra-${code}-"]`);
   containers.forEach(c => c.innerHTML = '<div class="rs-arrivals-placeholder">Loading…</div>');
+
+  // Check if this stop belongs to a PBS route — if so, build static rows immediately
+  const pbsHtml = buildPBSArrivalRows(code, stopSeq);
+
+  // If no real bus stop code, skip LTA fetch — only PBS static data available
+  const isNullCode = !code || code.startsWith('pbs-seq-');
+  if (isNullCode) {
+    containers.forEach(c => c.innerHTML = pbsHtml || '<div class="rs-arrivals-placeholder">No live data</div>');
+    return;
+  }
+
   try {
     const data = await fetchLTA(code);
     const svcs = data.Services || [];
-    if (!svcs.length) {
-      containers.forEach(c => c.innerHTML = '<div class="rs-arrivals-placeholder">No services right now</div>');
-      return;
-    }
     svcs.sort((a,b) => parseInt(a.ServiceNo)-parseInt(b.ServiceNo)||a.ServiceNo.localeCompare(b.ServiceNo));
     const loadColors = {SEA:'var(--green)',SDA:'#FF8C00',LSD:'#FF3333'};
-    const loadLabels = {SEA:'Seats Avail',SDA:'Standing',LSD:'Crowded'};
 
     function fmtMin(m) { return m <= 0 ? 'Arr' : m + ' min'; }
     function timeCell(m, nb, loopLabel) {
@@ -3543,17 +3757,25 @@ async function loadArrivalsInRoute(code) {
       </div>`;
     }
 
-    let html = '';
+    // Filter out the PBS service from live results (it won't be there, but just in case)
+    const pbsSvcNo = pbsHtml
+      ? routeData?.directions[routeData.currentDir]?.stops.find(s => s.BusStopCode === code && s._pbsStop)?.ServiceNo
+      : null;
+
+    let liveHtml = '';
     svcs.forEach(s => {
+      // Skip if this service is already rendered via PBS static rows
+      if (pbsSvcNo && s.ServiceNo === pbsSvcNo) return;
       const nb = s.NextBus, nb2 = s.NextBus2, nb3 = s.NextBus3;
       if (!nb?.EstimatedArrival) return;
       const m1 = minsFrom(nb.EstimatedArrival);
       const m2 = nb2?.EstimatedArrival ? minsFrom(nb2.EstimatedArrival) : null;
       const m3 = nb3?.EstimatedArrival ? minsFrom(nb3.EstimatedArrival) : null;
       const op = (s.Operator||'').toUpperCase();
-      const opCls = op==='GAS'?'op-gas':op==='TTS'?'op-tts':(op==='SBST'||op==='SBS'||op.includes('SBS'))?'op-sbs':'op-smrt';
+      const info1 = ALL_SERVICES?.[s.ServiceNo.replace(/^0+/,'') + '-1'] || null;
+      const info2 = ALL_SERVICES?.[s.ServiceNo.replace(/^0+/,'') + '-2'] || null;
+      const opCls = opClass(op, !!(info1?._isPBS||info2?._isPBS));
       const liveDestCode = nb.DestinationCode;
-      // Fallback: find last stop from ALL_ROUTES for this service
       let fallbackDestCode = null;
       if (!stopName(liveDestCode) && ALL_ROUTES) {
         const svcUpper = s.ServiceNo.toUpperCase();
@@ -3563,7 +3785,6 @@ async function loadArrivalsInRoute(code) {
       const destName = stopName(liveDestCode) || stopName(fallbackDestCode);
       const destLabel = destName ? `<div style="font-size:8px;color:#FFFFFF;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px;text-transform:uppercase;letter-spacing:.3px">${destName}</div>` : '';
 
-      // Double-loop label: only for hardcoded double-loop feeder services
       const svcBase = s.ServiceNo.replace(/^0+/, '');
       const isDoubleLoop = DOUBLE_LOOP_SERVICES.has(svcBase);
       function getLoopLabel(busNb) {
@@ -3571,16 +3792,23 @@ async function loadArrivalsInRoute(code) {
         const key = svcBase + ':' + String(busNb.DestinationCode).padStart(5, '0');
         return DOUBLE_LOOP_LABELS[key] || null;
       }
-      html += `<div class="rs-arrival-row">
+      liveHtml += `<div class="rs-arrival-row">
         <div class="rs-svc-col ${opCls}" onclick="goToService('${s.ServiceNo}', '${code}')" style="display:flex;flex-direction:column;align-items:center;padding:3px 2px">${formatSvcNo(s.ServiceNo)}${destLabel}</div>
         ${timeCell(m1, nb, isDoubleLoop ? getLoopLabel(nb) : null)}
         ${timeCell(m2, nb2, isDoubleLoop ? getLoopLabel(nb2) : null)}
         ${timeCell(m3, nb3, isDoubleLoop ? getLoopLabel(nb3) : null)}
       </div>`;
     });
-    containers.forEach(c => c.innerHTML = html || '<div class="rs-arrivals-placeholder">No live data</div>');
+
+    const combined = pbsHtml + liveHtml;
+    containers.forEach(c => c.innerHTML = combined || '<div class="rs-arrivals-placeholder">No live data</div>');
   } catch(e) {
-    containers.forEach(c => c.innerHTML = `<div class="rs-arrivals-placeholder" style="color:#FF9999">⚠️ ${e.message}</div>`);
+    // If LTA fetch fails but we have PBS static data, still show it
+    if (pbsHtml) {
+      containers.forEach(c => c.innerHTML = pbsHtml);
+    } else {
+      containers.forEach(c => c.innerHTML = `<div class="rs-arrivals-placeholder" style="color:#FF9999">⚠️ ${e.message}</div>`);
+    }
   }
 }
 
