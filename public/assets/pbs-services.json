@@ -1,6 +1,6 @@
 {
   "PBSGrandeVista": {
-    "ServiceNo": "PBS from Grande Vista to Yio Chu Kang/Ang Mo Kio MRT Stations (loop)",
+    "ServiceNo": "PBS Grande Vista to YCK/AMK MRT",
     "Operator": "MCST",
     "Category": "PREMIUM",
     "Fare": "$2.20 per adult per trip; $1.60 per child/ student/ senior citizen per trip",
@@ -72,7 +72,7 @@
             "StopSequence": 3,
             "BusStopCode": null,
             "Description": "PUDO point at Yio Chu Kang MRT Station",
-            "RoadName": "Ang Mo Kio Avenue 8",
+            "RoadName": "Ang Mo Kio Ave 8",
             "Latitude": 1.375517,
             "Longitude": 103.844916,
             "Timings": {
@@ -9327,7 +9327,7 @@
         "Stops": [
           {
             "StopSequence": 1,
-            "BusStopCode": "66369",
+            "BusStopCode": "40441",
             "Description": "Blk 238",
             "RoadName": "Tengah Dr",
             "Latitude": 1.357394,
@@ -9345,8 +9345,8 @@
             "Latitude": 1.357394,
             "Longitude": 103.731808,
             "Timings": {
-              "07:30": "07:30",
-              "08:00": "08:00"
+              "07:30": "07:32",
+              "08:00": "08:02"
             }
           },
           {
@@ -9357,8 +9357,8 @@
             "Latitude": 1.357394,
             "Longitude": 103.731808,
             "Timings": {
-              "07:30": "07:31",
-              "08:00": "08:01"
+              "07:30": "07:33",
+              "08:00": "08:03"
             }
           },
           {
@@ -9369,20 +9369,20 @@
             "Latitude": 1.357394,
             "Longitude": 103.731808,
             "Timings": {
-              "07:30": "07:32",
-              "08:00": "08:02"
+              "07:30": "07:35",
+              "08:00": "08:05"
             }
           },
           {
             "StopSequence": 5,
-            "BusStopCode": "65539",
+            "BusStopCode": "40401",
             "Description": "Blk 224A",
             "RoadName": "Tengah Boulevard",
             "Latitude": 1.359258,
             "Longitude": 103.733186,
             "Timings": {
-              "07:30": "07:32",
-              "08:00": "08:02"
+              "07:30": "07:36",
+              "08:00": "08:06"
             }
           },
           {
@@ -9393,8 +9393,8 @@
             "Latitude": 1.35636,
             "Longitude": 103.73427,
             "Timings": {
-              "07:30": "07:34",
-              "08:00": "08:04"
+              "07:30": "07:38",
+              "08:00": "08:08"
             }
           },
           {
@@ -9405,8 +9405,8 @@
             "Latitude": 1.29648177,
             "Longitude": 103.7845539,
             "Timings": {
-              "07:30": "07:50",
-              "08:00": "08:20"
+              "07:30": "07:58",
+              "08:00": "08:28"
             }
           },
           {
@@ -9417,8 +9417,8 @@
             "Latitude": 1.30051083,
             "Longitude": 103.7886429,
             "Timings": {
-              "07:30": "07:52",
-              "08:00": "08:22"
+              "07:30": "08:00",
+              "08:00": "08:30"
             }
           },
           {
@@ -9429,8 +9429,8 @@
             "Latitude": 1.303221,
             "Longitude": 103.792772,
             "Timings": {
-              "07:30": "07:54",
-              "08:00": "08:24"
+              "07:30": "08:02",
+              "08:00": "08:32"
             }
           },
           {
@@ -9441,8 +9441,8 @@
             "Latitude": 1.3057993,
             "Longitude": 103.7904631,
             "Timings": {
-              "07:30": "07:55",
-              "08:00": "08:25"
+              "07:30": "08:05",
+              "08:00": "08:35"
             }
           }
         ]
@@ -9504,7 +9504,7 @@
           },
           {
             "StopSequence": 5,
-            "BusStopCode": "66369",
+            "BusStopCode": "40441",
             "Description": "Blk 238",
             "RoadName": "Tengah Dr",
             "Latitude": 1.357394,
@@ -9548,7 +9548,7 @@
           },
           {
             "StopSequence": 9,
-            "BusStopCode": "65539",
+            "BusStopCode": "40401",
             "Description": "Blk 224A",
             "RoadName": "Tengah Boulevard",
             "Latitude": 1.359258,

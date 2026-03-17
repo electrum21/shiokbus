@@ -1226,7 +1226,6 @@ body.light .legend-nosun-swatch { background: #4A6090; }
   </div>
 
   <!-- About section -->
-  <!-- About section -->
   <div class="settings-section">
     <div class="settings-section-title">About</div>
     <div class="settings-row" style="cursor:default">
@@ -1557,9 +1556,10 @@ function _buildMrtHotspots() {
   });
 }
 
-function _mrtNormalizeKey(name) {
-  let core = name.toLowerCase().trim();
-  core = core
+// ── SHARED MRT NAME NORMALISATION ──
+// Single source of truth — used by mrtPills, alertsForStopName, mrtPillsForName, _mrtNormalizeKey
+function _expandMrtAbbreviations(core) {
+  return core
     .replace(/\blor\b/g, 'lorong')
     .replace(/\bave\b/g, 'avenue')
     .replace(/\bpk\b/g, 'park')
@@ -1582,7 +1582,29 @@ function _mrtNormalizeKey(name) {
     .replace(/\bw'lands\b/g, 'woodlands')
     .replace(/\blk\b/g, 'link')
     .replace(/\bholland v\b/g, 'holland village');
-  return core;
+}
+
+// Strip directional/positional prefixes and station-type suffixes, then expand abbreviations.
+// Pass stripSuffixes=true (default) for MRT lookup; false to keep just abbreviation expansion.
+function normalizeMrtStopName(name, stripSuffixes = true) {
+  let core = name;
+  if (stripSuffixes) {
+    core = core
+      .replace(/^(Bef|Aft|Opp|Fr)\s+/i, '')
+      .replace(/^(Lot|Blk)\s+[\w]+\s*\/\s*/i, '')
+      .replace(/\/.*$/i, '')
+      .replace(/\s+Lrt\b.*/i, '')
+      .replace(/\s+Stn\b.*/i, '')
+      .replace(/\s+Exit\s+\w+/i, '')
+      .replace(/\s+Ctrl\b.*/i, '')
+      .replace(/\s+Int\b.*/i, '')
+      .trim();
+  }
+  return _expandMrtAbbreviations(core.toLowerCase().trim());
+}
+
+function _mrtNormalizeKey(name) {
+  return normalizeMrtStopName(name, false);
 }
 
 function _mrtStationTap(name) {
@@ -1594,21 +1616,7 @@ function _mrtStationTap(name) {
 
   // Try to find bus stops whose description normalizes to this MRT station key
   if (ALL_STOPS) {
-    const matches = ALL_STOPS.filter(s => {
-      let core = s.Description
-        .replace(/^(Bef|Aft|Opp|Fr)\s+/i, '')
-        .replace(/^(Lot|Blk)\s+[\w]+\s*\/\s*/i, '')
-        .replace(/\/.*$/i, '')
-        .replace(/\s+Lrt\b.*/i, '')
-        .replace(/\s+Stn\b.*/i, '')
-        .replace(/\s+Exit\s+\w+/i, '')
-        .replace(/\s+Ctrl\b.*/i, '')
-        .replace(/\s+Int\b.*/i, '')
-        .trim()
-        .toLowerCase();
-      core = _mrtNormalizeKey(core);
-      return core === key;
-    });
+    const matches = ALL_STOPS.filter(s => normalizeMrtStopName(s.Description) === key);
 
     if (matches.length > 0) {
       unifiedMatches = matches;
@@ -1765,6 +1773,7 @@ let SUN_AZ = 180, SUN_ALT = 45;
 let ALL_STOPS = null;
 let ALL_SERVICES = null; // cache of BusServices keyed by "ServiceNo-Direction"
 let PRIVATE_SERVICES = null;
+let PRIVATE_STOP_INDEX = {}; // BusStopCode → [stopEntry, ...]
 let userLat = null, userLng = null;
 
 // ── INIT ──
@@ -2078,6 +2087,9 @@ async function doServiceSearch() {
       stops: byDir[d].sort((a,b) => a.StopSequence - b.StopSequence)
     }));
 
+    // Ensure private services are injected into svcMap before rendering
+    // (race condition: fetchAllServices may resolve before fetchPrivateServices)
+    if (PRIVATE_SERVICES && svcMap) injectPrivateIntoServices();
     routeData = { svc, directions, currentDir: 0, svcMap };
     renderRoute(routeData, stops);
     updateFavButtons();
@@ -2287,9 +2299,11 @@ function renderRoute(rd, allStops) {
   const toName = stopMap[padCode(lastStop?.BusStopCode)]?.Description || lastStop?.BusStopCode || '—';
 
   // Look up service metadata for this direction
+  const svcNormKey = normalizeServiceNo(rd.svc.toUpperCase());
   const svcInfo = rd.svcMap
-    ? rd.svcMap[rd.svc.toUpperCase() + '-' + dir.dir] || rd.svcMap[rd.svc + '-' + dir.dir] || null
+    ? rd.svcMap[svcNormKey + '-' + dir.dir] || null
     : null;
+
   const category = svcInfo?.Category || null;
   const operator = svcInfo?.Operator || null;
   const _midpoint = LOOP_SVC_MIDPOINTS?.[rd.svc];
@@ -2314,7 +2328,7 @@ function renderRoute(rd, allStops) {
     if (u.includes('TONG TAR')) return '#1A6B2A';
     return isPrivate ? '#1A2C5B' : '#D7181C';
   }
-  const opBg = opToColor(operator, !!(rd.svcMap?.[rd.svc.toUpperCase() + '-1']?._isPrivate || rd.svcMap?.[rd.svc.toUpperCase() + '-2']?._isPrivate || rd.svcMap?.[rd.svc + '-1']?._isPrivate || rd.svcMap?.[rd.svc + '-2']?._isPrivate));
+  const opBg = opToColor(operator, !!(rd.svcMap?.[svcNormKey + '-1']?._isPrivate || rd.svcMap?.[svcNormKey + '-2']?._isPrivate));
 
   const freqPills = [
     amPeak ? `<span class="svc-freq-pill"><span class="svc-freq-pill-label">AM</span>${amPeak}</span>` : '',
@@ -2336,7 +2350,7 @@ function renderRoute(rd, allStops) {
       <div style="display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;white-space:nowrap">
         <div style="display:inline-flex;align-items:center;gap:6px;background:${opBg};color:#fff;padding:6px 16px;border-radius:12px;flex-shrink:0"><span class="stop-title" style="font-size:inherit">${formatSvcNo(rd.svc)}</span></div>
         ${freqPills}
-        ${(rd.svcMap?.[rd.svc.toUpperCase()+'-1']?._isScheduled || rd.svcMap?.[rd.svc+'-1']?._isScheduled) ? `<span style="margin-left:auto;font-size:9px;color:var(--muted);white-space:normal;text-align:right;line-height:1.3;max-width:200px;flex-shrink:0">⚠️ Timings are estimated based on schedules and may not be fully accurate.</span>` : ''}
+        ${rd.svcMap?.[svcNormKey + '-1']?._isScheduled ? `<span style="margin-left:auto;font-size:9px;color:var(--muted);white-space:normal;text-align:right;line-height:1.3;max-width:200px;flex-shrink:0">⚠️ Timings for this service are estimated based on schedules and may not be fully accurate.</span>` : ''}
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         ${category ? `<span style="color:${catColor};font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px;flex-shrink:0">${catLabel}</span>` : ''}
@@ -2584,7 +2598,7 @@ function updatePlanClearBtn(which) {
 function runPlanTrip() {
   if (planBoardIdx < 0 || planAlightIdx < 0) return;
   if (planAlightIdx <= planBoardIdx) {
-    alert('Alighting stop must be after boarding stop.');
+    toast('⚠️ Alighting stop must be after boarding stop.');
     return;
   }
   const sliced = planStops.slice(planBoardIdx, planAlightIdx + 1);
@@ -3048,14 +3062,20 @@ fetch('./assets/loop-midpoints.json')
   .then(data => {
     LOOP_SVC_MIDPOINTS = data;
   })
-  .catch(err => console.error("Failed to load loop midpoints:", err));
+  .catch(err => {
+    console.error("Failed to load loop midpoints:", err);
+    toast('⚠️ Loop route data failed to load — some service labels may be incorrect.');
+  });
 
 let LOOPDESC_CLEAR = new Set();
 
 fetch('./assets/loop-desc-clear.json')
   .then(r => r.json())
   .then(data => { LOOPDESC_CLEAR = new Set(data); })
-  .catch(err => console.error('Failed to load loop-desc-clear:', err));
+  .catch(err => {
+    console.error('Failed to load loop-desc-clear:', err);
+    toast('⚠️ Loop descriptor data failed to load — some service labels may be incorrect.');
+  });
 
 // Cache: serviceNo -> { stopCode: StopSequence, _midSeq: number }
 const _loopSeqCache = {};
@@ -3069,7 +3089,7 @@ function getLoopDestLabel(serviceNo, currentStopCode) {
   // loopLabel = the waypoint road name (e.g. "Bencoolen St", "Temasek Ave")
   const loopLabel = info.loopDesc || (/int|stn|hub|ter|ctr|zoo/i.test(info.Description) ? info.Description : null) || info.RoadName || '';
   // homeName = the scheduled terminal from ALL_SERVICES (e.g. "Bt Panjang Int" for 972)
-  const svcData      = ALL_SERVICES?.[serviceNo + '-1'];
+  const svcData      = ALL_SERVICES?.[normalizeServiceNo(serviceNo) + '-1'];
   const homeCode     = svcData?.OriginCode;
   const homeName     = (homeCode ? stopName(homeCode) : null) || loopLabel;
   const outbound = { from: homeName,  to: loopLabel };
@@ -3186,9 +3206,10 @@ async function fetchPBSServices() {
 
 function injectPrivateIntoServices() {
   if (!PRIVATE_SERVICES || !ALL_SERVICES) return;
+  PRIVATE_STOP_INDEX = {}; // rebuild index on each injection
   for (const [key, svc] of Object.entries(PRIVATE_SERVICES)) {
     for (const [dirKey, dir] of Object.entries(svc.Directions)) {
-      const serviceKey = normalizeServiceNo(svc.ServiceNo).toUpperCase() + '-' + dirKey;
+      const serviceKey = normalizeServiceNo(svc.ServiceNo.toUpperCase()) + '-' + dirKey;
       ALL_SERVICES[serviceKey] = {
         ServiceNo: svc.ServiceNo,
         Operator: svc.Operator,
@@ -3205,6 +3226,22 @@ function injectPrivateIntoServices() {
         _isPrivate: !['TTS','TONG TAR TRANSPORT'].includes((svc.Operator||'').toUpperCase()),
         _isScheduled: true,
       };
+      // Index stops by BusStopCode for O(1) lookup in buildPBSArrivalRows
+      for (const stop of dir.Stops) {
+        // Attach _pbsStop so buildSinglePrivateRow can access Timings/StopOffsetMins
+        if (!stop._pbsStop) stop._pbsStop = stop;
+        // Attach service metadata needed for row rendering
+        if (!stop.ServiceNo) stop.ServiceNo = svc.ServiceNo;
+        if (!stop.Operator) stop.Operator = svc.Operator;
+        if (!stop.Direction) stop.Direction = parseInt(dirKey);
+        if (stop.BusStopCode) {
+          if (!PRIVATE_STOP_INDEX[stop.BusStopCode]) PRIVATE_STOP_INDEX[stop.BusStopCode] = [];
+          const already = PRIVATE_STOP_INDEX[stop.BusStopCode].some(
+            e => e.ServiceNo === stop.ServiceNo && e.Direction === stop.Direction
+          );
+          if (!already) PRIVATE_STOP_INDEX[stop.BusStopCode].push(stop);
+        }
+      }
     }
   }
 }
@@ -3491,15 +3528,15 @@ function render(code, data) {
     const loadColor = {SEA:'var(--green)', SDA:'#FF8C00', LSD:'#FF3333'};
     const nextPills = [[m2,nb2],[m3,nb3]].filter(([m])=>m!==null).map(([m,nb])=>`<div class="next-pill"><span>${m<=0?'ARR':m+' min'}</span>${busTypeIcon(nb.Type,true,loadColor[nb.Load]||'var(--muted)')}</div>`).join('');
     const op = (s.Operator||'').toUpperCase();
-    const svcKey1 = s.ServiceNo.replace(/^0+/,'') + '-1';
-    const svcKey2 = s.ServiceNo.replace(/^0+/,'') + '-2';
+    const svcKey1 = normalizeServiceNo(s.ServiceNo.replace(/^0+/,'').toUpperCase()) + '-1';
+    const svcKey2 = normalizeServiceNo(s.ServiceNo.replace(/^0+/,'').toUpperCase()) + '-2';
     const info1 = ALL_SERVICES?.[svcKey1] || null;
     const info2 = ALL_SERVICES?.[svcKey2] || null;
     const opCls = opClass(op, !!(info1?._isPrivate||info2?._isPrivate));
     // Use origin/destination directly from the live arrival data (per-bus, correct direction)
     // For loop services, getLoopDestLabel returns { from, to } labels.
     // For normal services, use live arrival origin/destination.
-    const svcNormKey = s.ServiceNo.replace(/^0+/, '');
+    const svcNormKey = normalizeServiceNo(s.ServiceNo.replace(/^0+/, '').toUpperCase());
     const isLoopSvc  = svcNormKey in LOOP_SVC_MIDPOINTS;
     let originName, destName;
     if (isLoopSvc) {
@@ -3773,15 +3810,39 @@ function toggleRouteStop(id, code, cardEl) {
 // Build PBS static arrival rows for a given stop code in the current route direction.
 // Returns an HTML string of rs-arrival-row(s), or '' if not applicable.
 function buildPBSArrivalRows(code, stopSeq) {
-  if (!routeData || !PRIVATE_SERVICES) return '';
-  const dir = routeData.directions[routeData.currentDir];
-  if (!dir) return '';
-  // Find the stop entry: match by code first, fall back to stop sequence for null-code PBS stops
-  const stopEntry = dir.stops.find(s => s._pbsStop && (
-    (s.BusStopCode && s.BusStopCode === code) ||
-    (!s.BusStopCode && stopSeq != null && s.StopSequence === stopSeq)
-  ));
-  if (!stopEntry) return '';
+  if (!PRIVATE_SERVICES) return '';
+
+  // Collect ALL private service stop entries that match this stop code
+  // (not just the current route — a stop may be served by multiple private services)
+  const matchingEntries = [];
+
+  // First: check current route for null-code stop matching by sequence
+  if (routeData) {
+    const dir = routeData.directions[routeData.currentDir];
+    if (dir) {
+      const nullEntry = dir.stops.find(s => s._pbsStop &&
+        !s.BusStopCode && stopSeq != null && s.StopSequence === stopSeq);
+      if (nullEntry) matchingEntries.push(nullEntry);
+    }
+  }
+
+  // O(1) lookup via precomputed index for stops with this bus stop code
+  if (code && !code.startsWith('pbs-seq-')) {
+    for (const stop of (PRIVATE_STOP_INDEX[code] || [])) {
+      const alreadyAdded = matchingEntries.some(e =>
+        e.ServiceNo === stop.ServiceNo && e.Direction === stop.Direction
+      );
+      if (!alreadyAdded) matchingEntries.push(stop);
+    }
+  }
+
+  if (!matchingEntries.length) return '';
+
+  // Build a row for each matching service and concatenate
+  return matchingEntries.map(stopEntry => buildSinglePrivateRow(code, stopEntry)).join('');
+}
+
+function buildSinglePrivateRow(code, stopEntry) {
 
   // Frequency-based service (no DepartureTimes) — show info card instead of arrival rows
   const pbsKey = Object.keys(PRIVATE_SERVICES).find(k =>
@@ -3827,15 +3888,23 @@ function buildPBSArrivalRows(code, stopSeq) {
     const nowAdj = nowMins < startMins ? nowMins + 24 * 60 : nowMins;
     if (nowAdj > endMins) return ''; // outside operating hours — show nothing
 
-    // Find the next 3 synthesised arrivals within 45 min
-    // Phase buses evenly: find offset into current interval cycle
+    // Stop travel offset — how many minutes after origin departure this stop is reached
+    const stopOffset = stopEntry._pbsStop?.StopOffsetMins ?? 0;
+
+    // Phase buses evenly from the origin: find how far into the current interval cycle we are
+    // Then subtract stop offset so we see when the bus *arrives here*, not when it left origin
     const elapsed = (nowAdj - startMins) % interval;
-    const nextOffset = elapsed === 0 ? 0 : interval - elapsed;
+    const nextOriginOffset = elapsed === 0 ? 0 : interval - elapsed;
     const upcoming = [];
     for (let i = 0; i < 3; i++) {
-      const diffMins = nextOffset + i * interval;
+      // Time until this bus departs origin
+      const originDiff = nextOriginOffset + i * interval;
+      // Time until it reaches this stop = origin departure + travel time to this stop
+      const diffMins = originDiff + stopOffset;
+      // Only show if arriving within -2 to 45 min from now (same as PBS convention)
       if (diffMins > 45) break;
-      const arrMins = (nowMins + diffMins) % (24 * 60);
+      if (diffMins < -2) continue;
+      const arrMins = (nowMins + diffMins + 24 * 60) % (24 * 60);
       const hhmm = `${String(Math.floor(arrMins / 60)).padStart(2,'0')}:${String(arrMins % 60).padStart(2,'0')}`;
       upcoming.push({ diff: diffMins, t: hhmm });
     }
@@ -3973,23 +4042,25 @@ async function loadArrivalsInRoute(code, stopSeq) {
       </div>`;
     }
 
-    // Filter out the private service from live results (it won't be there, but just in case)
-    const pbsSvcNo = pbsHtml
-      ? routeData?.directions[routeData.currentDir]?.stops.find(s => s.BusStopCode === code && s._pbsStop)?.ServiceNo
-      : null;
+    // Collect all private service numbers already rendered, to avoid duplicates in live rows
+    const renderedPrivateSvcNos = new Set(
+      pbsHtml && code && !code.startsWith('pbs-seq-')
+        ? (PRIVATE_STOP_INDEX[code] || []).map(s => s.ServiceNo)
+        : []
+    );
 
     let liveHtml = '';
     svcs.forEach(s => {
-      // Skip if this service is already rendered via PBS static rows
-      if (pbsSvcNo && s.ServiceNo === pbsSvcNo) return;
+      // Skip if this service is already rendered via private static rows
+      if (renderedPrivateSvcNos.has(s.ServiceNo)) return;
       const nb = s.NextBus, nb2 = s.NextBus2, nb3 = s.NextBus3;
       if (!nb?.EstimatedArrival) return;
       const m1 = minsFrom(nb.EstimatedArrival);
       const m2 = nb2?.EstimatedArrival ? minsFrom(nb2.EstimatedArrival) : null;
       const m3 = nb3?.EstimatedArrival ? minsFrom(nb3.EstimatedArrival) : null;
       const op = (s.Operator||'').toUpperCase();
-      const info1 = ALL_SERVICES?.[s.ServiceNo.replace(/^0+/,'') + '-1'] || null;
-      const info2 = ALL_SERVICES?.[s.ServiceNo.replace(/^0+/,'') + '-2'] || null;
+      const info1 = ALL_SERVICES?.[normalizeServiceNo(s.ServiceNo.replace(/^0+/,'').toUpperCase()) + '-1'] || null;
+      const info2 = ALL_SERVICES?.[normalizeServiceNo(s.ServiceNo.replace(/^0+/,'').toUpperCase()) + '-2'] || null;
       const opCls = opClass(op, !!(info1?._isPrivate||info2?._isPrivate));
       const liveDestCode = nb.DestinationCode;
       let fallbackDestCode = null;
@@ -4146,8 +4217,9 @@ function renderFavourites() {
     let sub = f.sub || '';
     if (f.type === 'service' && ALL_SERVICES) {
       const svc = f.id;
-      const info1 = ALL_SERVICES[svc + '-1'] || null;
-      const info2 = ALL_SERVICES[svc + '-2'] || null;
+      const svcNorm = normalizeServiceNo(svc);
+      const info1 = ALL_SERVICES[svcNorm + '-1'] || null;
+      const info2 = ALL_SERVICES[svcNorm + '-2'] || null;
       if (info1) {
         const sn = c => ALL_STOPS?.find(s => s.BusStopCode === c)?.Description || c || '';
         const orig = sn(info1.OriginCode), dest = sn(info1.DestinationCode);
@@ -4160,8 +4232,8 @@ function renderFavourites() {
     }
     return `<div class="fav-card" data-key="${key}" draggable="true">
       <div class="fav-card-type">${icon} ${f.type}</div>
-      <div class="fav-card-name">${f.name}</div>
-      ${sub ? `<div class="fav-card-sub">${sub}</div>` : ''}
+      <div class="fav-card-name">${escapeHtml(f.name)}</div>
+      ${sub ? `<div class="fav-card-sub">${escapeHtml(sub)}</div>` : ''}
       <div class="fav-remove" data-remove="${key}">✕</div>
     </div>`;
   };
@@ -4402,8 +4474,9 @@ function favSvcKey(svc) { return 'svc_' + svc; }
 // ── FAV HELPER ──
 function addSvcFavSmart(svc) {
   // Use ALL_SERVICES to determine route type, ALL_STOPS for stop names
-  const info1 = ALL_SERVICES && (ALL_SERVICES[svc + '-1'] || null);
-  const info2 = ALL_SERVICES && (ALL_SERVICES[svc + '-2'] || null);
+  const svcNorm = normalizeServiceNo(svc);
+  const info1 = ALL_SERVICES && (ALL_SERVICES[svcNorm + '-1'] || null);
+  const info2 = ALL_SERVICES && (ALL_SERVICES[svcNorm + '-2'] || null);
 
   if (!info1) { addSvcFav(svc, ''); return; }
 
@@ -4578,43 +4651,7 @@ function mrtPills(name, small = false) {
   if (!name || !Object.keys(MRT_LOOKUP).length) return '';
   // Only attempt MRT lookup if the stop name explicitly references a station
   if (!/\b(Stn|Lrt|Int)\b/i.test(name)) return '';
-  // Strip directional prefix and station suffix
-  let core = name
-    .replace(/^(Bef|Aft|Opp|Fr)\s+/i, '')
-    .replace(/^(Lot|Blk)\s+[\w]+\s*\/\s*/i, '')
-    .replace(/\/.*$/i, '')
-    .replace(/\s+Lrt\b.*/i, '')
-    .replace(/\s+Stn\b.*/i, '')
-    .replace(/\s+Exit\s+\w+/i, '')
-    .replace(/\s+Ctrl\b.*/i, '')
-    .replace(/\s+Int\b.*/i, '')
-    .trim()
-    .toLowerCase();
-
-  // Expand abbreviations
-  core = core
-    .replace(/\blor\b/g, 'lorong')
-    .replace(/\bave\b/g, 'avenue')
-    .replace(/\bpk\b/g, 'park')
-    .replace(/\brd\b/g, 'road')
-    .replace(/\bst\b/g, 'street')
-    .replace(/\bdr\b/g, 'drive')
-    .replace(/\bcres\b/g, 'crescent')
-    .replace(/\bctrl\b/g, 'central')
-    .replace(/\bpl\b/g, 'place')
-    .replace(/\bbt\b/g, 'bukit')
-    .replace(/\bgdn\b/g, 'garden')
-    .replace(/\bupp\b/g, 'upper')
-    .replace(/\bs'goon\b/g, 'serangoon')
-    .replace(/\bjln\b/g, 'jalan')
-    .replace(/\bsth\b/g, 'south')
-    .replace(/\bnth\b/g, 'north')
-    .replace(/\bpde\b/g, 'parade')
-    .replace(/\bterr\b/g, 'terrace')
-    .replace(/\bc'wealth\b/g, 'commonwealth')
-    .replace(/\bw'lands\b/g, 'woodlands')
-    .replace(/\blk\b/g, 'link')
-    .replace(/\bholland v\b/g, 'holland village');
+  const core = normalizeMrtStopName(name);
 
   const matches = MRT_LOOKUP[core];
   if (matches && matches.length) {
@@ -4667,15 +4704,7 @@ function toggleTheme() {
   const btn = document.getElementById('themeToggle');
   btn.textContent = isLight ? '🌙 Dark' : '☀ Light';
   try { localStorage.setItem('shiokbus_theme', isLight ? 'light' : 'dark'); } catch(e) {}
-  // Swap tile layers
-  const tileUrl = isLight
-    ? 'https://www.onemap.gov.sg/maps/tiles/Default/{z}/{x}/{y}.png'
-    : 'https://www.onemap.gov.sg/maps/tiles/Night/{z}/{x}/{y}.png';
-  [tripMap].forEach(map => {
-    if (!map) return;
-    map.eachLayer(l => { if (l._url) map.removeLayer(l); });
-    L.tileLayer(tileUrl, { maxZoom: 19, attribution: '&copy; <a href="https://www.onemap.gov.sg" target="_blank">OneMap</a> &copy; Singapore Land Authority' }).addTo(map);
-  });
+  updateMapTiles();
   // Update journey tab colors
   ['map','plan'].forEach(t => {
     const btn = document.getElementById('jt-'+t);
@@ -4688,9 +4717,21 @@ function toggleTheme() {
 try { if (localStorage.getItem('shiokbus_theme') === 'light') { document.body.classList.add('light'); document.getElementById('themeToggle').textContent = '🌙 Dark'; } } catch(e) {}
 // Restore alert banner setting
 try { if (localStorage.getItem('shiokbus_alert_banner') === 'off') alertBannerEnabled = false; } catch(e) {}
+// ── HTML ESCAPING ──
+// Sanitise any external-origin string before injecting into innerHTML.
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function minsFrom(iso) {
-  const d=Math.floor((new Date(iso)-Date.now())/60000);
-  return d<0?0:d;
+  const d = Math.floor((new Date(iso) - Date.now()) / 60000);
+  return d < -1 ? -1 : d; // -1 = already departed, 0 = arriving/just arrived, >0 = minutes away
 }
 function toast(msg, duration=2800) {
   const t=document.createElement('div');
@@ -4892,36 +4933,7 @@ function getVisibleMrtLines() {
 function alertsForStopName(name) {
   if (!TRAIN_ALERTS.length || !name) return [];
   if (!Object.keys(MRT_LOOKUP).length) return [];
-  // Get station codes for this stop name
-  let core = name
-    .replace(/^(Bef|Aft|Opp|Fr)\s+/i, '')
-    .replace(/^(Lot|Blk)\s+[\w]+\s*\/\s*/i, '')
-    .replace(/\/.*$/i, '')
-    .replace(/\s+Lrt\b.*/i, '').replace(/\s+Stn\b.*/i, '')
-    .replace(/\s+Exit\s+\w+/i, '').replace(/\s+Ctrl\b.*/i, '')
-    .replace(/\s+Int\b.*/i, '').trim().toLowerCase()
-    .replace(/\blor\b/g, 'lorong')
-    .replace(/\bave\b/g, 'avenue')
-    .replace(/\bpk\b/g, 'park')
-    .replace(/\brd\b/g, 'road')
-    .replace(/\bst\b/g, 'street')
-    .replace(/\bdr\b/g, 'drive')
-    .replace(/\bcres\b/g, 'crescent')
-    .replace(/\bctrl\b/g, 'central')
-    .replace(/\bpl\b/g, 'place')
-    .replace(/\bbt\b/g, 'bukit')
-    .replace(/\bgdn\b/g, 'garden')
-    .replace(/\bupp\b/g, 'upper')
-    .replace(/\bs'goon\b/g, 'serangoon')
-    .replace(/\bjln\b/g, 'jalan')
-    .replace(/\bsth\b/g, 'south')
-    .replace(/\bnth\b/g, 'north')
-    .replace(/\bpde\b/g, 'parade')
-    .replace(/\bterr\b/g, 'terrace')
-    .replace(/\bc'wealth\b/g, 'commonwealth')
-    .replace(/\blk\b/g, 'link')
-    .replace(/\bholland v\b/g, 'holland village')
-    .replace(/\bw'lands\b/g,'woodlands');
+  const core = normalizeMrtStopName(name);
   const matches = MRT_LOOKUP[core] || MRT_LOOKUP[Object.keys(MRT_LOOKUP).find(k => k.length >= 5 && core === k)] || [];
   if (!matches.length) return [];
   const stnCodes = matches.map(m => m.stn_code.toUpperCase());
@@ -4935,38 +4947,7 @@ function alertsForStopName(name) {
 function mrtPillsForName(name) {
   if (!name || !Object.keys(MRT_LOOKUP).length) return [];
   if (!/\b(Stn|Lrt|Int)\b/i.test(name)) return [];
-  let core = name
-    .replace(/^(Bef|Aft|Opp|Fr)\s+/i, '')
-    .replace(/^(Lot|Blk)\s+[\w]+\s*\/\s*/i, '')
-    .replace(/\/.*$/i, '')
-    .replace(/\s+Lrt\b.*/i, '')
-    .replace(/\s+Stn\b.*/i, '')
-    .replace(/\s+Exit\s+\w+/i, '')
-    .replace(/\s+Ctrl\b.*/i, '')
-    .replace(/\s+Int\b.*/i, '')
-    .trim().toLowerCase()
-    .replace(/\blor\b/g, 'lorong')
-    .replace(/\bave\b/g, 'avenue')
-    .replace(/\bpk\b/g, 'park')
-    .replace(/\brd\b/g, 'road')
-    .replace(/\bst\b/g, 'street')
-    .replace(/\bdr\b/g, 'drive')
-    .replace(/\bcres\b/g, 'crescent')
-    .replace(/\bctrl\b/g, 'central')
-    .replace(/\bpl\b/g, 'place')
-    .replace(/\bbt\b/g, 'bukit')
-    .replace(/\bgdn\b/g, 'garden')
-    .replace(/\bupp\b/g, 'upper')
-    .replace(/\bs'goon\b/g, 'serangoon')
-    .replace(/\bjln\b/g, 'jalan')
-    .replace(/\bsth\b/g, 'south')
-    .replace(/\bnth\b/g, 'north')
-    .replace(/\bpde\b/g, 'parade')
-    .replace(/\bterr\b/g, 'terrace')
-    .replace(/\bc'wealth\b/g, 'commonwealth')
-    .replace(/\bw'lands\b/g, 'woodlands')
-    .replace(/\blk\b/g, 'link')
-    .replace(/\bholland v\b/g, 'holland village');
+  const core = normalizeMrtStopName(name);
   const matches = MRT_LOOKUP[core] || MRT_LOOKUP[Object.keys(MRT_LOOKUP).find(k => k.length >= 5 && core === k)] || [];
   return [...new Set(matches.map(({ stn_code }) => mrtLineName(stn_code)?.abbr).filter(Boolean))];
 }
@@ -5034,15 +5015,15 @@ function renderInlineAlert(alert) {
   const lineInfo = mrtLineName(alert.Stations?.split(',')[0]?.trim() || '');
   const color = lineInfo?.color || '#B8000A';
   const stations = alert.Stations || '';
-  const direction = alert.Direction || '';
+  const direction = escapeHtml(alert.Direction || '');
   const freebus = alert.FreePublicBus || '';
   const shuttle = alert.FreeMRTShuttle || '';
-  const msg = alert.Message?.Content || '';
+  const msg = escapeHtml(alert.Message?.Content || '');
   const date = alert.Message?.CreatedDate ? new Date(alert.Message.CreatedDate).toLocaleTimeString('en-SG', { hour:'2-digit', minute:'2-digit' }) : '';
   return `<div class="train-alert-inline">
     <div class="tai-icon">⚠️</div>
     <div class="tai-body">
-      <div class="tai-title"><span class="tai-pill" style="background:${color}">${alert.Line}</span> Service Disruption</div>
+      <div class="tai-title"><span class="tai-pill" style="background:${color}">${escapeHtml(alert.Line)}</span> Service Disruption</div>
       ${direction ? `<div class="tai-detail"><b>Direction:</b> ${direction}</div>` : ''}
       ${stations ? `<div class="tai-detail"><b>Affected:</b> ${formatStationList(stations)}</div>` : ''}
       ${freebus ? `<div class="tai-detail"><b>Free bus:</b> ${formatStationList(freebus)}</div>` : ''}
@@ -5073,11 +5054,11 @@ function openTrainAlertModal() {
     content.innerHTML = TRAIN_ALERTS.map(a => {
       const lineInfo = mrtLineName(a.Stations?.split(',')[0]?.trim() || '');
       const color = lineInfo?.color || '#B8000A';
-      const msg = a.Message?.Content || '';
+      const msg = escapeHtml(a.Message?.Content || '');
       const date = a.Message?.CreatedDate ? new Date(a.Message.CreatedDate).toLocaleString('en-SG') : '';
       return `<div class="tam-alert">
-        <div class="tam-alert-line"><span style="background:${color};padding:2px 8px;border-radius:4px;color:#fff;font-size:12px">${a.Line}</span> Service Disruption</div>
-        ${a.Direction ? `<div class="tam-alert-row">Direction: <span>${a.Direction}</span></div>` : ''}
+        <div class="tam-alert-line"><span style="background:${color};padding:2px 8px;border-radius:4px;color:#fff;font-size:12px">${escapeHtml(a.Line)}</span> Service Disruption</div>
+        ${a.Direction ? `<div class="tam-alert-row">Direction: <span>${escapeHtml(a.Direction)}</span></div>` : ''}
         ${a.Stations ? `<div class="tam-alert-row">Affected stations: <span>${formatStationList(a.Stations)}</span></div>` : ''}
         ${a.FreePublicBus ? `<div class="tam-alert-row">🚌 Free bus at: <span>${formatStationList(a.FreePublicBus)}</span></div>` : ''}
         ${a.FreeMRTShuttle ? `<div class="tam-alert-row">🚇 Free shuttle at: <span>${formatStationList(a.FreeMRTShuttle)}</span></div>` : ''}
@@ -5109,7 +5090,7 @@ function mrtLineName(code) {
 function getBusLegInfo(svc) {
   let badgeColor = '#D7181C';
   if (ALL_SERVICES) {
-    const info = ALL_SERVICES[svc + '-1'] || ALL_SERVICES[(svc||'').toUpperCase() + '-1'] || null;
+    const info = ALL_SERVICES[normalizeServiceNo(svc.toUpperCase()) + '-1'] || null;
     if (info?.Operator) {
       const op = info.Operator.toUpperCase();
       if (op === 'TTS') badgeColor = '#1A6B2A';
@@ -5436,12 +5417,13 @@ async function settingsSignOut() {
 function updateMapTiles() {
   const isLight = document.body.classList.contains('light');
   const tileUrl = isLight
-    ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-    : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    ? 'https://www.onemap.gov.sg/maps/tiles/Default/{z}/{x}/{y}.png'
+    : 'https://www.onemap.gov.sg/maps/tiles/Night/{z}/{x}/{y}.png';
+  const attribution = '&copy; <a href="https://www.onemap.gov.sg" target="_blank">OneMap</a> &copy; Singapore Land Authority';
   [tripMap].forEach(map => {
     if (!map) return;
     map.eachLayer(l => { if (l._url) map.removeLayer(l); });
-    L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);
+    L.tileLayer(tileUrl, { maxZoom: 19, attribution }).addTo(map);
   });
   // Redraw polylines so no-sun color updates immediately
   if (tripMap && planBoardIdx >= 0 && planAlightIdx >= 0) {

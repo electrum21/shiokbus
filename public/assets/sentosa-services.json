@@ -25,7 +25,8 @@
             "RoadName": "Beach View",
             "Latitude": 1.25427,
             "Longitude": 103.81887,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 0
           },
           {
             "StopSequence": 2,
@@ -34,7 +35,8 @@
             "RoadName": "Imbiah Road",
             "Latitude": 1.25475,
             "Longitude": 103.81532,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 2
           },
           {
             "StopSequence": 3,
@@ -43,7 +45,8 @@
             "RoadName": "Siloso Beach Walk",
             "Latitude": 1.25127,
             "Longitude": 103.81058,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 4
           },
           {
             "StopSequence": 4,
@@ -52,7 +55,8 @@
             "RoadName": "Artillery Ave",
             "Latitude": 1.25363,
             "Longitude": 103.81993,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 9
           },
           {
             "StopSequence": 5,
@@ -61,7 +65,8 @@
             "RoadName": "Artillery Ave",
             "Latitude": 1.2529,
             "Longitude": 103.82143,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 10
           },
           {
             "StopSequence": 6,
@@ -70,7 +75,8 @@
             "RoadName": "Sentosa Gateway",
             "Latitude": 1.25617,
             "Longitude": 103.82379,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 12
           },
           {
             "StopSequence": 7,
@@ -79,7 +85,8 @@
             "RoadName": "Artillery Ave",
             "Latitude": 1.25239,
             "Longitude": 103.822,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 14
           },
           {
             "StopSequence": 8,
@@ -88,7 +95,8 @@
             "RoadName": "Artillery Ave",
             "Latitude": 1.25322,
             "Longitude": 103.82038,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 15
           },
           {
             "StopSequence": 9,
@@ -97,7 +105,8 @@
             "RoadName": "Beach View",
             "Latitude": 1.25427,
             "Longitude": 103.81887,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 16
           }
         ]
       }
@@ -110,7 +119,7 @@
     "Fare": "Free",
     "Frequency": "10 min",
     "OperatingHours": "Daily 7:00am – 12:10am (no W Hotel stop after 10pm)",
-    "LoopDesc": "Opp Sentosa Pavillion",
+    "LoopDesc": "Opp Sentosa Pavilion",
     "Directions": {
       "1": {
         "Direction": 1,
@@ -129,7 +138,8 @@
             "RoadName": "Beach View",
             "Latitude": 1.25427,
             "Longitude": 103.81887,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 0
           },
           {
             "StopSequence": 2,
@@ -138,7 +148,8 @@
             "RoadName": "Artillery Ave",
             "Latitude": 1.25363,
             "Longitude": 103.81993,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 1
           },
           {
             "StopSequence": 3,
@@ -147,7 +158,8 @@
             "RoadName": "Artillery Ave",
             "Latitude": 1.2529,
             "Longitude": 103.82143,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 2
           },
           {
             "StopSequence": 4,
@@ -156,7 +168,8 @@
             "RoadName": "Allanbrooke Road",
             "Latitude": 1.24946,
             "Longitude": 103.82801,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 6
           },
           {
             "StopSequence": 5,
@@ -165,7 +178,8 @@
             "RoadName": "Ocean Way",
             "Latitude": 1.24773,
             "Longitude": 103.83038,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 8
           },
           {
             "StopSequence": 6,
@@ -174,7 +188,8 @@
             "RoadName": "Cove Drive",
             "Latitude": 1.24573,
             "Longitude": 103.83303,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 11
           },
           {
             "StopSequence": 7,
@@ -183,7 +198,8 @@
             "RoadName": "Allanbrooke Road",
             "Latitude": 1.24984,
             "Longitude": 103.82751,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 15
           },
           {
             "StopSequence": 8,
@@ -192,7 +208,8 @@
             "RoadName": "Bukit Manis Road",
             "Latitude": 1.25034,
             "Longitude": 103.82562,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 17
           },
           {
             "StopSequence": 9,
@@ -201,7 +218,8 @@
             "RoadName": "Bukit Manis Road",
             "Latitude": 1.25119,
             "Longitude": 103.82381,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 18
           },
           {
             "StopSequence": 10,
@@ -210,7 +228,8 @@
             "RoadName": "Artillery Ave South",
             "Latitude": 1.25165,
             "Longitude": 103.81988,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 19
           },
           {
             "StopSequence": 11,
@@ -219,7 +238,8 @@
             "RoadName": "Artillery Ave South",
             "Latitude": 1.25214,
             "Longitude": 103.82083,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 22
           },
           {
             "StopSequence": 12,
@@ -228,7 +248,8 @@
             "RoadName": "Artillery Avenue",
             "Latitude": 1.25239,
             "Longitude": 103.822,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 23
           },
           {
             "StopSequence": 13,
@@ -237,7 +258,8 @@
             "RoadName": "Artillery Ave",
             "Latitude": 1.25322,
             "Longitude": 103.82038,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 24
           },
           {
             "StopSequence": 14,
@@ -246,7 +268,8 @@
             "RoadName": "Beach View",
             "Latitude": 1.25427,
             "Longitude": 103.81887,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 25
           }
         ]
       }
@@ -277,7 +300,8 @@
             "RoadName": "Beach View",
             "Latitude": 1.25427,
             "Longitude": 103.81887,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 0
           },
           {
             "StopSequence": 2,
@@ -286,7 +310,8 @@
             "RoadName": "Seah Im Rd",
             "Latitude": 1.26703502614245,
             "Longitude": 103.81901469907409,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 0
           }
         ]
       }
@@ -317,7 +342,8 @@
             "RoadName": "Sentosa Gateway",
             "Latitude": 1.25617,
             "Longitude": 103.82379,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 0
           },
           {
             "StopSequence": 2,
@@ -326,7 +352,8 @@
             "RoadName": "Telok Blangah Rd",
             "Latitude": 1.26434,
             "Longitude": 103.82064,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 9
           },
           {
             "StopSequence": 3,
@@ -335,7 +362,8 @@
             "RoadName": "Telok Blangah Rd",
             "Latitude": 1.26526,
             "Longitude": 103.82135,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 10
           },
           {
             "StopSequence": 4,
@@ -344,7 +372,8 @@
             "RoadName": "Telok Blangah Rd",
             "Latitude": 1.26573,
             "Longitude": 103.82213,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 11
           },
           {
             "StopSequence": 5,
@@ -353,7 +382,8 @@
             "RoadName": "Sentosa Gateway",
             "Latitude": 1.25617,
             "Longitude": 103.82379,
-            "Timings": {}
+            "Timings": {},
+            "StopOffsetMins": 20
           }
         ]
       }
