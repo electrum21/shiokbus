@@ -3091,13 +3091,13 @@ function getLoopDestLabel(serviceNo, currentStopCode) {
   if (!info) return { from: null, to: null };
 
   // Support both old format ({terminalCode, loopDesc, mid}) and new format ({BusStopCode, Description, StopSequence})
-  const mid          = info.mid != null ? info.mid : info.StopSequence;
+  const mid = info.mid != null ? info.mid : info.StopSequence;
   // loopLabel = the waypoint road name (e.g. "Bencoolen St", "Temasek Ave")
   const loopLabel = info.loopDesc || (/int|stn|hub|ter|ctr|zoo|wetland reserve/i.test(info.Description) ? info.Description : null) || info.RoadName || '';
   // homeName = the scheduled terminal from ALL_SERVICES (e.g. "Bt Panjang Int" for 972)
-  const svcData      = ALL_SERVICES?.[normalizeServiceNo(serviceNo) + '-1'];
-  const homeCode     = svcData?.OriginCode;
-  const homeName     = (homeCode ? stopName(homeCode) : null) || loopLabel;
+  const svcData = ALL_SERVICES?.[normalizeServiceNo(serviceNo) + '-1'];
+  const homeCode = svcData?.OriginCode;
+  const homeName = (homeCode ? stopName(homeCode) : null) || loopLabel;
   const outbound = { from: homeName,  to: loopLabel };
   const inbound  = { from: loopLabel, to: homeName  };
 
