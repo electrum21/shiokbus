@@ -235,7 +235,7 @@ Set `0 0 * * *` (daily midnight SGT) to keep R2 data fresh.
 | Road-snapped geometry | [OSRM](http://project-osrm.org) |
 | Rain forecast | [data.gov.sg](https://data.gov.sg) 2-hour forecast |
 | PBS timetables | City Bus, MyBus, Diamond Coach, Ren Quan operator PDFs (hand-curated) |
-| Sentosa bus schedules | [Sentosa](https://www.sentosa.com.sg/en/getting-here-around/getting-around/) |
+| Sentosa bus schedules | [Sentosa]([https://www.sentosa.com.sg/en/getting-here-around/getting-around/](https://www.sentosa.com.sg/en/getting-around/?gclsrc=aw.ds&gad_source=1&gad_campaignid=23311096945&gbraid=0AAAAADlI5PE-vArsaJHq1zmYwfWquCLpN&gclid=Cj0KCQjw9-PNBhDfARIsABHN6-0lvk-2Bk3USyLUg3gK0jpHys3avNPnPWuV6cfkADndSseLKCQ3vLMaAlgGEALw_wcB) |
 
 ---
 
