@@ -5,7 +5,7 @@
     "Category": "FREE",
     "Fare": "Free",
     "Frequency": "10 min",
-    "OperatingHours": "Daily 7:00am – 12:10am",
+    "OperatingHours": "Daily 7:00am \u2013 12:10am",
     "LoopDesc": "Opp Amara Sanctuary Resort",
     "Directions": {
       "1": {
@@ -14,7 +14,7 @@
         "OriginDesc": "Beach Station",
         "DestinationCode": "14539",
         "DestinationDesc": "Beach Station",
-        "OperatingHours": "Daily 7:00am – 12:10am",
+        "OperatingHours": "Daily 7:00am \u2013 12:10am",
         "Frequency": "10 min",
         "DepartureTimes": [],
         "Stops": [
@@ -23,8 +23,8 @@
             "BusStopCode": "14539",
             "Description": "Beach Station",
             "RoadName": "Beach View",
-            "Latitude": 1.25427,
-            "Longitude": 103.81887,
+            "Latitude": 1.25143,
+            "Longitude": 103.81855,
             "Timings": {},
             "StopOffsetMins": 0
           },
@@ -33,8 +33,8 @@
             "BusStopCode": null,
             "Description": "Imbiah Lookout",
             "RoadName": "Imbiah Road",
-            "Latitude": 1.25475,
-            "Longitude": 103.81532,
+            "Latitude": 1.25533,
+            "Longitude": 103.8162,
             "Timings": {},
             "StopOffsetMins": 2
           },
@@ -43,8 +43,8 @@
             "BusStopCode": null,
             "Description": "Siloso Point",
             "RoadName": "Siloso Beach Walk",
-            "Latitude": 1.25127,
-            "Longitude": 103.81058,
+            "Latitude": 1.25766,
+            "Longitude": 103.81128,
             "Timings": {},
             "StopOffsetMins": 4
           },
@@ -70,11 +70,11 @@
           },
           {
             "StopSequence": 6,
-            "BusStopCode": null,
-            "Description": "Resorts World Sentosa (Basement 1)",
+            "BusStopCode": 14519,
+            "Description": "Resorts World Sentosa",
             "RoadName": "Sentosa Gateway",
-            "Latitude": 1.25617,
-            "Longitude": 103.82379,
+            "Latitude": 1.25641,
+            "Longitude": 103.82152,
             "Timings": {},
             "StopOffsetMins": 12
           },
@@ -86,7 +86,7 @@
             "Latitude": 1.25239,
             "Longitude": 103.822,
             "Timings": {},
-            "StopOffsetMins": 14
+            "StopOffsetMins": 16
           },
           {
             "StopSequence": 8,
@@ -96,17 +96,17 @@
             "Latitude": 1.25322,
             "Longitude": 103.82038,
             "Timings": {},
-            "StopOffsetMins": 15
+            "StopOffsetMins": 18
           },
           {
             "StopSequence": 9,
             "BusStopCode": "14539",
             "Description": "Beach Station",
             "RoadName": "Beach View",
-            "Latitude": 1.25427,
-            "Longitude": 103.81887,
+            "Latitude": 1.25143,
+            "Longitude": 103.81855,
             "Timings": {},
-            "StopOffsetMins": 16
+            "StopOffsetMins": 20
           }
         ]
       }
@@ -118,7 +118,7 @@
     "Category": "FREE",
     "Fare": "Free",
     "Frequency": "10 min",
-    "OperatingHours": "Daily 7:00am – 12:10am (no W Hotel stop after 10pm)",
+    "OperatingHours": "Daily 7:00am \u2013 12:10am (no W Hotel stop after 10pm)",
     "LoopDesc": "Opp Sentosa Pavilion",
     "Directions": {
       "1": {
@@ -127,7 +127,7 @@
         "OriginDesc": "Beach Station",
         "DestinationCode": "14539",
         "DestinationDesc": "Beach Station",
-        "OperatingHours": "Daily 7:00am – 12:10am",
+        "OperatingHours": "Daily 7:00am \u2013 12:10am",
         "Frequency": "10 min",
         "DepartureTimes": [],
         "Stops": [
@@ -136,8 +136,8 @@
             "BusStopCode": "14539",
             "Description": "Beach Station",
             "RoadName": "Beach View",
-            "Latitude": 1.25427,
-            "Longitude": 103.81887,
+            "Latitude": 1.25143,
+            "Longitude": 103.81855,
             "Timings": {},
             "StopOffsetMins": 0
           },
@@ -259,17 +259,17 @@
             "Latitude": 1.25322,
             "Longitude": 103.82038,
             "Timings": {},
-            "StopOffsetMins": 24
+            "StopOffsetMins": 25
           },
           {
             "StopSequence": 14,
             "BusStopCode": "14539",
             "Description": "Beach Station",
             "RoadName": "Beach View",
-            "Latitude": 1.25427,
-            "Longitude": 103.81887,
+            "Latitude": 1.25143,
+            "Longitude": 103.81855,
             "Timings": {},
-            "StopOffsetMins": 25
+            "StopOffsetMins": 26
           }
         ]
       }
@@ -281,7 +281,7 @@
     "Category": "FREE",
     "Fare": "Free",
     "Frequency": "On-demand",
-    "OperatingHours": "Fri/Sat/Sun & PH, 6:00pm – 9:00pm",
+    "OperatingHours": "Fri/Sat/Sun & PH, 6:00pm \u2013 9:00pm",
     "Directions": {
       "1": {
         "Direction": 1,
@@ -289,7 +289,7 @@
         "OriginDesc": "Beach Station",
         "DestinationCode": "14219",
         "DestinationDesc": "HarbourFront Int",
-        "OperatingHours": "Fri/Sat/Sun & PH, 6:00pm – 9:00pm",
+        "OperatingHours": "Fri/Sat/Sun & PH, 6:00pm \u2013 9:00pm",
         "Frequency": "On-demand",
         "DepartureTimes": [],
         "Stops": [
@@ -298,8 +298,8 @@
             "BusStopCode": "14539",
             "Description": "Beach Station",
             "RoadName": "Beach View",
-            "Latitude": 1.25427,
-            "Longitude": 103.81887,
+            "Latitude": 1.25143,
+            "Longitude": 103.81855,
             "Timings": {},
             "StopOffsetMins": 0
           },
@@ -308,8 +308,8 @@
             "BusStopCode": "14009",
             "Description": "HarbourFront Int",
             "RoadName": "Seah Im Rd",
-            "Latitude": 1.26703502614245,
-            "Longitude": 103.81901469907409,
+            "Latitude": 1.26528,
+            "Longitude": 103.81993,
             "Timings": {},
             "StopOffsetMins": 0
           }
@@ -323,7 +323,7 @@
     "Category": "SHUTTLE",
     "Fare": "$1.00 inbound (EZ-Link/Cash); free outbound",
     "Frequency": "8 min",
-    "OperatingHours": "Daily 5:15am – 11:45pm",
+    "OperatingHours": "Daily 5:15am \u2013 11:45pm",
     "Directions": {
       "1": {
         "Direction": 1,
@@ -331,7 +331,7 @@
         "OriginDesc": "Resorts World Sentosa",
         "DestinationCode": null,
         "DestinationDesc": "Resorts World Sentosa",
-        "OperatingHours": "Daily 5:15am – 11:45pm",
+        "OperatingHours": "Daily 5:15am \u2013 11:45pm",
         "Frequency": "8 min",
         "DepartureTimes": [],
         "Stops": [
@@ -340,8 +340,8 @@
             "BusStopCode": null,
             "Description": "Resorts World Sentosa",
             "RoadName": "Sentosa Gateway",
-            "Latitude": 1.25617,
-            "Longitude": 103.82379,
+            "Latitude": 1.25641,
+            "Longitude": 103.82152,
             "Timings": {},
             "StopOffsetMins": 0
           },
@@ -380,8 +380,8 @@
             "BusStopCode": null,
             "Description": "Resorts World Sentosa",
             "RoadName": "Sentosa Gateway",
-            "Latitude": 1.25617,
-            "Longitude": 103.82379,
+            "Latitude": 1.25641,
+            "Longitude": 103.82152,
             "Timings": {},
             "StopOffsetMins": 20
           }
