@@ -287,7 +287,7 @@
           {
             "StopSequence": 13,
             "BusStopCode": "66349",
-            "Description": "Opposite Daikin S’pore",
+            "Description": "Opposite Daikin S\u2019pore",
             "RoadName": "Ang Mo Kio Avenue 3",
             "Latitude": 1.3708276,
             "Longitude": 103.8654177,
@@ -3827,9 +3827,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "06:55": "07:15",
-              "10:00": "10:20"
-            }
+              "06:55": "07:28",
+              "10:00": "10:33"
+            },
+            "StopOffsetMins": 33
           },
           {
             "StopSequence": 16,
@@ -3839,9 +3840,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "06:55": "07:18",
-              "10:00": "10:23"
-            }
+              "06:55": "07:31",
+              "10:00": "10:36"
+            },
+            "StopOffsetMins": 36
           },
           {
             "StopSequence": 17,
@@ -3851,9 +3853,10 @@
             "Latitude": 1.3376443,
             "Longitude": 103.9638595,
             "Timings": {
-              "06:55": "07:20",
-              "10:00": "10:25"
-            }
+              "06:55": "07:33",
+              "10:00": "10:38"
+            },
+            "StopOffsetMins": 38
           },
           {
             "StopSequence": 18,
@@ -3863,9 +3866,10 @@
             "Latitude": 1.3360398,
             "Longitude": 103.9638594,
             "Timings": {
-              "06:55": "07:21",
-              "10:00": "10:26"
-            }
+              "06:55": "07:34",
+              "10:00": "10:39"
+            },
+            "StopOffsetMins": 39
           },
           {
             "StopSequence": 19,
@@ -3875,9 +3879,10 @@
             "Latitude": 1.3367799,
             "Longitude": 103.9659831,
             "Timings": {
-              "06:55": "07:22",
-              "10:00": "10:27"
-            }
+              "06:55": "07:35",
+              "10:00": "10:40"
+            },
+            "StopOffsetMins": 40
           },
           {
             "StopSequence": 20,
@@ -3887,9 +3892,10 @@
             "Latitude": 1.336491101,
             "Longitude": 103.966437,
             "Timings": {
-              "06:55": "07:23",
-              "10:00": "10:28"
-            }
+              "06:55": "07:36",
+              "10:00": "10:41"
+            },
+            "StopOffsetMins": 41
           },
           {
             "StopSequence": 21,
@@ -3899,9 +3905,10 @@
             "Latitude": 1.3340451,
             "Longitude": 103.9645692,
             "Timings": {
-              "06:55": "07:24",
-              "10:00": "10:29"
-            }
+              "06:55": "07:37",
+              "10:00": "10:42"
+            },
+            "StopOffsetMins": 42
           },
           {
             "StopSequence": 22,
@@ -3911,9 +3918,10 @@
             "Latitude": 1.332082717,
             "Longitude": 103.9653246,
             "Timings": {
-              "06:55": "07:25",
-              "10:00": "10:30"
-            }
+              "06:55": "07:38",
+              "10:00": "10:43"
+            },
+            "StopOffsetMins": 43
           },
           {
             "StopSequence": 23,
@@ -3923,9 +3931,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "06:55": "07:27",
-              "10:00": "10:32"
-            }
+              "06:55": "07:40",
+              "10:00": "10:45"
+            },
+            "StopOffsetMins": 45
           },
           {
             "StopSequence": 24,
@@ -3935,9 +3944,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "06:55": "07:30",
-              "10:00": "10:35"
-            }
+              "06:55": "07:43",
+              "10:00": "10:48"
+            },
+            "StopOffsetMins": 48
           },
           {
             "StopSequence": 25,
@@ -3947,9 +3957,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "06:55": "07:32",
-              "10:00": "10:37"
-            }
+              "06:55": "07:45",
+              "10:00": "10:50"
+            },
+            "StopOffsetMins": 50
           }
         ]
       },
@@ -5175,9 +5186,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:00": "07:19",
-              "10:00": "10:19"
-            }
+              "07:00": "07:30",
+              "10:00": "10:30"
+            },
+            "StopOffsetMins": 30
           },
           {
             "StopSequence": 16,
@@ -5187,9 +5199,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:00": "07:22",
-              "10:00": "10:22"
-            }
+              "07:00": "07:33",
+              "10:00": "10:33"
+            },
+            "StopOffsetMins": 33
           },
           {
             "StopSequence": 17,
@@ -5199,9 +5212,10 @@
             "Latitude": 1.3376443,
             "Longitude": 103.9638595,
             "Timings": {
-              "07:00": "07:24",
-              "10:00": "10:24"
-            }
+              "07:00": "07:35",
+              "10:00": "10:35"
+            },
+            "StopOffsetMins": 35
           },
           {
             "StopSequence": 18,
@@ -5211,9 +5225,10 @@
             "Latitude": 1.3360398,
             "Longitude": 103.9638594,
             "Timings": {
-              "07:00": "07:25",
-              "10:00": "10:25"
-            }
+              "07:00": "07:36",
+              "10:00": "10:36"
+            },
+            "StopOffsetMins": 36
           },
           {
             "StopSequence": 19,
@@ -5223,9 +5238,10 @@
             "Latitude": 1.3367799,
             "Longitude": 103.9659831,
             "Timings": {
-              "07:00": "07:26",
-              "10:00": "10:26"
-            }
+              "07:00": "07:37",
+              "10:00": "10:37"
+            },
+            "StopOffsetMins": 37
           },
           {
             "StopSequence": 20,
@@ -5235,9 +5251,10 @@
             "Latitude": 1.336491101,
             "Longitude": 103.966437,
             "Timings": {
-              "07:00": "07:27",
-              "10:00": "10:27"
-            }
+              "07:00": "07:38",
+              "10:00": "10:38"
+            },
+            "StopOffsetMins": 38
           },
           {
             "StopSequence": 21,
@@ -5247,9 +5264,10 @@
             "Latitude": 1.3340451,
             "Longitude": 103.9645692,
             "Timings": {
-              "07:00": "07:28",
-              "10:00": "10:28"
-            }
+              "07:00": "07:39",
+              "10:00": "10:39"
+            },
+            "StopOffsetMins": 39
           },
           {
             "StopSequence": 22,
@@ -5259,9 +5277,10 @@
             "Latitude": 1.332082717,
             "Longitude": 103.9653246,
             "Timings": {
-              "07:00": "07:29",
-              "10:00": "10:29"
-            }
+              "07:00": "07:40",
+              "10:00": "10:40"
+            },
+            "StopOffsetMins": 40
           },
           {
             "StopSequence": 23,
@@ -5271,9 +5290,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:00": "07:31",
-              "10:00": "10:31"
-            }
+              "07:00": "07:42",
+              "10:00": "10:42"
+            },
+            "StopOffsetMins": 42
           },
           {
             "StopSequence": 24,
@@ -5283,9 +5303,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:00": "07:34",
-              "10:00": "10:34"
-            }
+              "07:00": "07:45",
+              "10:00": "10:45"
+            },
+            "StopOffsetMins": 45
           },
           {
             "StopSequence": 25,
@@ -5295,9 +5316,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:00": "07:36",
-              "10:00": "10:36"
-            }
+              "07:00": "07:47",
+              "10:00": "10:47"
+            },
+            "StopOffsetMins": 47
           }
         ]
       },
@@ -6812,9 +6834,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:00": "07:23",
-              "07:50": "08:13"
-            }
+              "07:00": "07:42",
+              "07:50": "08:32"
+            },
+            "StopOffsetMins": 42
           },
           {
             "StopSequence": 17,
@@ -6824,9 +6847,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:00": "07:25",
-              "07:50": "08:15"
-            }
+              "07:00": "07:44",
+              "07:50": "08:34"
+            },
+            "StopOffsetMins": 44
           },
           {
             "StopSequence": 18,
@@ -6836,9 +6860,10 @@
             "Latitude": 1.3376443,
             "Longitude": 103.9638595,
             "Timings": {
-              "07:00": "07:28",
-              "07:50": "08:18"
-            }
+              "07:00": "07:47",
+              "07:50": "08:37"
+            },
+            "StopOffsetMins": 47
           },
           {
             "StopSequence": 19,
@@ -6848,9 +6873,10 @@
             "Latitude": 1.3360398,
             "Longitude": 103.9638594,
             "Timings": {
-              "07:00": "07:29",
-              "07:50": "08:19"
-            }
+              "07:00": "07:48",
+              "07:50": "08:38"
+            },
+            "StopOffsetMins": 48
           },
           {
             "StopSequence": 20,
@@ -6860,9 +6886,10 @@
             "Latitude": 1.3367799,
             "Longitude": 103.9659831,
             "Timings": {
-              "07:00": "07:30",
-              "07:50": "08:20"
-            }
+              "07:00": "07:49",
+              "07:50": "08:39"
+            },
+            "StopOffsetMins": 49
           },
           {
             "StopSequence": 21,
@@ -6872,9 +6899,10 @@
             "Latitude": 1.336491101,
             "Longitude": 103.966437,
             "Timings": {
-              "07:00": "07:30",
-              "07:50": "08:20"
-            }
+              "07:00": "07:49",
+              "07:50": "08:39"
+            },
+            "StopOffsetMins": 49
           },
           {
             "StopSequence": 22,
@@ -6884,9 +6912,10 @@
             "Latitude": 1.3340451,
             "Longitude": 103.9645692,
             "Timings": {
-              "07:00": "07:31",
-              "07:50": "08:21"
-            }
+              "07:00": "07:50",
+              "07:50": "08:40"
+            },
+            "StopOffsetMins": 50
           },
           {
             "StopSequence": 23,
@@ -6896,9 +6925,10 @@
             "Latitude": 1.332082717,
             "Longitude": 103.9653246,
             "Timings": {
-              "07:00": "07:32",
-              "07:50": "08:22"
-            }
+              "07:00": "07:51",
+              "07:50": "08:41"
+            },
+            "StopOffsetMins": 51
           },
           {
             "StopSequence": 24,
@@ -6908,9 +6938,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:00": "07:35",
-              "07:50": "08:25"
-            }
+              "07:00": "07:54",
+              "07:50": "08:44"
+            },
+            "StopOffsetMins": 54
           },
           {
             "StopSequence": 25,
@@ -6920,9 +6951,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:00": "07:37",
-              "07:50": "08:27"
-            }
+              "07:00": "07:56",
+              "07:50": "08:46"
+            },
+            "StopOffsetMins": 56
           },
           {
             "StopSequence": 26,
@@ -6932,9 +6964,10 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:00": "07:40",
-              "07:50": "08:30"
-            }
+              "07:00": "07:59",
+              "07:50": "08:49"
+            },
+            "StopOffsetMins": 59
           }
         ]
       },
@@ -7398,8 +7431,9 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:30": "07:47"
-            }
+              "07:30": "07:57"
+            },
+            "StopOffsetMins": 27
           },
           {
             "StopSequence": 15,
@@ -7409,8 +7443,9 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:30": "07:49"
-            }
+              "07:30": "07:59"
+            },
+            "StopOffsetMins": 29
           },
           {
             "StopSequence": 16,
@@ -7420,8 +7455,9 @@
             "Latitude": 1.3376443,
             "Longitude": 103.9638595,
             "Timings": {
-              "07:30": "07:52"
-            }
+              "07:30": "08:02"
+            },
+            "StopOffsetMins": 32
           },
           {
             "StopSequence": 17,
@@ -7431,8 +7467,9 @@
             "Latitude": 1.3360398,
             "Longitude": 103.9638594,
             "Timings": {
-              "07:30": "07:53"
-            }
+              "07:30": "08:03"
+            },
+            "StopOffsetMins": 33
           },
           {
             "StopSequence": 18,
@@ -7442,8 +7479,9 @@
             "Latitude": 1.3367799,
             "Longitude": 103.9659831,
             "Timings": {
-              "07:30": "07:53"
-            }
+              "07:30": "08:03"
+            },
+            "StopOffsetMins": 33
           },
           {
             "StopSequence": 19,
@@ -7453,8 +7491,9 @@
             "Latitude": 1.336491101,
             "Longitude": 103.966437,
             "Timings": {
-              "07:30": "07:54"
-            }
+              "07:30": "08:04"
+            },
+            "StopOffsetMins": 34
           },
           {
             "StopSequence": 20,
@@ -7464,8 +7503,9 @@
             "Latitude": 1.3340451,
             "Longitude": 103.9645692,
             "Timings": {
-              "07:30": "07:55"
-            }
+              "07:30": "08:05"
+            },
+            "StopOffsetMins": 35
           },
           {
             "StopSequence": 21,
@@ -7475,8 +7515,9 @@
             "Latitude": 1.332082717,
             "Longitude": 103.9653246,
             "Timings": {
-              "07:30": "07:56"
-            }
+              "07:30": "08:06"
+            },
+            "StopOffsetMins": 36
           },
           {
             "StopSequence": 22,
@@ -7486,8 +7527,9 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:30": "07:59"
-            }
+              "07:30": "08:09"
+            },
+            "StopOffsetMins": 39
           },
           {
             "StopSequence": 23,
@@ -7497,8 +7539,9 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:30": "08:01"
-            }
+              "07:30": "08:11"
+            },
+            "StopOffsetMins": 41
           },
           {
             "StopSequence": 24,
@@ -7508,8 +7551,9 @@
             "Latitude": null,
             "Longitude": null,
             "Timings": {
-              "07:30": "08:04"
-            }
+              "07:30": "08:14"
+            },
+            "StopOffsetMins": 44
           }
         ]
       },

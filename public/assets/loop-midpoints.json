@@ -773,11 +773,12 @@
     "Description": "S'pore Food Ind",
     "StopSequence": 10
   },
-  "291": {
+  "291West": {
     "BusStopCode": "75219",
     "RoadName": "Tampines St 81",
     "Description": "Blk 889",
-    "StopSequence": 8
+    "StopSequence": 8,
+    "_term2": 14
   },
   "292": {
     "BusStopCode": "76301",
@@ -785,11 +786,12 @@
     "Description": "Blk 283",
     "StopSequence": 8
   },
-  "293": {
+  "293West": {
     "BusStopCode": "75339",
     "RoadName": "Tampines St 71",
     "Description": "Blk 734",
-    "StopSequence": 11
+    "StopSequence": 11,
+    "_term2": 19
   },
   "296": {
     "BusStopCode": "75601",
@@ -887,17 +889,19 @@
     "Description": "Casa Pasir Ris",
     "StopSequence": 6
   },
-  "358": {
+  "358West": {
     "BusStopCode": "77221",
     "RoadName": "Pasir Ris Dr 10",
     "Description": "Blk 651",
-    "StopSequence": 5
+    "StopSequence": 5,
+    "_term2": 12
   },
-  "359": {
+  "359West": {
     "BusStopCode": "77291",
     "RoadName": "Pasir Ris St 71",
     "Description": "Blk 753",
-    "StopSequence": 10
+    "StopSequence": 10,
+    "_term2": 17
   },
   "371": {
     "BusStopCode": "67671",
@@ -1061,17 +1065,19 @@
     "Description": "Blk 701",
     "StopSequence": 19
   },
-  "811": {
+  "811West": {
     "BusStopCode": "59159",
     "RoadName": "Yishun Ave 5",
     "Description": "Opp Yishun Stn Exit B",
-    "StopSequence": 15
+    "StopSequence": 15,
+    "_term2": 43
   },
-  "812": {
+  "812West": {
     "BusStopCode": "59281",
     "RoadName": "Yishun Ave 4",
     "Description": "Blk 654",
-    "StopSequence": 9
+    "StopSequence": 9,
+    "_term2": 14
   },
   "825": {
     "BusStopCode": "55381",
@@ -1199,23 +1205,26 @@
     "Description": "Opp Admiralty Sec Sch",
     "StopSequence": 11
   },
-  "911": {
+  "911West": {
     "BusStopCode": "46279",
     "RoadName": "Woodlands Ave 2",
     "Description": "Blk 803",
-    "StopSequence": 8
+    "StopSequence": 8,
+    "_term2": 28
   },
-  "912": {
+  "912West": {
     "BusStopCode": "46779",
     "RoadName": "Woodlands Ave 7",
     "Description": "Admiralty Stn",
-    "StopSequence": 10
+    "StopSequence": 10,
+    "_term2": 43
   },
-  "913": {
+  "913West": {
     "BusStopCode": "46831",
     "RoadName": "Woodlands Circle",
     "Description": "Blk 747A CP",
-    "StopSequence": 10
+    "StopSequence": 10,
+    "_term2": 33
   },
   "920": {
     "BusStopCode": "44311",

@@ -1,0 +1,38 @@
+{
+  "291": {
+    "dir1": "Tampines St 81",
+    "dir2": "Tampines St 32"
+  },
+  "293": {
+    "dir1": "Tampines St 71",
+    "dir2": "Tampines Ave 7"
+  },
+  "358": {
+    "dir1": "Pasir Ris Dr 10",
+    "dir2": "Pasir Ris Dr 4"
+  },
+  "359": {
+    "dir1": "Pasir Ris St 71",
+    "dir2": "Pasir Ris Dr 2"
+  },
+  "811": {
+    "dir1": "Yishun Ave 5",
+    "dir2": "Yishun Ave 1"
+  },
+  "812": {
+    "dir1": "Yishun Ave 4",
+    "dir2": "Yishun Ave 3"
+  },
+  "911": {
+    "dir1": "Woodlands Ave 2",
+    "dir2": "Woodlands Ctr Rd"
+  },
+  "912": {
+    "dir1": "Woodlands Ave 7",
+    "dir2": "Woodlands Ave 3"
+  },
+  "913": {
+    "dir1": "Woodlands Circle",
+    "dir2": "Marsiling Rd"
+  }
+}

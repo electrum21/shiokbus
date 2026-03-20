@@ -583,7 +583,7 @@ body.light #svc-dropdown{background:#FFFFFF}
 .bus-num-col.op-smrt{background:var(--red)}
 .bus-num{font-family:'Barlow',sans-serif;font-weight:700;font-size:26px;line-height:1;color:#FFFFFF}
 .bus-num-from{font-size:9px;color:#FFFFFF;text-transform:uppercase;letter-spacing:.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;margin-bottom:2px;text-align:center}
-.bus-num-to{font-size:9px;color:#FFFFFF;text-transform:uppercase;letter-spacing:.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;margin-top:2px;text-align:center}
+.bus-num-to{font-size:9px;color:#FFFFFF;text-transform:uppercase;letter-spacing:.5px;line-height:1.2;white-space:pre-line;overflow:hidden;text-overflow:ellipsis;max-width:150px;margin-top:2px;text-align:center}
 .card-middle{flex:1;padding:10px 14px 10px 18px;display:flex;flex-direction:column;justify-content:center;gap:4px}
 .arrival-row{display:flex;align-items:center;gap:0;flex-wrap:nowrap}
 .mins-big{font-family:'Barlow',sans-serif;font-weight:700;font-size:32px;line-height:1;color:var(--white)}
@@ -1858,6 +1858,12 @@ function onServiceInput() {
     const dest = info1?.DestinationCode ? (stopName(info1.DestinationCode) || info1.DestinationCode) : '';
     const isLoop = info1 && !info2 && (info1.OriginCode === info1.DestinationCode || !!info1.LoopDesc);
     const isBidi = !!info2;
+    // Dual-loop: two directions both starting and ending at the same terminal
+    // Prefer build-time set; fall back to runtime detection
+    const isDualLoop = (svc in DUAL_LOOP_SVCS) || (isBidi && info1 && info2
+      && info1.OriginCode && info1.OriginCode === info1.DestinationCode
+      && info2.OriginCode && info2.OriginCode === info2.DestinationCode
+      && info1.OriginCode === info2.OriginCode);
     const midpoint = LOOP_SVC_MIDPOINTS[svc];
     const loopDesc = midpoint ? (/int|stn|hub|ter|ctr|zoo|wetland reserve/i.test(midpoint.Description) ? midpoint.Description : midpoint.RoadName)
   : (info1?.LoopDesc || '');
@@ -1868,7 +1874,13 @@ function onServiceInput() {
       const destDesc = info1?.DestinationDesc || dest;
       route = isBidi ? `${origDesc} ↔ ${destDesc}` : `${origDesc} → ${destDesc}`;
     } else if (orig) {
-      if (isBidi) route = `${orig} ↔ ${dest}`;
+      if (isDualLoop) {
+        const dualData = DUAL_LOOP_SVCS[svc] || {};
+        const loop1 = dualData.dir1 || info1.LoopDesc || '';
+        const loop2 = dualData.dir2 || info2?.LoopDesc || '';
+        const loops = [loop1, loop2].filter(Boolean).join(' / ');
+        route = loops ? `${orig} ↻ via ${loops}` : `${orig} ↻`;
+      } else if (isBidi) route = `${orig} ↔ ${dest}`;
       else if (isLoop) route = loopDesc ? `${orig} ↻ via ${loopDesc}` : `${orig} ↻`;
       else route = `${orig} → ${dest}`;
     }
@@ -2271,14 +2283,39 @@ function renderRoute(rd, allStops) {
     <div class="dir-toggle">`;
 
   const isLoop = rd.directions.length === 1;
+  // Dual-loop: LTA DataMall stores both loops as a single Direction 1.
+  // Prefer build-time set; fall back to runtime detection (for future-proofing if LTA ever adds Dir2).
+  const isDualLoop = (rd.svc in DUAL_LOOP_SVCS) || (rd.directions.length > 1 && rd.directions.every(d => {
+    const first = d.stops[0]?.BusStopCode;
+    const last = d.stops[d.stops.length - 1]?.BusStopCode;
+    return first && last && String(first) === String(last);
+  }));
   rd.directions.forEach((d, i) => {
     const dFirst = stopMap[padCode(d.stops[0]?.BusStopCode)]?.Description || d.stops[0]?._pbsStop?.Description || d.stops[0]?.BusStopCode || '?';
     const dLast = stopMap[padCode(d.stops[d.stops.length-1]?.BusStopCode)]?.Description || d.stops[d.stops.length-1]?._pbsStop?.Description || d.stops[d.stops.length-1]?.BusStopCode || '?';
-    const loopLine = (isLoop && loopDesc) ? `<div class="dir-btn-loop">via ${loopDesc}</div>` : '';
-    const label = isLoop
-      ? `<div class="dir-btn-dest">${dFirst} → ${dLast}</div>${loopLine}`
-      : `<div class="dir-btn-dest">${dFirst} → ${dLast}</div>`;
-    html += `<button class="dir-btn${i===rd.currentDir?' active':''}" onclick="switchDir(${i})">${label}</button>`;
+    let label;
+    if (isDualLoop) {
+      const dualData = DUAL_LOOP_SVCS[rd.svc] || {};
+      if (rd.directions.length === 1) {
+        // Single direction containing both loops — show both loop descs on one button
+        const loops = [dualData.dir1, dualData.dir2].filter(Boolean).join(' / ')
+          || loopDesc || '';
+        label = '<div class="dir-btn-dest">' + dFirst + ' ↻</div>'
+          + (loops ? '<div class="dir-btn-loop">via ' + loops + '</div>' : '');
+      } else {
+        // Rare case: LTA splits into two directions — show per-direction label
+        const dirLoopDesc = (i === 0 ? dualData.dir1 : dualData.dir2)
+          || rd.svcMap?.[normalizeServiceNo(rd.svc.toUpperCase()) + '-' + (i + 1)]?.LoopDesc || '';
+        label = '<div class="dir-btn-dest">' + dFirst + ' ↻</div>'
+          + (dirLoopDesc ? '<div class="dir-btn-loop">via ' + dirLoopDesc + '</div>' : '');
+      }
+    } else {
+      const loopLine = (isLoop && loopDesc) ? '<div class="dir-btn-loop">via ' + loopDesc + '</div>' : '';
+      label = isLoop
+        ? '<div class="dir-btn-dest">' + dFirst + ' → ' + dLast + '</div>' + loopLine
+        : '<div class="dir-btn-dest">' + dFirst + ' → ' + dLast + '</div>';
+    }
+    html += '<button class="dir-btn' + (i===rd.currentDir?' active':'') + '" onclick="switchDir(' + i + ')">' + label + '</button>';
   });
 
   html += `</div>`; // close dir-toggle
@@ -2944,6 +2981,16 @@ fetch('./assets/loop-desc-clear.json')
     toast('⚠️ Loop descriptor data failed to load — some service labels may be incorrect.');
   });
 
+// Dual-loop services (e.g. 358): two directions both looping from the same terminal,
+// each with its own LoopDesc. Loaded from build-time generated dual-loops.json.
+// Format: { "291": { dir1: "Tampines St 81", dir2: "Tampines St 32" }, ... }
+let DUAL_LOOP_SVCS = {};
+
+fetch('./assets/dual-loops.json')
+  .then(r => r.json())
+  .then(data => { DUAL_LOOP_SVCS = data; })
+  .catch(() => {}); // non-critical — falls back to runtime detection
+
 // Cache: serviceNo -> { stopCode: StopSequence, _midSeq: number }
 const _loopSeqCache = {};
 
@@ -3010,6 +3057,135 @@ function getLoopDestLabel(serviceNo, currentStopCode) {
   }
 
   return outbound; // best guess while fetch is in-flight
+}
+
+function getDualLoopDestLabel(serviceNo, currentStopCode) {
+  // Dual-loop: Terminal → West Loop turnaround → Terminal → East Loop turnaround → Terminal
+  // Segments:
+  //   1: Terminal → West turnaround  (outbound west)
+  //   2: West turnaround → Terminal  (inbound west / same road as outbound east start)
+  //   3: Terminal → East turnaround  (outbound east)
+  //   4: East turnaround → Terminal  (inbound east)
+  const dualData = DUAL_LOOP_SVCS[serviceNo];
+  if (!dualData) return { from: null, to: null };
+
+  const svcData = ALL_SERVICES?.[normalizeServiceNo(serviceNo) + '-1'];
+  const homeCode = svcData?.OriginCode;
+  const homeName = homeCode ? stopName(homeCode) : serviceNo;
+  const loop1Label = dualData.dir1 || '';
+  const loop2Label = dualData.dir2 || '';
+
+  // At the terminal stop itself — show both loop labels on separate lines
+  if (homeCode && currentStopCode === homeCode) {
+    const bothLoops = [loop1Label, loop2Label].filter(Boolean).join('\n');
+    return { from: homeName, to: bothLoops };
+  }
+
+  const cacheKey = 'dual_' + serviceNo;
+  const cached = _loopSeqCache[cacheKey];
+
+  function labelFromSeq(seq, seqMap) {
+    // seqMap has special keys: _term1 (first terminal seq=1), _term2 (mid terminal return), _term3 (last)
+    // _loop1 = turnaround stop seq for west loop
+    // _loop2 = turnaround stop seq for east loop
+    const term2 = seqMap._term2; // sequence where bus returns to terminal between loops
+    const loop1 = seqMap._loop1;
+    const loop2 = seqMap._loop2;
+    if (!term2) return { from: homeName, to: loop1Label || loop2Label };
+    if (seq <= loop1)       return { from: homeName,    to: loop1Label }; // outbound west
+    if (seq <= term2)       return { from: loop1Label,  to: homeName   }; // inbound west
+    if (seq <= loop2)       return { from: homeName,    to: loop2Label }; // outbound east
+    return                         { from: loop2Label,  to: homeName   }; // inbound east
+  }
+
+  if (cached) {
+    const seq = cached[currentStopCode];
+    if (seq != null) return labelFromSeq(seq, cached);
+    return { from: homeName, to: loop1Label };
+  }
+
+  // Fetch route once to map stop codes to sequences
+  if (!_loopSeqCache[cacheKey + '_pending']) {
+    _loopSeqCache[cacheKey + '_pending'] = true;
+    fetchBusRoute(serviceNo).then(stops => {
+      const map = {};
+      // Build sequence map: for stops appearing multiple times, use MAX seq
+      // (except terminal — use MIN so stop #1 shows as outbound)
+      stops.forEach(s => {
+        const prev = map[s.BusStopCode];
+        if (s.BusStopCode === homeCode) {
+          if (prev == null || s.StopSequence < prev) map[s.BusStopCode] = s.StopSequence;
+        } else {
+          if (prev == null || s.StopSequence > prev) map[s.BusStopCode] = s.StopSequence;
+        }
+      });
+
+      // Find the terminal's appearances (sorted ascending)
+      const termSeqs = stops
+        .filter(s => s.BusStopCode === homeCode)
+        .map(s => s.StopSequence)
+        .sort((a, b) => a - b);
+      // termSeqs[0]=1 (start), termSeqs[1]=mid-return, termSeqs[2]=end
+      map._term2 = termSeqs[1] || null;
+
+      // West loop turnaround: use loop-midpoints.json StopSequence if available
+      // (more accurate than max-seq, as it points to the actual road midpoint)
+      const midpointInfo = LOOP_SVC_MIDPOINTS[serviceNo + 'West'];
+      if (midpointInfo?.StopSequence) {
+        map._loop1 = midpointInfo.StopSequence;
+      } else {
+        // Fallback: midpoint of west loop stop range
+        const westStops = stops.filter(s =>
+          s.StopSequence > (termSeqs[0] || 0) &&
+          s.StopSequence < (termSeqs[1] || Infinity) &&
+          s.BusStopCode !== homeCode
+        );
+        const wMid = Math.floor(westStops.length / 2);
+        map._loop1 = westStops[wMid]?.StopSequence ?? null;
+      }
+
+      // East loop turnaround: use loop-midpoints.json "358E" entry if available
+      const eastMidpointInfo = LOOP_SVC_MIDPOINTS[serviceNo + 'East'];
+      if (eastMidpointInfo?.StopSequence) {
+        map._loop2 = eastMidpointInfo.StopSequence;
+        // Also use the stored _term2 from the east loop entry for accuracy
+        if (eastMidpointInfo._term2) map._term2 = eastMidpointInfo._term2;
+      } else {
+        // Fallback: midpoint of east loop stop range
+        const eastStops = stops.filter(s =>
+          s.StopSequence > (termSeqs[1] || 0) &&
+          s.StopSequence < (termSeqs[2] || Infinity) &&
+          s.BusStopCode !== homeCode
+        );
+        const eMid = Math.floor(eastStops.length / 2);
+        map._loop2 = eastStops[eMid]?.StopSequence ?? null;
+      }
+
+      _loopSeqCache[cacheKey] = map;
+      delete _loopSeqCache[cacheKey + '_pending'];
+
+      // Re-render all visible pills for this service
+      document.querySelectorAll('.bus-num-col').forEach(col => {
+        const numEl = col.querySelector('.bus-num');
+        if (!numEl) return;
+        const norm = t => t.trim().replace(/^0+/, '').toUpperCase();
+        if (norm(numEl.textContent) !== norm(serviceNo)) return;
+        // Get the stop code this card is for
+        const card = col.closest('.bus-card');
+        if (!card) return;
+        const stopCode = card.dataset.stopCode;
+        if (!stopCode) return;
+        const seq = map[stopCode];
+        const labels = seq != null ? labelFromSeq(seq, map) : { from: homeName, to: loop1Label };
+        const fromEl = col.querySelector('.bus-num-from');
+        const toEl   = col.querySelector('.bus-num-to');
+        if (fromEl) fromEl.textContent = labels.from || '';
+        if (toEl)   toEl.textContent   = labels.to   || '';
+      });
+    }).catch(() => { delete _loopSeqCache[cacheKey + '_pending']; });
+  }
+
+  return { from: homeName, to: [loop1Label, loop2Label].filter(Boolean).join('\n') }; // best guess while fetch is in-flight
 }
 
 function normalizeServiceNo(svc) {
@@ -3355,6 +3531,18 @@ function buildPrivateStopCard(privateSvc, dir, arrivals, stopCode, cardIndex) {
   </div>`;
 }
 
+function dualLoopVisitLabel(serviceNo, visitNumber) {
+  // Returns a short label like "Dr 10" or "Dr 4" for dual-loop buses based on VisitNumber
+  // VisitNumber "1" = first loop (west/dir1), "2" = second loop (east/dir2)
+  const dualData = DUAL_LOOP_SVCS[normalizeServiceNo(serviceNo.replace(/^0+/,'').toUpperCase())];
+  if (!dualData) return null;
+  const loopDesc = visitNumber === '2' ? dualData.dir2 : dualData.dir1;
+  if (!loopDesc) return null;
+  // Extract last 2 words for a compact label e.g. "Pasir Ris Dr 10" → "Dr 10"
+  const words = loopDesc.trim().split(/\s+/);
+  return words.slice(-2).join(' ');
+}
+
 function render(code, data) {
   window._lastRenderCode = code;
   const svcs = data.Services || [];
@@ -3397,7 +3585,11 @@ function render(code, data) {
     const label = m1<=0?'ARR':`${m1}`, unit = m1<=0?'':'min';
     const rec = seatRec(nb.Latitude,nb.Longitude,nb2?.Latitude,nb2?.Longitude);
     const loadColor = {SEA:'var(--green)', SDA:'#FF8C00', LSD:'#FF3333'};
-    const nextPills = [[m2,nb2],[m3,nb3]].filter(([m])=>m!==null).map(([m,nb])=>`<div class="next-pill"><span>${m<=0?'ARR':m+' min'}</span>${busTypeIcon(nb.Type,true,loadColor[nb.Load]||'var(--muted)')}</div>`).join('');
+    const _isDualForPill = normalizeServiceNo((s?.ServiceNo||'').replace(/^0+/,'').toUpperCase()) in DUAL_LOOP_SVCS;
+    const nextPills = [[m2,nb2],[m3,nb3]].filter(([m])=>m!==null).map(([m,nb]) => {
+      const visitLbl = _isDualForPill ? dualLoopVisitLabel(s.ServiceNo, nb.VisitNumber) : null;
+      return `<div class="next-pill"><span>${m<=0?'ARR':m+' min'}</span>${busTypeIcon(nb.Type,true,loadColor[nb.Load]||'var(--muted)')}${visitLbl ? `<span style="font-size:8px;color:var(--white);font-weight:700;letter-spacing:.3px">${visitLbl}</span>` : ''}</div>`;
+    }).join('');
     const op = (s.Operator||'').toUpperCase();
     const svcKey1 = normalizeServiceNo(s.ServiceNo.replace(/^0+/,'').toUpperCase()) + '-1';
     const svcKey2 = normalizeServiceNo(s.ServiceNo.replace(/^0+/,'').toUpperCase()) + '-2';
@@ -3408,9 +3600,14 @@ function render(code, data) {
     // For loop services, getLoopDestLabel returns { from, to } labels.
     // For normal services, use live arrival origin/destination.
     const svcNormKey = normalizeServiceNo(s.ServiceNo.replace(/^0+/, '').toUpperCase());
-    const isLoopSvc  = svcNormKey in LOOP_SVC_MIDPOINTS;
+    const isDualLoopSvc = svcNormKey in DUAL_LOOP_SVCS;
+    const isLoopSvc  = !isDualLoopSvc && (svcNormKey in LOOP_SVC_MIDPOINTS);
     let originName, destName;
-    if (isLoopSvc) {
+    if (isDualLoopSvc) {
+      const loopLabels = getDualLoopDestLabel(svcNormKey, code);
+      originName = loopLabels.from;
+      destName   = loopLabels.to;
+    } else if (isLoopSvc) {
       const loopLabels = getLoopDestLabel(svcNormKey, code);
       originName = loopLabels.from;
       destName   = loopLabels.to;
@@ -3438,7 +3635,7 @@ function render(code, data) {
       }
     }
     html += `
-    <div class="bus-card" style="animation-delay:${i*.09}s">
+    <div class="bus-card" data-stop-code="${code}" style="animation-delay:${i*.09}s">
       <div class="card-top">
         <div class="bus-num-col ${opCls}" onclick="goToService('${s.ServiceNo}', '${code}')" style="position:relative">
 
@@ -3449,12 +3646,19 @@ function render(code, data) {
         <div class="card-middle" onclick="togglePanel(${i})">
           <div class="arrival-row">
             <div class="first-timing">
-            <div class="mins-big ${arrCls}">${label}</div>
-            <div class="mins-unit">${unit}</div>
+              <div class="mins-big ${arrCls}">${label}</div>
+              <div class="mins-unit">${unit}</div>
             </div>
             ${nextPills}
           </div>
-          <div class="bus-type-tag">${busTypeIcon(nb.Type, false, loadColor[nb.Load]||'var(--muted)')}</div>
+          ${!_isDualForPill ? `
+            <div class="bus-type-tag">${busTypeIcon(nb.Type, false, loadColor[nb.Load]||'var(--muted)')}</div>
+          ` : `
+            <div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-top:3px;opacity:.8">
+              <div>${busTypeIcon(nb.Type, false, loadColor[nb.Load]||'var(--muted)')}</div>
+              ${dualLoopVisitLabel(s.ServiceNo, nb.VisitNumber) ? `<span style="font-size:8px;color:var(--white);font-weight:700;letter-spacing:.3px">${dualLoopVisitLabel(s.ServiceNo, nb.VisitNumber)}</span>` : ''}
+            </div>
+          `}
         </div>
         <div class="card-right">
           <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch">
