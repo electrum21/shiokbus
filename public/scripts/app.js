@@ -2693,8 +2693,8 @@ function render(code, data) {
   const privateAtStop = getPrivateServicesForStop(code);
   let privateHtml = '';
   let privateCount = 0;
-  privateAtStop.forEach(({ privateSvc, dir }) => {
-    const arrivals = synthesisePrivateArrivals(privateSvc, dir, stop.StopOffsetMins ?? 0);
+  privateAtStop.forEach(({ privateSvc, dir, stop: matchedStop }) => {
+    const arrivals = synthesisePrivateArrivals(privateSvc, dir, matchedStop?.StopOffsetMins ?? 0);
     if (!arrivals) return;
     privateHtml += buildPrivateStopCard(privateSvc, dir, arrivals, code, svcs.length + privateCount);
     privateCount++;
