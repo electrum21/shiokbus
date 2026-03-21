@@ -4,4 +4,4 @@ firebase-debug.log
 .firebaserc
 shiokbus_writeup.docx
 dist/images/
-scripts/
+helper_scripts/
