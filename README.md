@@ -23,12 +23,12 @@ Coverage beyond LTA's public network — fully integrated alongside public buses
 | **PBS** (Private Bus Services) | Scheduled timetable | 550, 555, 560, 565, 593, 722, 728, 736, 740, 742, 753, 762, 767, 776, LCS2 and more |
 | **Sentosa Island Buses** | Frequency-based | Bus A (Beach Station loop), Bus B (Sentosa Cove loop), Bus D (on-demand Fri/Sat/Sun evenings) |
 
-Scheduled services show synthesised arrival times computed from timetable data. Frequency-based services (Sentosa buses) compute upcoming arrivals from headway and per-stop travel offsets. All private services are indexed at startup for O(1) stop lookups — expanding a shared stop like Beach Station correctly shows *all* services calling there (e.g. Bus A, Bus B, and Bus 123 together).
+Scheduled services show synthesised arrival times computed from timetable data. Frequency-based services (Sentosa buses) compute upcoming arrivals from headway and per-stop travel offsets, including buses already mid-route. 
 
-### ☀ Sun seat recommendation
-The USP. Two modes:
+### Sun Seat Recommendation
+The unique proposition of this project. Two modes:
 
-**Live arrivals view** — for the next arriving bus, calculates which side of the bus faces the sun and recommends left or right. Takes into account bus type (upper deck of a double-decker gets a separate recommendation).
+**Live Arrivals View** — for the next arriving bus, calculates which side of the bus faces the sun and recommends left or right. Takes into account bus type (upper deck of a double-decker gets a separate recommendation).
 
 **Plan Trip (route sun analysis)** — select a boarding and alighting stop on the route map. The app scores every road segment along your journey by `perpendicular_sun_component × altitude_factor × segment_distance`, then recommends the consistently shadier side for the full trip. The route map is colour-coded from shade (blue) through mild to strong sun (red/orange). A live sun marker and direction ray are drawn on the map.
 
@@ -37,6 +37,7 @@ For night rides or when the sun is below 3° altitude the app returns "any seat 
 ### Route explorer
 - Full stop-by-stop route view with expandable per-stop arrivals, first/last bus timings, and service frequency formatted by time-of-day
 - Direction tabs for services with two directions; loop services show their midpoint via label
+- Dual-loop services (e.g. 291, 293, 358, 359, 812) correctly labelled per visit — outbound and inbound legs distinguished at each stop
 - Road-snapped route geometry via OSRM, colour-coded by sun exposure per segment
 - Operator colour coding: SBS Transit (purple), SMRT (red), Tower Transit Singapore (green), Go-Ahead Singapore (gold), unknown private operators (navy)
 
@@ -51,7 +52,7 @@ Full Singapore MRT/LRT network map overlay with pinch-to-zoom and scroll-to-zoom
 
 ### Journey planner
 - Point-to-point routing via OneMap API with multiple itinerary options
-- Each bus leg in the itinerary shows a ☀ sun seat pill — which side to sit on for that specific leg's geometry and current sun position
+- Each bus leg in the itinerary shows a sun seat pill — which side to sit on for that specific leg's geometry and current sun position
 - Save frequently used origin–destination pairs as favourite plans
 
 ### Favourites
@@ -78,7 +79,7 @@ Full Singapore MRT/LRT network map overlay with pinch-to-zoom and scroll-to-zoom
 
 | Layer | Technology |
 | :--- | :--- |
-| Frontend | Vanilla HTML / CSS / JavaScript (single file) |
+| Frontend | Vanilla HTML / CSS / JavaScript |
 | Fonts | Barlow Condensed + Barlow (Google Fonts) |
 | Maps | Leaflet.js + OneMap tiles + OSRM road geometry |
 | Backend Proxy | Cloudflare Workers |
@@ -100,13 +101,14 @@ Browser (index.html served from Cloudflare R2)
     │
     ├── Static data (stops, routes, services, MRT stations)
     │       └──► Cloudflare Worker ──► Cloudflare R2
-    │               (daily cron syncs full LTA dataset)
+    │               (nightly cron syncs full LTA dataset)
     │
     ├── Real-time arrivals
     │       └──► Cloudflare Worker ──► LTA DataMall BusArrival v3
     │
     ├── Journey planning
     │       └──► Cloudflare Worker ──► OneMap Routing API
+    │               (OneMap token cached in-worker, refreshed every ~3 days)
     │
     ├── Train service alerts
     │       └──► Cloudflare Worker ──► LTA DataMall TrainServiceAlerts
@@ -122,23 +124,35 @@ Browser (index.html served from Cloudflare R2)
 ```
 
 ### Cloudflare Worker security
-- **CORS origin check** — only `shiokbus.web.app`, `shiokbus.firebaseapp.com`, and localhost are allowed
+- **CORS origin check** — only `shiokbus.web.app` and `shiokbus.firebaseapp.com` are allowed; preflight OPTIONS requests are validated before any other processing
 - **LTA API key** — stored only in Worker environment variables, never exposed to the browser
-- **Non-blocking rate tracking** — per-IP request counting via KV (fire-and-forget, no latency impact)
+
+### Worker endpoints
+
+| Mode | Endpoint param | Description |
+| :--- | :--- | :--- |
+| Static | `static` | Streams a file directly from R2 (stops, services, routes, MRT stations) |
+| Route | `route` | Filters `bus-routes.json` by service number; result cached 5 hours in-worker |
+| Arrivals | `BusArrival` | Live pass-through to LTA DataMall BusArrival v3 |
+| Journey | `onemap` | Proxies OneMap routing API with cached auth token |
+| Alerts | `TrainServiceAlerts` | Live pass-through to LTA DataMall train alerts |
 
 ### R2 data sync (cron Worker)
-Runs daily at midnight and fetches the full LTA dataset, writing four files to R2:
-- `stops.json` — all bus stop coordinates, names, road names
-- `bus-services.json` — operator, category, frequency data per service
-- `bus-routes.json` — all route stop sequences
-- `mrt-stations.json` — MRT station metadata for pill rendering
+Runs nightly across four staggered cron triggers (02:00–02:45 SGT). Each trigger fetches up to 30 pages (500 records each) and stores progress in R2, allowing the full LTA dataset to be accumulated across multiple runs without hitting Worker CPU limits.
+
+| Cron (UTC) | SGT | Dataset |
+| :--- | :--- | :--- |
+| `0 18 * * *` | 02:00 | `bus-routes.json` |
+| `15 18 * * *` | 02:15 | `bus-routes.json` (continuation if needed) |
+| `30 18 * * *` | 02:30 | `bus-services.json` |
+| `45 18 * * *` | 02:45 | `stops.json` |
 
 ### Private service architecture
 Private services (PBS, Sentosa) are loaded from local JSON assets at startup and injected into the same `ALL_SERVICES` map as LTA data. A `PRIVATE_STOP_INDEX` is built at inject time mapping each bus stop code to all private service stop entries that call there — enabling O(1) lookup when expanding a stop in the route view, regardless of how many services share that stop.
 
 Two arrival synthesis modes:
 - **Scheduled** (`DepartureTimes` present) — per-stop `Timings` objects map each departure to its arrival time at that stop; upcoming arrivals within a ±2–45 minute window are shown
-- **Frequency-based** (`DepartureTimes` empty) — headway and `StopOffsetMins` per stop compute the next three arrivals from the current time and operating hours
+- **Frequency-based** (`DepartureTimes` empty) — headway and `StopOffsetMins` per stop compute the next three arrivals from the current time and operating hours. The synthesiser walks back enough intervals to include buses already en route, so mid-route stops correctly show the approaching bus rather than only the next departure from origin
 
 ---
 
@@ -168,17 +182,22 @@ For night rides or sun altitude below 3°, the recommendation is suppressed.
 
 ```
 shiokbus/
-├── index.html                  # Entire frontend (HTML + CSS + JS)
+├── index.html                  # HTML structure and entry point
+├── styles.css                  # All application styles
 ├── worker.js                   # Cloudflare Worker (proxy + cron R2 sync)
 └── assets/
     ├── pbs-services.json       # PBS timetable data (hand-curated)
     ├── sentosa-services.json   # Sentosa bus service data
     ├── loop-midpoints.json     # Loop service via-stop overrides
     ├── loop-desc-clear.json    # Services to suppress loop labels for
-    ├── leaflet.js              # Leaflet (self-hosted)
+    ├── dual-loops.json         # Dual-loop service metadata (291, 293, 358, 359, 812)
     ├── leaflet.css
     ├── mrt-map.png             # MRT network map image
     └── shiokbus-logo-dark.png
+└── scripts/
+    ├── app.js                  # Main application logic (~4500 lines)
+    ├── firebase.js             # Firebase auth + Firestore (ES module)
+    └── leaflet.js              # Leaflet (self-hosted)
 ```
 
 ---
@@ -189,7 +208,7 @@ shiokbus/
    ```bash
    python3 -m http.server 8000
    ```
-2. The Worker's `ALLOWED_ORIGINS` already includes `http://localhost:8000`
+2. Add `http://localhost:8000` to the `ALLOWED_ORIGINS` array in `worker.js`
 3. No build step required
 
 ---
@@ -201,18 +220,17 @@ shiokbus/
 | Variable | Description |
 | :--- | :--- |
 | `LTA_KEY` | LTA DataMall API key |
-| `FIREBASE_PROJECT_ID` | Firebase project ID |
-| `FIREBASE_APP_ID` | Firebase Web App ID |
+| `ONEMAP_EMAIL` | OneMap account email (for token auth) |
+| `ONEMAP_PASSWORD` | OneMap account password (for token auth) |
 
 ### Bindings
 
 | Binding | Type | Description |
-| :--- | :--- |:--- |
-| `BUS_BUCKET` | R2 Bucket | Stores static bus data JSON files |
-| `RATE_LIMITER` | KV Namespace | Non-blocking per-IP rate tracking |
+| :--- | :--- | :--- |
+| `BUS_BUCKET` | R2 Bucket | Stores static bus data JSON files and sync state |
 
-### Cron trigger
-Set `0 0 * * *` (daily midnight SGT) to keep R2 data fresh.
+### Cron triggers
+Four triggers are required — see the R2 data sync table above.
 
 ---
 
@@ -235,7 +253,7 @@ Set `0 0 * * *` (daily midnight SGT) to keep R2 data fresh.
 | Road-snapped geometry | [OSRM](http://project-osrm.org) |
 | Rain forecast | [data.gov.sg](https://data.gov.sg) 2-hour forecast |
 | PBS timetables | City Bus, MyBus, Diamond Coach, Ren Quan operator PDFs (hand-curated) |
-| Sentosa bus schedules | [Sentosa](https://www.sentosa.com.sg/en/getting-around/?gclsrc=aw.ds&gad_source=1&gad_campaignid=23311096945&gbraid=0AAAAADlI5PE-vArsaJHq1zmYwfWquCLpN&gclid=Cj0KCQjw9-PNBhDfARIsABHN6-0lvk-2Bk3USyLUg3gK0jpHys3avNPnPWuV6cfkADndSseLKCQ3vLMaAlgGEALw_wcB) |
+| Sentosa bus schedules | [Sentosa](https://www.sentosa.com.sg/en/getting-around/) |
 
 ---
 
