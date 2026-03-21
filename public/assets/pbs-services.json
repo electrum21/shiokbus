@@ -147,7 +147,7 @@
         "OriginDesc": "Buangkok Sports Park",
         "DestinationCode": "3391",
         "DestinationDesc": "Marina Bay Financial Centre",
-        "OperatingHours": "One trip at 8.30am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 8.30am",
         "DepartureTimes": [
           "08:30"
         ],
@@ -366,7 +366,7 @@
         "OriginDesc": "Melville Park",
         "DestinationCode": "3217",
         "DestinationDesc": "Opp AXA Tower",
-        "OperatingHours": "One trip at 7.55am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 7.55am",
         "DepartureTimes": [
           "07:55"
         ],
@@ -717,7 +717,7 @@
         "OriginDesc": "Blk 95",
         "DestinationCode": "3011",
         "DestinationDesc": "Fullerton Square",
-        "OperatingHours": "One trip at 8.00am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 8.00am",
         "DepartureTimes": [
           "08:00"
         ],
@@ -903,7 +903,7 @@
         "OriginDesc": "Opp Blk 322 CP",
         "DestinationCode": "3011",
         "DestinationDesc": "Fullerton Square",
-        "OperatingHours": "One trip at 7.35am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 7.35am",
         "DepartureTimes": [
           "07:35"
         ],
@@ -1122,7 +1122,7 @@
         "OriginDesc": "Blk 467 CP",
         "DestinationCode": "1511",
         "DestinationDesc": "Opp The Gateway",
-        "OperatingHours": "Two trips at 7.27am and 7.40am",
+        "OperatingHours": "Monday to Friday (excl PH). Two trips at 7.27am and 7.40am",
         "DepartureTimes": [
           "07:27",
           "07:40"
@@ -1388,7 +1388,7 @@
         "OriginDesc": "Tanjong Pagar Plaza",
         "DestinationCode": "40311",
         "DestinationDesc": "Blk 439C",
-        "OperatingHours": "One trip at 6.10pm",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 6.10pm",
         "DepartureTimes": [
           "18:10"
         ],
@@ -1596,7 +1596,7 @@
         "OriginDesc": "Pandan Valley",
         "DestinationCode": "2141",
         "DestinationDesc": "Suntec Tower Two",
-        "OperatingHours": "Two trips at 7.40am and 7.55am / 15 min",
+        "OperatingHours": "Monday to Friday (excl PH). Two trips at 7.40am and 7.55am / 15 min",
         "DepartureTimes": [
           "07:40",
           "07:55"
@@ -1858,7 +1858,7 @@
         "OriginDesc": "Along the road outside EASB",
         "DestinationCode": null,
         "DestinationDesc": "Outside Tan Ean Kiam Building",
-        "OperatingHours": "One trip at 7.55am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 7.55am",
         "DepartureTimes": [
           "07:55"
         ],
@@ -2110,7 +2110,7 @@
         "OriginDesc": "Hougang Plaza",
         "DestinationCode": "3223",
         "DestinationDesc": "International Plaza",
-        "OperatingHours": "One trip at 7.45am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 7.45am",
         "DepartureTimes": [
           "07:45"
         ],
@@ -2384,7 +2384,7 @@
         "OriginDesc": "Opp Blk 968",
         "DestinationCode": "3151",
         "DestinationDesc": "Aft Telok Ayer St",
-        "OperatingHours": "One trip at 7.20am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 7.20am",
         "DepartureTimes": [
           "07:20"
         ],
@@ -2581,7 +2581,7 @@
         "OriginDesc": "Kadaloor Station Exit B",
         "DestinationCode": "3223",
         "DestinationDesc": "International Plaza",
-        "OperatingHours": "Two trips at 8.00am and 8.30am / 30 minutes",
+        "OperatingHours": "Monday to Friday (excl PH). Two trips at 8.00am and 8.30am / 30 minutes",
         "DepartureTimes": [
           "08:00",
           "08:30"
@@ -2811,7 +2811,7 @@
         "OriginDesc": "Hub Synergy Point",
         "DestinationCode": "65329",
         "DestinationDesc": "Kadaloor Station Exit A",
-        "OperatingHours": "Two trips at 6.15pm and 6.45pm / 30 minutes",
+        "OperatingHours": "Monday to Friday (excl PH). Two trips at 6.15pm and 6.45pm / 30 minutes",
         "DepartureTimes": [
           "18:15",
           "18:45"
@@ -3061,7 +3061,7 @@
         "OriginDesc": "Opp Blk 471A",
         "DestinationCode": "3223",
         "DestinationDesc": "International Plaza",
-        "OperatingHours": "One trip at 7.30am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 7.30am",
         "DepartureTimes": [
           "07:30"
         ],
@@ -3349,7 +3349,7 @@
         "OriginDesc": "Hub Synergy Point",
         "DestinationCode": "67551",
         "DestinationDesc": "Blk 471A",
-        "OperatingHours": "One trip at 6.15pm",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 6.15pm",
         "DepartureTimes": [
           "18:15"
         ],
@@ -3645,7 +3645,7 @@
         "OriginDesc": "Bef Soo Teck Stn",
         "DestinationCode": "96351",
         "DestinationDesc": "Before Changi South Street 1",
-        "OperatingHours": "Nine trips from 6.55am to 10.00am / 10 to 35 min | ",
+        "OperatingHours": "Monday to Friday (excl PH). Nine trips from 6.55am to 10.00am / 10 to 35 min | ",
         "DepartureTimes": [
           "06:55",
           "10:00"
@@ -3970,7 +3970,7 @@
         "OriginDesc": "Eightrium",
         "DestinationCode": "65141",
         "DestinationDesc": "Aft Soo Teck Stn",
-        "OperatingHours": "Six trips from 5.30pm to 8.00pm / 10 to 45 min",
+        "OperatingHours": "Monday to Friday (excl PH). Six trips from 5.30pm to 8.00pm / 10 to 45 min",
         "DepartureTimes": [
           "17:30",
           "20:00"
@@ -4256,7 +4256,7 @@
         "OriginDesc": "Senja Fc",
         "DestinationCode": null,
         "DestinationDesc": "Beside Twenty Anson",
-        "OperatingHours": "Two trips at 7.18am and 7.30am",
+        "OperatingHours": "Monday to Friday (excl PH). Two trips at 7.18am and 7.30am",
         "DepartureTimes": [
           "07:18",
           "07:30"
@@ -4522,7 +4522,7 @@
         "OriginDesc": "Tanjong Pagar Plaza",
         "DestinationCode": "44811",
         "DestinationDesc": "Senja FC",
-        "OperatingHours": "One trip at 6.10pm",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 6.10pm",
         "DepartureTimes": [
           "18:10"
         ],
@@ -4763,7 +4763,7 @@
         "OriginDesc": "Opp Hougang Green Shopping Mall",
         "DestinationCode": "6171",
         "DestinationDesc": "Opp State Court",
-        "OperatingHours": "One trip at 8.15am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 8.15am",
         "DepartureTimes": [
           "08:15"
         ],
@@ -5004,7 +5004,7 @@
         "OriginDesc": "Opp Fernvale Primary School",
         "DestinationCode": "96351",
         "DestinationDesc": "Before Changi South Street 1",
-        "OperatingHours": "Eight trips from 7.00am to 10.00am / 20 to 30 min | ",
+        "OperatingHours": "Monday to Friday (excl PH). Eight trips from 7.00am to 10.00am / 20 to 30 min | ",
         "DepartureTimes": [
           "07:00",
           "10:00"
@@ -5329,7 +5329,7 @@
         "OriginDesc": "Eightrium",
         "DestinationCode": "67499",
         "DestinationDesc": "Bef Fernvale Lane",
-        "OperatingHours": "Six trips from 5.35pm to 8.00pm / 10 to 45 min",
+        "OperatingHours": "Monday to Friday (excl PH). Six trips from 5.35pm to 8.00pm / 10 to 45 min",
         "DepartureTimes": [
           "17:35",
           "20:00"
@@ -5615,7 +5615,7 @@
         "OriginDesc": "Cove Station Exit B",
         "DestinationCode": "15049",
         "DestinationDesc": "Opp Alexandra Retail Ctr",
-        "OperatingHours": "Two trips at 7.00am and 8.00am/ 60 minutes",
+        "OperatingHours": "Monday to Friday (excl PH). Two trips at 7.00am and 8.00am/ 60 minutes",
         "DepartureTimes": [
           "07:00",
           "08:00"
@@ -6037,7 +6037,7 @@
         "OriginDesc": "Alexandra Point",
         "DestinationCode": "65159",
         "DestinationDesc": "Cove Station Exit A",
-        "OperatingHours": "One trip at 6.00pm",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 6.00pm",
         "DepartureTimes": [
           "18:00"
         ],
@@ -6410,7 +6410,7 @@
         "OriginDesc": "Blk 484",
         "DestinationCode": "2141",
         "DestinationDesc": "Suntec Tower Two",
-        "OperatingHours": "One trip at 7.35am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 7.35am",
         "DepartureTimes": [
           "07:35"
         ],
@@ -6640,7 +6640,7 @@
         "OriginDesc": "Blk 405",
         "DestinationCode": "96351",
         "DestinationDesc": "Before Changi South Street 1",
-        "OperatingHours": "Three trips from 7.00am to 7.50am / 25 min",
+        "OperatingHours": "Monday to Friday (excl PH). Three trips from 7.00am to 7.50am / 25 min",
         "DepartureTimes": [
           "07:00",
           "07:50"
@@ -6977,7 +6977,7 @@
         "OriginDesc": "Eightrium",
         "DestinationCode": "58349",
         "DestinationDesc": "Blk 478",
-        "OperatingHours": "Two trips at 5.45pm and 6.20pm/ 35 min",
+        "OperatingHours": "Monday to Friday (excl PH). Two trips at 5.45pm and 6.20pm/ 35 min",
         "DepartureTimes": [
           "17:45",
           "18:20"
@@ -7275,7 +7275,7 @@
         "OriginDesc": "Blk 516",
         "DestinationCode": "96351",
         "DestinationDesc": "Before Changi South Street 1",
-        "OperatingHours": "One trip at 7.30am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 7.30am",
         "DepartureTimes": [
           "07:30"
         ],
@@ -7563,7 +7563,7 @@
         "OriginDesc": "Eightrium",
         "DestinationCode": "66109",
         "DestinationDesc": "Blk 151",
-        "OperatingHours": "One trip at 6.00pm",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 6.00pm",
         "DepartureTimes": [
           "18:00"
         ],
@@ -7837,7 +7837,7 @@
         "OriginDesc": "After Ballota Park",
         "DestinationCode": "3223",
         "DestinationDesc": "Tanjong Pagar Station Exit C",
-        "OperatingHours": "One trip at 7.40am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 7.40am",
         "DepartureTimes": [
           "07:40"
         ],
@@ -8056,7 +8056,7 @@
         "OriginDesc": "Bet Blks 50/51",
         "DestinationCode": "1511",
         "DestinationDesc": "Opp The Gateway",
-        "OperatingHours": "One trip at 8am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 8am",
         "DepartureTimes": [
           "08:00"
         ],
@@ -8363,7 +8363,7 @@
         "OriginDesc": "Blk 231A CP",
         "DestinationCode": "1511",
         "DestinationDesc": "Opp The Gateway",
-        "OperatingHours": "One trip at 7.40am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 7.40am",
         "DepartureTimes": [
           "07:40"
         ],
@@ -8549,7 +8549,7 @@
         "OriginDesc": "Opp Blk 592C",
         "DestinationCode": "96321",
         "DestinationDesc": "DBS Asia Hub",
-        "OperatingHours": "One trip at 7.30am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 7.30am",
         "DepartureTimes": [
           "07:30"
         ],
@@ -8878,7 +8878,7 @@
         "OriginDesc": "Blk 141",
         "DestinationCode": "10089",
         "DestinationDesc": "Blk 119",
-        "OperatingHours": "One trip at 7.16am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 7.16am",
         "DepartureTimes": [
           "07:16"
         ],
@@ -9177,7 +9177,7 @@
         "OriginDesc": "Bukit Merah Town Centre",
         "DestinationCode": "75131",
         "DestinationDesc": "Between Blks 701/702",
-        "OperatingHours": "One trip at 6.10pm",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 6.10pm",
         "DepartureTimes": [
           "18:10"
         ],
@@ -9363,7 +9363,7 @@
         "OriginDesc": "Blk 238",
         "DestinationCode": null,
         "DestinationDesc": "PUDO point outside MOE Building",
-        "OperatingHours": "Two trips at 7.30am and 8.00am",
+        "OperatingHours": "Monday to Friday (excl PH). Two trips at 7.30am and 8.00am",
         "DepartureTimes": [
           "07:30",
           "08:00"
@@ -9497,7 +9497,7 @@
         "OriginDesc": "PUDO point outside MOE Building",
         "DestinationCode": "40389",
         "DestinationDesc": "Tengah Community Club",
-        "OperatingHours": "One trip at 6.00pm",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 6.00pm",
         "DepartureTimes": [
           "18:00"
         ],
@@ -9628,7 +9628,7 @@
         "OriginDesc": "Blk 424A CP",
         "DestinationCode": null,
         "DestinationDesc": "PUDO point outside Harbourfront Station Exit D",
-        "OperatingHours": "One trip at 7.15am",
+        "OperatingHours": "Monday to Friday (excl PH). One trip at 7.15am",
         "DepartureTimes": [
           "07:15"
         ],
@@ -10227,7 +10227,7 @@
         "OriginDesc": "Aft Cargo Bldg D",
         "DestinationCode": "65619",
         "DestinationDesc": "Nibong Stn Exit A",
-        "OperatingHours": "Two trips at 5.45pm and 6.15pm",
+        "OperatingHours": "Monday to Friday (excl PH). Two trips at 5.45pm and 6.15pm",
         "DepartureTimes": [
           "17:45",
           "18:15"
@@ -10537,7 +10537,7 @@
         "OriginDesc": "Opp Blk 721",
         "DestinationCode": "95149",
         "DestinationDesc": "Bef Cargo Bldg D",
-        "OperatingHours": "Two trips at 7.00am and 7.30am",
+        "OperatingHours": "Monday to Friday (excl PH). Two trips at 7.00am and 7.30am",
         "DepartureTimes": [
           "07:00",
           "07:30"
@@ -10863,7 +10863,7 @@
         "OriginDesc": "Aft Cargo Bldg D",
         "DestinationCode": "75271",
         "DestinationDesc": "Blk 721",
-        "OperatingHours": "Two trips at 5.45pm and 6.15pm",
+        "OperatingHours": "Monday to Friday (excl PH). Two trips at 5.45pm and 6.15pm",
         "DepartureTimes": [
           "17:45",
           "18:15"

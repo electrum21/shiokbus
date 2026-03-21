@@ -3445,9 +3445,76 @@ function getPrivateServicesForStop(code) {
   return results;
 }
 
+// ── OPERATING HOURS CHECKER ──────────────────────────────────────────────────
+// Returns true if the service is currently operating based on its OperatingHours string.
+// Handles day-of-week restrictions and time windows.
+function isServiceOperatingNow(operatingHours, dayOnly = false) {
+  if (!operatingHours) return true; // no restriction — assume always on
+
+  const now = new Date();
+  const dow = now.getDay(); // 0=Sun,1=Mon,...,6=Sat
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const h = operatingHours;
+
+  // ── Day-of-week detection ────────────────────────────────────────────────
+  const isWeekday  = dow >= 1 && dow <= 5; // Mon–Fri
+  const isSat      = dow === 6;
+  const isSun      = dow === 0;
+  const isWeekend  = isSat || isSun;
+
+  if (/fri.*sat.*sun/i.test(h)) {
+    if (dow !== 5 && dow !== 6 && dow !== 0) return false;
+  } else if (/mon.*fri|weekday/i.test(h)) {
+    if (!isWeekday) return false;
+  } else if (/sat.*sun|weekend/i.test(h)) {
+    if (!isWeekend) return false;
+  }
+
+  // If dayOnly, skip time window check — caller handles timing via Timings filter
+  if (dayOnly) return true;
+
+  // ── Time window detection ────────────────────────────────────────────────
+  const timeRange = h.match(/(\d+)(?::(\d+))?\s*(am|pm)\s*[-–to]+\s*(\d+)(?::(\d+))?\s*(am|pm)/i);
+  if (timeRange) {
+    const toMins = (hh, mm, ampm) => {
+      let hrs = parseInt(hh);
+      const mins = parseInt(mm || 0);
+      if (ampm.toLowerCase() === 'pm' && hrs !== 12) hrs += 12;
+      if (ampm.toLowerCase() === 'am' && hrs === 12) hrs = 0;
+      return hrs * 60 + mins;
+    };
+    const startMins = toMins(timeRange[1], timeRange[2], timeRange[3]);
+    let   endMins   = toMins(timeRange[4], timeRange[5], timeRange[6]);
+    if (endMins < startMins) endMins += 24 * 60; // past-midnight end
+    const nowAdj = nowMins < startMins ? nowMins + 24 * 60 : nowMins;
+    // Allow showing 45 min before service starts so commuters can plan ahead
+    if (nowAdj < startMins - 45 || nowAdj > endMins) return false;
+  }
+
+  // "One trip at X.XXam/pm" — only show within 30 min before departure
+  const oneTrip = h.match(/one trip at (\d+)(?:[.:](\d+))?\s*(am|pm)/i);
+  if (oneTrip) {
+    const toMins = (hh, mm, ampm) => {
+      let hrs = parseInt(hh);
+      const mins = parseInt(mm || 0);
+      if (ampm.toLowerCase() === 'pm' && hrs !== 12) hrs += 12;
+      if (ampm.toLowerCase() === 'am' && hrs === 12) hrs = 0;
+      return hrs * 60 + mins;
+    };
+    const tripMins = toMins(oneTrip[1], oneTrip[2], oneTrip[3]);
+    // Show only 45 min before until 10 min after trip time
+    if (nowMins < tripMins - 45 || nowMins > tripMins + 10) return false;
+  }
+
+  return true;
+}
+
 function synthesisePrivateArrivals(privateSvc, dir) {
+
   const freq = dir.Frequency || privateSvc.Frequency || '';
   const hours = dir.OperatingHours || privateSvc.OperatingHours || '';
+  // Check day-of-week and time window before doing anything else
+  if (!isServiceOperatingNow(hours)) return null;
   const freqMatch = freq.match(/(\d+)(?:[-–](\d+))?/);
   if (!freqMatch) return null;
   const freqMin = parseInt(freqMatch[1]);
@@ -3470,6 +3537,8 @@ function synthesisePrivateArrivals(privateSvc, dir) {
   const nowMins = now.getHours() * 60 + now.getMinutes();
   const nowAdj = nowMins < startMins ? nowMins + 24 * 60 : nowMins;
   if (nowAdj > endMins) return null;
+  // Allow showing up to 45 min before service starts
+  if (nowAdj < startMins - 45) return null;
   const elapsed = (nowAdj - startMins) % interval;
   // synthesisePrivateArrivals is used for the stop-tab view which has no stopOffset
   // (it shows origin-relative times). Still walk back in case elapsed puts us mid-cycle.
@@ -3478,7 +3547,7 @@ function synthesisePrivateArrivals(privateSvc, dir) {
   while ((originDiff - interval) >= -2) originDiff -= interval;
   while (upcoming.length < 3) {
     const diffMins = originDiff;
-    if (diffMins > 60) break;
+    if (diffMins > 45) break;
     if (diffMins >= -2) {
       const arrMins = (nowMins + diffMins + 24 * 60) % (24 * 60);
       const hhmm = String(Math.floor(arrMins / 60)).padStart(2,'0') + ':' + String(arrMins % 60).padStart(2,'0');
@@ -3936,6 +4005,11 @@ function buildSinglePrivateRow(code, stopEntry) {
   const pbsSvcMeta = pbsKey ? PRIVATE_SERVICES[pbsKey] : null;
   const dirMeta = pbsSvcMeta?.Directions?.[String(stopEntry.Direction || 1)];
   const isFreqBased = !dirMeta?.DepartureTimes?.length;
+
+  // Check operating hours before rendering anything
+  // For scheduled (DepartureTimes) services, only check day-of-week — Timings filter handles the 45-min window
+  const hours = dirMeta?.OperatingHours || pbsSvcMeta?.OperatingHours || '';
+  if (!isServiceOperatingNow(hours, !isFreqBased)) return '';
 
   if (isFreqBased) {
     const freq = dirMeta?.Frequency || pbsSvcMeta?.Frequency || '';
