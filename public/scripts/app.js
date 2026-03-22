@@ -1781,12 +1781,15 @@ async function fetchLTA(code) {
   const url = PROXY_URL + '?endpoint=BusArrival&BusStopCode=' + code;
   let res;
   try { res = await fetch(url, { headers: await getProxyHeaders() }); } catch(e) {
-    throw new Error('Could not reach proxy. Check your Cloudflare Worker URL.');
+    throw new Error('LTA DataMall for bus arrivals is currently unavailable. Please try again shortly.');
   }
-  if (!res.ok) throw new Error('Proxy error ' + res.status);
-  const json = await res.json();
-  if (json.error) throw new Error('LTA error: ' + json.error);
-  if (!json.Services) throw new Error('Unexpected response from proxy.');
+  if (!res.ok) throw new Error('LTA DataMall for bus arrivals is currently unavailable. Please try again shortly.');
+  let json;
+  try { json = await res.json(); } catch(e) {
+    throw new Error('LTA DataMall for bus arrivals is currently unavailable. Please try again shortly.');
+  }
+  if (json.error) throw new Error('LTA DataMall for bus arrivals is currently unavailable. Please try again shortly.');
+  if (!json.Services) throw new Error('LTA DataMall for bus arrivals is currently unavailable. Please try again shortly.');
   return { Services: json.Services };
 }
 
