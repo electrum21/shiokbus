@@ -124,6 +124,7 @@ body.light .sun-toggle-btn:hover { background:#FFD00035; border-color:#FFD000; }
 body.light .rs-time-main { color:#08101A; }
 body.light .rs-time-main.arriving { color:#08101A; }
 body.light .rs-time-next { color:#6A7A9A; }
+body.light .rs-loop-label { color:#000000; }
 body.light .rs-svc-col { color:#FFFFFF; }
 body.light .rs-timing-day { color:#6A7A9A; }
 body.light .rs-timing-head { color:#9AAAC0; }
@@ -252,7 +253,6 @@ body.light .theme-toggle:hover { border-color:#D7181C; color:#D7181C; }
 html{scroll-behavior:smooth;overflow-y:scroll}
 body{background:#000000;color:var(--white);font-family:'Barlow',sans-serif;min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,208,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,208,0,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
-.hero-stripe{position:fixed;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,var(--red) 0%,var(--yellow) 40%,var(--cyan) 70%,var(--green) 100%);z-index:100}
 .app{position:relative;z-index:1;max-width:500px;margin:0 auto;padding:0 0 100px}
 
 /* HEADER */
@@ -377,7 +377,7 @@ body.light .unified-name{color:#08101A}
 .dir-btn{flex:1;background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:10px;padding:8px 10px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;cursor:pointer;transition:all .2s;text-align:center}
 .dir-btn-dest{font-size:11px;font-weight:600;white-space:normal;overflow:visible;text-overflow:unset;margin-top:3px;font-family:'Barlow',sans-serif;letter-spacing:0;text-transform:none;opacity:.85;line-height:1.3}
 .dir-btn-loop{font-size:10px;color:var(--cyan);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Barlow',sans-serif;opacity:.9}
-.rs-loop-label{font-size:9px;color:var(--cyan);margin-top:2px;white-space:nowrap;letter-spacing:.2px;font-family:'Barlow',sans-serif;opacity:.9;text-align:center}
+.rs-loop-label{font-size:9px;color:#FFFFFF;margin-top:2px;white-space:nowrap;letter-spacing:.2px;font-family:'Barlow',sans-serif;opacity:.9;text-align:center}
 .dir-btn.active .dir-btn-dest{opacity:1;color:var(--white)}
 
 /* ROUTE SUN PANEL */

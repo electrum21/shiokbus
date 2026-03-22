@@ -3161,18 +3161,30 @@ async function loadArrivalsInRoute(code, stopSeq) {
       }
       const destLabel = destName ? `<div class="rs-dest-label">${destName}</div>` : '';
 
-      const svcBase = s.ServiceNo.replace(/^0+/, '');
-      const isDoubleLoop = DOUBLE_LOOP_SERVICES.has(svcBase);
+      const svcNorm = normalizeServiceNo(s.ServiceNo.replace(/^0+/, '').toUpperCase());
+      const isDoubleLoop = svcNorm in DUAL_LOOP_SVCS;
+      const isOverlappedStop = (() => {
+        if (!routeData) return false;
+        const dir = routeData.directions?.[routeData.currentDir];
+        if (!dir || !code) return false;
+        const target = padCode(code);
+        let seen = 0;
+        for (const st of dir.stops || []) {
+          if (!st?.BusStopCode) continue;
+          if (padCode(st.BusStopCode) === target) seen++;
+          if (seen > 1) return true;
+        }
+        return false;
+      })();
       function getLoopLabel(busNb) {
-        if (!isDoubleLoop || !busNb?.DestinationCode) return null;
-        const key = svcBase + ':' + String(busNb.DestinationCode).padStart(5, '0');
-        return DOUBLE_LOOP_LABELS[key] || null;
+        if (!isDoubleLoop || !isOverlappedStop || !busNb) return null;
+        return dualLoopVisitLabel(s.ServiceNo, String(busNb.VisitNumber || '1'));
       }
       liveHtml += `<div class="rs-arrival-row">
         <div class="rs-svc-col ${opCls}" onclick="goToService('${s.ServiceNo}', '${code}')">${formatSvcNo(s.ServiceNo)}${destLabel}</div>
-        ${timeCell(m1, nb, isDoubleLoop ? getLoopLabel(nb) : null)}
-        ${timeCell(m2, nb2, isDoubleLoop ? getLoopLabel(nb2) : null)}
-        ${timeCell(m3, nb3, isDoubleLoop ? getLoopLabel(nb3) : null)}
+        ${timeCell(m1, nb, getLoopLabel(nb))}
+        ${timeCell(m2, nb2, getLoopLabel(nb2))}
+        ${timeCell(m3, nb3, getLoopLabel(nb3))}
       </div>`;
     });
 
