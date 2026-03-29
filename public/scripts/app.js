@@ -1247,7 +1247,7 @@ function renderRoute(rd, allStops) {
           </div>
           <div class="rs-expand" id="rs-${stopKey}-${i}">
             <div class="rs-expand-inner">
-              ${(timingRows || s._pbsStop) ? `<div class="rs-actions" style="display:flex;align-items:center;justify-content:space-between;gap:6px">${timingRows ? `<button class="rs-action-btn" style="color:var(--cyan);background:#00C8E015;border-color:#00C8E030" onclick="toggleRouteTiming('rtp-${stopKey}-${i}', this)">🕐 First / Last</button>` : '<div></div>'}<button class="rs-action-btn" style="color:var(--muted)" onclick="event.stopPropagation();loadArrivalsInRoute('${stopKey}', s.StopSequence)">↻ Refresh</button></div>` : ''}
+              ${(timingRows || s._pbsStop) ? `<div class="rs-actions" style="display:flex;align-items:center;justify-content:space-between;gap:6px">${timingRows ? `<button class="rs-action-btn" style="color:var(--cyan);background:#00C8E015;border-color:#00C8E030" onclick="toggleRouteTiming('rtp-${stopKey}-${i}', this)">🕐 First / Last</button>` : '<div></div>'}<button class="rs-action-btn" style="color:var(--muted)" onclick="event.stopPropagation();loadArrivalsInRoute('${stopKey}', ${s.StopSequence})">↻ Refresh</button></div>` : ''}
               <div class="rs-arrivals" id="ra-${stopKey}-${i}">
                 <div class="rs-arrivals-placeholder">Loading…</div>
               </div>
@@ -4428,25 +4428,70 @@ function renderSettingsTheme() {
   </div>`).join('');
 }
 
-function setTheme(theme) {
+function saveUiPreferences(partial) {
+  if (!window._currentUser || !window._fbDb || !window._fbDoc || !window._fbSetDoc) return;
+  try {
+    const ref = window._fbDoc(window._fbDb, 'users', window._currentUser.uid, 'preferences', 'ui');
+    window._fbSetDoc(ref, partial, { merge: true });
+  } catch (e) {}
+}
+
+function applyThemeOnly(theme) {
   const isLight = document.body.classList.contains('light');
   if (theme === 'light' && !isLight) {
     document.body.classList.add('light');
-    try { localStorage.setItem('shiokbus_theme', 'light'); } catch(e) {}
     updateMapTiles();
   } else if (theme === 'dark' && isLight) {
     document.body.classList.remove('light');
-    try { localStorage.setItem('shiokbus_theme', 'dark'); } catch(e) {}
     updateMapTiles();
   }
+}
+
+function setTheme(theme, opts = {}) {
+  const { saveRemote = true, showToast = true } = opts;
+  const wasLight = document.body.classList.contains('light');
+  applyThemeOnly(theme);
+  const isLightNow = document.body.classList.contains('light');
+  const changed = wasLight !== isLightNow;
+  try { localStorage.setItem('shiokbus_theme', theme); } catch(e) {}
+  if (saveRemote) saveUiPreferences({ theme });
   renderSettingsTheme();
+  if (showToast && changed) {
+    toast(theme === 'light' ? '☀ Light mode enabled' : '🌙 Dark mode enabled');
+  }
 }
 
 function setDefaultTab(tab) {
   try { localStorage.setItem('shiokbus_default_tab', tab); } catch(e) {}
+  saveUiPreferences({ defaultTab: tab });
   renderSettingsDefaultTab();
   toast('✓ Default tab saved');
 }
+
+async function loadUiPreferences() {
+  if (!window._currentUser || !window._fbDb || !window._fbDoc || !window._fbGetDoc) return;
+  try {
+    const ref = window._fbDoc(window._fbDb, 'users', window._currentUser.uid, 'preferences', 'ui');
+    const snap = await window._fbGetDoc(ref);
+    if (!snap.exists()) return;
+
+    const data = snap.data() || {};
+
+    if (data.theme === 'light' || data.theme === 'dark') {
+      setTheme(data.theme, { saveRemote: false, showToast: false });
+    }
+
+    const allowedTabs = new Set(window._currentUser ? ['service', 'stop', 'plan', 'favs'] : ['service', 'stop', 'plan']);
+    if (typeof data.defaultTab === 'string' && allowedTabs.has(data.defaultTab)) {
+      try { localStorage.setItem('shiokbus_default_tab', data.defaultTab); } catch(e) {}
+      switchTab(data.defaultTab);
+    }
+
+    renderSettingsDefaultTab();
+  } catch (e) {}
+}
+
+window.loadUiPreferences = loadUiPreferences;
 
 async function settingsSignIn() {
   closeSettings();

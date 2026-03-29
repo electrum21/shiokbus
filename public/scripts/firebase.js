@@ -45,6 +45,8 @@ onAuthStateChanged(auth, user => {
         // Show favourites tab
         const favTabBtn = document.getElementById('tab-favs');
         if (favTabBtn) favTabBtn.style.display = '';
+        // Load UI preferences (theme/default tab) from Firestore
+        window.loadUiPreferences && window.loadUiPreferences();
         // Load alert banner preference
         window.renderSettingsAlerts && window.renderSettingsAlerts();
         // Subscribe to favourites
