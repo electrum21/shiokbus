@@ -1247,7 +1247,7 @@ function renderRoute(rd, allStops) {
           </div>
           <div class="rs-expand" id="rs-${stopKey}-${i}">
             <div class="rs-expand-inner">
-              ${(timingRows || s._pbsStop) ? `<div class="rs-actions" style="display:flex;align-items:center;justify-content:space-between;gap:6px">${timingRows ? `<button class="rs-action-btn" style="color:var(--cyan);background:#00C8E015;border-color:#00C8E030" onclick="toggleRouteTiming('rtp-${stopKey}-${i}', this)">🕐 First / Last</button>` : '<div></div>'}<button class="rs-action-btn" style="color:var(--muted)" onclick="event.stopPropagation();loadArrivalsInRoute('${stopKey}', ${s.StopSequence})">↻ Refresh</button></div>` : ''}
+              ${(timingRows || s._pbsStop) ? `<div class="rs-actions" style="display:flex;align-items:center;justify-content:space-between;gap:6px">${timingRows ? `<button class="rs-action-btn" style="color:var(--cyan);background:#00C8E015;border-color:#00C8E030" onclick="toggleRouteTiming('rtp-${stopKey}-${i}', this)">🕐 First / Last</button>` : '<div></div>'}<button class="rs-action-btn" style="color:var(--muted)" onclick="event.stopPropagation();loadArrivalsInRoute('${stopKey}', '${s.StopSequence}')">↻ Refresh</button></div>` : ''}
               <div class="rs-arrivals" id="ra-${stopKey}-${i}">
                 <div class="rs-arrivals-placeholder">Loading…</div>
               </div>
