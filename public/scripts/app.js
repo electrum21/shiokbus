@@ -804,7 +804,7 @@ let planBoardIdx = -1;
 let planAlightIdx = -1;
 
 const EXCLUDED_SERVICES = new Set(['382']); // ServiceNo values normalized to uppercase
-const SVC_DISPLAY_UPPER_E = new Set(['850e', '982e']);
+const SVC_DISPLAY_UPPER_E = new Set(['850e', '868e', '951e', '982e']);
 function padCode(c) { return String(c).padStart(5, '0'); }
 
 function formatSvcNo(svc) {
