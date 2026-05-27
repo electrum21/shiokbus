@@ -268,10 +268,27 @@ header{padding:16px 20px 0;display:flex;align-items:flex-start;justify-content:s
 .search-eyebrow .accent{color:var(--yellow)}
 .search-eyebrow .red{color:var(--red)}
 .recent-drop-header {
-  font-family: 'Barlow', sans-serif; /* or 'Barlow Condensed' — matches your app font */
+  font-family: 'Barlow', sans-serif;
   font-size: 16px;
   font-weight: 700;
-  padding-left: 10px; /* adjust to taste — try 10–14px */
+  padding-left: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.recent-remove-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.recent-remove-btn:hover {
+  color: var(--white);
+  background: var(--card-border);
 }
 
 /* SEARCH TABS */

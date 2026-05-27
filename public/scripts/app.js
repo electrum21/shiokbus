@@ -683,6 +683,10 @@ function addCommuteHistory(item) {
   saveCommuteHistory(next);
 }
 
+function removeCommuteHistory(key) {
+  saveCommuteHistory(loadCommuteHistory().filter(h => h.key !== key));
+}
+
 function serviceHistorySub(svc) {
   const svcNorm = normalizeServiceNo(svc);
   const info1 = ALL_SERVICES?.[svcNorm + '-1'] || null;
@@ -728,10 +732,11 @@ function showRecentServices() {
   const recent = recentHistory('service');
   if (!recent.length) { dd.style.display = 'none'; return; }
   dd.innerHTML = `<div class="recent-drop-header">Recently searched</div>` + recent.map(h => `
-    <div class="svc-drop-item recent-drop-item" onclick="selectService('${String(h.id).replace(/'/g, "\\'")}')">
-      <span class="svc-drop-num">${formatSvcNo(h.id)}</span>
-      <span class="svc-drop-cat">${escapeHtml(h.sub || serviceHistorySub(h.id) || 'Service ' + formatSvcNo(h.id))}</span>
-    </div>`).join('');
+  <div class="svc-drop-item recent-drop-item" style="display:flex;align-items:center" onclick="selectService('${String(h.id).replace(/'/g, "\\'")}')">
+    <span class="svc-drop-num">${formatSvcNo(h.id)}</span>
+    <span class="svc-drop-cat" style="flex:1">${escapeHtml(h.sub || serviceHistorySub(h.id) || 'Service ' + formatSvcNo(h.id))}</span>
+    <button class="recent-remove-btn" onclick="event.stopPropagation();removeCommuteHistory('${String(h.key).replace(/'/g, "\\'")}');showRecentServices()" title="Remove">✕</button>
+  </div>`).join('');
   dd.style.display = 'block';
 }
 
@@ -743,13 +748,14 @@ function showRecentStops() {
   if (!recent.length) { closeUnified(); return; }
   box.className = 'stop-name-results open';
   box.innerHTML = `<div class="recent-drop-header">Recently searched</div>` + recent.map(h => `
-    <div class="sn-item recent-drop-item" onclick="selectRecentStop('${String(h.id).replace(/'/g, "\\'")}','${String(h.name || '').replace(/'/g, "\\'")}')">
-      <div class="sn-code">${escapeHtml(h.id || '')}</div>
-      <div class="sn-info">
-        <div class="sn-name">${escapeHtml(h.name || 'Bus Stop ' + h.id)}</div>
-        ${h.sub ? `<div class="sn-road">${escapeHtml(h.sub)}</div>` : ''}
-      </div>
-    </div>`).join('');
+  <div class="sn-item recent-drop-item" style="display:flex;align-items:center" onclick="selectRecentStop('${String(h.id).replace(/'/g, "\\'")}','${String(h.name || '').replace(/'/g, "\\'")}')">
+    <div class="sn-code">${escapeHtml(h.id || '')}</div>
+    <div class="sn-info" style="flex:1">
+      <div class="sn-name">${escapeHtml(h.name || 'Bus Stop ' + h.id)}</div>
+      ${h.sub ? `<div class="sn-road">${escapeHtml(h.sub)}</div>` : ''}
+    </div>
+    <button class="recent-remove-btn" onclick="event.stopPropagation();removeCommuteHistory('${String(h.key).replace(/'/g, "\\'")}');showRecentStops()" title="Remove">✕</button>
+  </div>`).join('');
 }
 
 function selectRecentStop(code, name) {
