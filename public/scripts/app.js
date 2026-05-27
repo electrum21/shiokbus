@@ -605,7 +605,8 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }).catch(() => {});
 
-  const defaultTab = localStorage.getItem('shiokbus_default_tab') || 'service';
+  let defaultTab = localStorage.getItem('shiokbus_default_tab') || 'service';
+  if (!['service', 'stop', 'plan', 'favs'].includes(defaultTab)) defaultTab = 'service';
   renderSettingsAlerts();
   switchTab(defaultTab);
   fetchRainForecast();
@@ -656,6 +657,111 @@ function card(az) { return ['N','NE','E','SE','S','SW','W','NW'][Math.round(az/4
 // ── SEARCH MODE ──
 let currentTab = 'service';
 let lastStopCode = null; // tracks the actual stop code regardless of input display text
+const COMMUTE_HISTORY_KEY = 'shiokbus_commute_history';
+const COMMUTE_HISTORY_MAX = 18;
+
+function loadCommuteHistory() {
+  try {
+    const raw = localStorage.getItem(COMMUTE_HISTORY_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch(e) {
+    return [];
+  }
+}
+
+function saveCommuteHistory(items) {
+  try { localStorage.setItem(COMMUTE_HISTORY_KEY, JSON.stringify(items.slice(0, COMMUTE_HISTORY_MAX))); } catch(e) {}
+}
+
+function addCommuteHistory(item) {
+  if (!item?.type || !item?.key) return;
+  const next = [
+    { ...item, ts: Date.now() },
+    ...loadCommuteHistory().filter(h => h.key !== item.key)
+  ].slice(0, COMMUTE_HISTORY_MAX);
+  saveCommuteHistory(next);
+}
+
+function serviceHistorySub(svc) {
+  const svcNorm = normalizeServiceNo(svc);
+  const info1 = ALL_SERVICES?.[svcNorm + '-1'] || null;
+  const info2 = ALL_SERVICES?.[svcNorm + '-2'] || null;
+  if (!info1) return '';
+  const sn = c => ALL_STOPS?.find(s => s.BusStopCode === c)?.Description || c || '';
+  const orig = sn(info1.OriginCode);
+  const dest = sn(info1.DestinationCode);
+  const isLoop = info1 && !info2 && (info1.OriginCode === info1.DestinationCode || !!info1.LoopDesc);
+  if (isLoop) return info1.LoopDesc ? `${orig} ↻ ${info1.LoopDesc}` : `${orig} loop`;
+  return info2 ? `${orig} ↔ ${dest}` : `${orig} → ${dest}`;
+}
+
+function rememberStopHistory(code) {
+  const stop = ALL_STOPS?.find(s => s.BusStopCode === code);
+  addCommuteHistory({
+    type: 'stop',
+    key: 'stop_' + code,
+    id: code,
+    name: stop?.Description || 'Bus Stop ' + code,
+    sub: [stop?.RoadName].filter(Boolean).join(' · ')
+  });
+}
+
+function rememberServiceHistory(svc) {
+  addCommuteHistory({
+    type: 'service',
+    key: 'svc_' + svc,
+    id: svc,
+    name: 'Service ' + formatSvcNo(svc),
+    sub: serviceHistorySub(svc)
+  });
+}
+
+function recentHistory(type) {
+  return loadCommuteHistory().filter(h => h.type === type).slice(0, 5);
+}
+
+function showRecentServices() {
+  const input = document.getElementById('serviceInput');
+  const dd = document.getElementById('svc-dropdown');
+  if (!input || !dd || input.value.trim()) return;
+  const recent = recentHistory('service');
+  if (!recent.length) { dd.style.display = 'none'; return; }
+  dd.innerHTML = `<div class="recent-drop-header">Recently searched</div>` + recent.map(h => `
+    <div class="svc-drop-item recent-drop-item" onclick="selectService('${String(h.id).replace(/'/g, "\\'")}')">
+      <span class="svc-drop-num">${formatSvcNo(h.id)}</span>
+      <span class="svc-drop-cat">${escapeHtml(h.sub || serviceHistorySub(h.id) || 'Service ' + formatSvcNo(h.id))}</span>
+    </div>`).join('');
+  dd.style.display = 'block';
+}
+
+function showRecentStops() {
+  const input = document.getElementById('stopInput');
+  const box = document.getElementById('unifiedResults');
+  if (!input || !box || input.value.trim()) return;
+  const recent = recentHistory('stop');
+  if (!recent.length) { closeUnified(); return; }
+  box.className = 'stop-name-results open';
+  box.innerHTML = `<div class="recent-drop-header">Recently searched</div>` + recent.map(h => `
+    <div class="sn-item recent-drop-item" onclick="selectRecentStop('${String(h.id).replace(/'/g, "\\'")}','${String(h.name || '').replace(/'/g, "\\'")}')">
+      <div class="sn-code">${escapeHtml(h.id || '')}</div>
+      <div class="sn-info">
+        <div class="sn-name">${escapeHtml(h.name || 'Bus Stop ' + h.id)}</div>
+        ${h.sub ? `<div class="sn-road">${escapeHtml(h.sub)}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function selectRecentStop(code, name) {
+  const input = document.getElementById('stopInput');
+  if (input) input.value = name || code;
+  lastStopCode = code;
+  closeUnified();
+  document.getElementById('quickChips').style.display = 'none';
+  document.getElementById('nearbySection').style.display = 'none';
+  doSearch();
+}
+
 function switchTab(tab) {
   currentTab = tab;
   ['stop','service','plan'].forEach(t => {
@@ -682,7 +788,8 @@ function quickLoad(code) { switchTab('stop'); document.getElementById('stopInput
 function onServiceInput() {
   const val = document.getElementById('serviceInput').value.trim().toUpperCase().replace(/^(\d+)E$/, '$1e');
   const dd = document.getElementById('svc-dropdown');
-  if (!val || !ALL_SERVICES) { dd.style.display = 'none'; return; }
+  if (!val) { showRecentServices(); return; }
+  if (!ALL_SERVICES) { dd.style.display = 'none'; return; }
 
   const seen = new Set();
   const matches = [];
@@ -778,6 +885,7 @@ async function doSearch() {
       data.Services = [];
     }
     render(code, data);
+    rememberStopHistory(code);
     updateFavButtons();
     if (!ALL_STOPS?.find(s => s.BusStopCode === code)) {
       fetchAllStops().then(() => {
@@ -864,6 +972,7 @@ async function doServiceSearch() {
     if (PRIVATE_SERVICES && svcMap) injectPrivateIntoServices();
     routeData = { svc, directions, currentDir: 0, svcMap };
     renderRoute(routeData, stops);
+    rememberServiceHistory(svc);
     updateFavButtons();
   } catch(e) {
     document.getElementById('results-service').innerHTML = `<div class="error-card">⚠️ ${e.message}</div>`;
@@ -1687,7 +1796,7 @@ function onUnifiedInput() {
 function runUnifiedSearch() {
   const raw = document.getElementById('stopInput').value.trim();
   const box = document.getElementById('unifiedResults');
-  if (!raw) { closeUnified(); return; }
+  if (!raw) { showRecentStops(); return; }
 
   // Pure digits → code search
   const isCode = /^\d+$/.test(raw);
@@ -1747,7 +1856,11 @@ function selectUnifiedStop(i) {
   document.getElementById('nearbySection').style.display = 'none';
   document.getElementById('results-stop').innerHTML =
     `<div class="loading-state"><div class="bus-loader">🚌</div><div class="loading-txt">Fetching arrivals…</div></div>`;
-  fetchLTA(s.BusStopCode).then(data => render(s.BusStopCode, data)).catch(e => {
+  fetchLTA(s.BusStopCode).then(data => {
+    render(s.BusStopCode, data);
+    rememberStopHistory(s.BusStopCode);
+    updateFavButtons();
+  }).catch(e => {
     document.getElementById('results-stop').innerHTML = `<div class="error-card">⚠️ ${e.message}</div>`;
   });
 }

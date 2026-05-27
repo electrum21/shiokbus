@@ -148,19 +148,15 @@ body.light .nearby-sub { color:#9AAAC0; }
 body.light .nearby-stop-code { color:#6A7A9A; }
 body.light .nearby-dist-lbl { color:#9AAAC0; }
 body.light .nearby-walk { color:#9AAAC0; }
-/* Route view tabs (map/sun/plan) */
 /* Plan trip */
 body.light .plan-stop-label { color:#6A7A9A; }
 body.light .plan-drop-seq { color:#9AAAC0; }
 body.light .plan-drop-code { color:#9AAAC0; }
 /* Trip result */
 body.light .trip-rec-detail { color:#6A7A9A; }
-/* Empty state */
-/* Stop badge */
 /* Dir btn dest */
 body.light .dir-btn-dest { color:#08101A; }
 body.light .dir-btn-loop { color:#007A90; }
-/* Route svc badge */
 /* rec-strong, rec-dir in light banners */
 body.light .rec-banner { color:#08101A; }
 /* Bus type tag opacity */
@@ -266,13 +262,17 @@ header{padding:16px 20px 0;display:flex;align-items:flex-start;justify-content:s
 @keyframes sunPulse{0%,100%{box-shadow:0 0 24px #FFD00060,0 0 48px #FF880030}50%{box-shadow:0 0 36px #FFD00090,0 0 72px #FF880050}}
 @keyframes rotateSlow{to{transform:rotate(360deg)}}
 
-/* removed api-panel + cors-note */
-
 /* SEARCH */
 .search-zone{margin:20px 20px 0}
 .search-eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:38px;line-height:.95;letter-spacing:-.5px;margin-bottom:14px;text-transform:uppercase}
 .search-eyebrow .accent{color:var(--yellow)}
 .search-eyebrow .red{color:var(--red)}
+.recent-drop-header {
+  font-family: 'Barlow', sans-serif; /* or 'Barlow Condensed' — matches your app font */
+  font-size: 16px;
+  font-weight: 700;
+  padding-left: 10px; /* adjust to taste — try 10–14px */
+}
 
 /* SEARCH TABS */
 .search-tabs{display:flex;gap:0;margin-bottom:12px;background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:14px;padding:4px;overflow:hidden}
@@ -432,8 +432,6 @@ body.light .unified-name{color:#08101A}
 .trip-seg-strip{height:8px;border-radius:4px;display:flex;overflow:hidden;background:#FFFFFF08;margin-bottom:8px}
 .trip-seg{height:100%;min-width:1px}
 .trip-stops-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
-
-/* SEATING UPDATE PANEL */
 
 /* SERVICE FREQ GRID */
 .svc-freq-pill{background:#FFFFFF08;border:1px solid var(--card-border);border-radius:8px;padding:4px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;color:var(--white);display:inline-flex;flex-direction:column;align-items:center;gap:1px;white-space:nowrap;flex-shrink:0}

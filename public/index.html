@@ -13,7 +13,7 @@
 <script type="module" src="scripts/firebase.js"></script>
 
 <!-- App Functions -->
-<script src="scripts/app.js"></script>
+<script src="scripts/app.js?v=commute-recents"></script>
 
 </head>
 <body>
@@ -82,6 +82,7 @@
         <input class="stop-input text-mode" type="text" id="stopInput"
           placeholder="Search bus stop by name/code"
           oninput="onUnifiedInput()"
+          onfocus="showRecentStops()"
           onkeydown="if(event.key==='Enter'&&unifiedHighlight>=0)selectUnifiedStop(unifiedHighlight);else if(event.key==='ArrowDown')moveUnified(1);else if(event.key==='ArrowUp')moveUnified(-1);else if(event.key==='Escape')closeUnified()"
           autocomplete="off" />
         <button class="go-btn" onclick="clearSearch()">
@@ -133,7 +134,7 @@
     <div id="mode-service">
       <div class="search-bar" style="position:relative">
         <input class="stop-input" type="text" id="serviceInput" placeholder="Search bus service"
-          oninput="onServiceInput()" onkeydown="if(event.key==='Enter'){closeServiceDropdown();doServiceSearch()}" style="letter-spacing:3px" autocomplete="off" />
+          oninput="onServiceInput()" onfocus="showRecentServices()" onkeydown="if(event.key==='Enter'){closeServiceDropdown();doServiceSearch()}" style="letter-spacing:3px" autocomplete="off" />
         <button class="go-btn" onclick="doServiceSearch()">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </button>
