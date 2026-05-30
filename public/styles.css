@@ -3770,6 +3770,7 @@ body.light .legend-nosun-swatch {
   padding: 1px 6px;
   border-radius: 4px;
   font-weight: 700;
+  font-family: 'LTAIdentity', sans-serif;
   font-size: 10px;
   color: #fff;
   margin-right: 3px;

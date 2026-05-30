@@ -1260,7 +1260,7 @@ function renderRoute(rd, allStops) {
         ${category && opLabel ? `<span style="color:var(--card-border);flex-shrink:0">·</span>` : ''}
         ${opLabel ? `<span style="color:var(--muted);font-size:11px;flex-shrink:0">${opLabel}</span>` : ''}
         <div style="flex:1"></div>
-        <button onclick="toggleJourneyDetails()" id="journey-details-btn" style="padding:4px 10px;border:1.5px solid var(--card-border);border-radius:8px;background:none;color:var(--muted);font-family:'Barlow',sans-serif;font-weight:600;font-size:11px;cursor:pointer;letter-spacing:.5px;transition:all .2s;white-space:nowrap;flex-shrink:0">✳ Where to sit? ›</button>
+        <button onclick="toggleJourneyDetails()" id="journey-details-btn" style="padding:4px 10px;border:1.5px solid var(--card-border);border-radius:8px;background:none;color:var(--muted);font-family:'LTAIdentity',sans-serif;font-weight:600;font-size:11px;cursor:pointer;letter-spacing:.5px;transition:all .2s;white-space:nowrap;flex-shrink:0">✳ Where to sit? ›</button>
         <button id="svc-fav-btn-${rd.svc}" onclick="addSvcFavFromRoute('${rd.svc}')" style="background:none;border:1.5px solid var(--card-border);border-radius:8px;padding:4px 10px;font-size:18px;cursor:pointer;line-height:1;transition:all .2s;flex-shrink:0;color:${(window._favs||{})['svc_'+rd.svc]?'var(--yellow)':'var(--muted)'}" title="Favourite this service">${(window._favs||{})['svc_'+rd.svc]?'★':'☆'}</button>
       </div>
     </div>
@@ -3057,7 +3057,7 @@ function _privateTimeCell(diff, hhmm) {
   const arriving = diff <= 1;
   return `<div class="rs-time-cell">
     <span class="rs-time-main${arriving ? ' arriving' : ''}">${label}</span>
-    <div class="rs-time-meta"><span style="font-size:9px;color:var(--muted);font-family:'Barlow',sans-serif;white-space:nowrap">${hhmm} Scheduled</span></div>
+    <div class="rs-time-meta"><span style="font-size:9px;color:var(--muted);font-family:'LTAIdentity',sans-serif;white-space:nowrap">${hhmm} Scheduled</span></div>
   </div>`;
 }
 
@@ -3844,8 +3844,8 @@ function mrtPills(name, small = false) {
     return matches.map(({ stn_code, mrt_line }) => {
       const c = mrtLineColor(mrt_line);
       const s = small
-        ? `display:inline-block;vertical-align:middle;background:${c};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3px;padding:1px 5px;border-radius:3px;line-height:1.4;flex-shrink:0`
-        : `display:inline-block;vertical-align:middle;margin-left:5px;background:${c};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:3px 8px;border-radius:4px;line-height:1.4;flex-shrink:0`;
+        ? `display:inline-block;vertical-align:middle;background:${c};color:#fff;font-family:'LTAIdentity',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3px;padding:1px 5px;border-radius:3px;line-height:1.4;flex-shrink:0`
+        : `display:inline-block;vertical-align:middle;margin-left:5px;background:${c};color:#fff;font-family:'LTAIdentity',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:3px 8px;border-radius:4px;line-height:1.4;flex-shrink:0`;
       return `<span style="${s}">${stn_code}</span>`;
     }).join('');
   }
@@ -3859,8 +3859,8 @@ function mrtPills(name, small = false) {
     const lrtLine = lrtMap[core];
     if (lrtLine) {
       const s = small
-        ? `display:inline-block;vertical-align:middle;background:${lrtLine.color};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3px;padding:1px 5px;border-radius:3px;line-height:1.4;flex-shrink:0`
-        : `display:inline-block;vertical-align:middle;margin-left:5px;background:${lrtLine.color};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:3px 8px;border-radius:4px;line-height:1.4;flex-shrink:0`;
+        ? `display:inline-block;vertical-align:middle;background:${lrtLine.color};color:#fff;font-family:'LTAIdentity',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3px;padding:1px 5px;border-radius:3px;line-height:1.4;flex-shrink:0`
+        : `display:inline-block;vertical-align:middle;margin-left:5px;background:${lrtLine.color};color:#fff;font-family:'LTAIdentity',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:3px 8px;border-radius:4px;line-height:1.4;flex-shrink:0`;
       return `<span style="${s}">${lrtLine.abbr}</span>`;
     }
   }
@@ -3870,8 +3870,8 @@ function mrtPills(name, small = false) {
   return MRT_LOOKUP[fuzzyKey].map(({ stn_code, mrt_line }) => {
     const c = mrtLineColor(mrt_line);
     const s = small
-      ? `display:inline-block;vertical-align:middle;background:${c};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3px;padding:1px 5px;border-radius:3px;line-height:1.4;flex-shrink:0`
-      : `display:inline-block;vertical-align:middle;margin-left:5px;background:${c};color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:3px 8px;border-radius:4px;line-height:1.4;flex-shrink:0`;
+      ? `display:inline-block;vertical-align:middle;background:${c};color:#fff;font-family:'LTAIdentity',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3px;padding:1px 5px;border-radius:3px;line-height:1.4;flex-shrink:0`
+      : `display:inline-block;vertical-align:middle;margin-left:5px;background:${c};color:#fff;font-family:'LTAIdentity',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:3px 8px;border-radius:4px;line-height:1.4;flex-shrink:0`;
     return `<span style="${s}">${stn_code}</span>`;
   }).join('');
 }
@@ -4280,7 +4280,7 @@ async function renderPlanResults(itineraries) {
   const isSaved = !!(window._favs && window._favs[planFavKey]);
   let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px">
     <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;flex-shrink:0">${itineraries.length} route${itineraries.length>1?'s':''} found</div>
-    <button onclick="addPlanFav()" id="plan-fav-btn" style="background:none;border:1.5px solid var(--card-border);border-radius:20px;padding:4px 12px;font-size:12px;cursor:pointer;color:${isSaved?'var(--yellow)':'var(--muted)'};font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.5px;transition:all .2s;white-space:nowrap;flex-shrink:0">
+    <button onclick="addPlanFav()" id="plan-fav-btn" style="background:none;border:1.5px solid var(--card-border);border-radius:20px;padding:4px 12px;font-size:12px;cursor:pointer;color:${isSaved?'var(--yellow)':'var(--muted)'};font-family:'LTAIdentity',sans-serif;font-weight:700;letter-spacing:.5px;transition:all .2s;white-space:nowrap;flex-shrink:0">
       ${isSaved ? '★ Saved' : '☆ Save route'}
     </button>
   </div>`;
@@ -4435,7 +4435,7 @@ async function renderPlanResults(itineraries) {
             const unit = m <= 0 ? '' : 'min';
             const col = loadColor[nb.Load] || 'var(--muted)';
             return `<div style="display:flex;align-items:center;gap:4px;min-width:40px">
-              <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;line-height:1;color:var(--muted)">${label}<span style="font-size:10px;font-weight:500;margin-left:1px">${unit}</span></div>
+              <div style="font-family:'LTAIdentity',sans-serif;font-weight:700;font-size:13px;line-height:1;color:var(--muted)">${label}<span style="font-size:10px;font-weight:500;margin-left:1px">${unit}</span></div>
               ${busTypeIcon(nb.Type, true, col)}
             </div>`;
           }
