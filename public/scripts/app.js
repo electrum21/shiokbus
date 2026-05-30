@@ -730,14 +730,14 @@ function showRecentServices() {
   const dd = document.getElementById('svc-dropdown');
   if (!input || !dd || input.value.trim()) return;
   const recent = recentHistory('service');
-  if (!recent.length) { dd.style.display = 'none'; return; }
+  if (!recent.length) { dd.className = 'stop-name-results'; return; }
   dd.innerHTML = `<div class="recent-drop-header">Recently searched</div>` + recent.map(h => `
   <div class="svc-drop-item recent-drop-item" style="display:flex;align-items:center" onclick="selectService('${String(h.id).replace(/'/g, "\\'")}')">
     <span class="svc-drop-num">${formatSvcNo(h.id)}</span>
     <span class="svc-drop-cat" style="flex:1">${escapeHtml(h.sub || serviceHistorySub(h.id) || 'Service ' + formatSvcNo(h.id))}</span>
     <button class="recent-remove-btn" onclick="event.stopPropagation();removeCommuteHistory('${String(h.key).replace(/'/g, "\\'")}');showRecentServices()" title="Remove">✕</button>
   </div>`).join('');
-  dd.style.display = 'block';
+  dd.className = 'stop-name-results open';
 }
 
 function showRecentStops() {
@@ -795,7 +795,8 @@ function onServiceInput() {
   const val = document.getElementById('serviceInput').value.trim().toUpperCase().replace(/^(\d+)E$/, '$1e');
   const dd = document.getElementById('svc-dropdown');
   if (!val) { showRecentServices(); return; }
-  if (!ALL_SERVICES) { dd.style.display = 'none'; return; }
+  if (!ALL_SERVICES) { dd.className = 'stop-name-results'; return; }
+
 
   const seen = new Set();
   const matches = [];
@@ -812,7 +813,7 @@ function onServiceInput() {
     return a.localeCompare(b);
   });
 
-  if (!matches.length) { dd.style.display = 'none'; return; }
+  if (!matches.length) { dd.className = 'stop-name-results'; return; }
 
   dd.innerHTML = matches.slice(0, 20).map(svc => {
     const info1 = ALL_SERVICES[svc + '-1'] || null;
@@ -855,7 +856,7 @@ function onServiceInput() {
       <span class="svc-drop-cat" style="display:flex;align-items:center;gap:0">${route}${pbsBadge}</span>
     </div>`;
   }).join('');
-  dd.style.display = 'block';
+  dd.className = 'stop-name-results open';
 }
 
 function selectService(svc) {
@@ -865,7 +866,7 @@ function selectService(svc) {
 }
 
 function closeServiceDropdown() {
-  document.getElementById('svc-dropdown').style.display = 'none';
+  document.getElementById('svc-dropdown').className = 'stop-name-results';
 }
 
 document.addEventListener('click', e => {

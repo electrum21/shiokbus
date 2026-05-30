@@ -274,5 +274,6 @@ Four triggers are required — see the R2 data sync table above.
 - [OSRM](http://project-osrm.org) for road-snapped routing geometry
 - [OneMap](https://www.onemap.gov.sg) for map tiles and journey planning
 - [Barlow](https://fonts.google.com/specimen/Barlow) font by Jeremy Tribby
+- [LTAIdentity](https://github.com/jglim/IdentityFont) font by JinGen Lim
 
 *Built with ❤ for Singapore commuters who are tired of sitting in the sun.*
