@@ -535,6 +535,21 @@
     "mrt_line": "Circle Line"
   },
   {
+    "stn_code": "CC30",
+    "mrt_station": "Keppel",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC31",
+    "mrt_station": "Cantonment",
+    "mrt_line": "Circle Line"
+  },
+  {
+    "stn_code": "CC32",
+    "mrt_station": "Prince Edward Road",
+    "mrt_line": "Circle Line"
+  },
+  {
     "stn_code": "CE1",
     "mrt_station": "Bayfront",
     "mrt_line": "Circle Line Extension"

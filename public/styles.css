@@ -1233,6 +1233,8 @@ header {
   min-height: 38px;
   border-radius: 10px;
   box-shadow: none;
+  border: 2px solid var(--card-border);
+  border-left: none;
 }
 
 .go-btn.slim svg {
@@ -2185,7 +2187,6 @@ body.light .unified-name {
   justify-content: center;
   gap: 10px;
   transition: all .2s;
-  text-transform: uppercase;
 }
 
 .near-me-btn:hover {

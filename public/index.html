@@ -85,7 +85,7 @@
           onfocus="showRecentStops()"
           onkeydown="if(event.key==='Enter'&&unifiedHighlight>=0)selectUnifiedStop(unifiedHighlight);else if(event.key==='ArrowDown')moveUnified(1);else if(event.key==='ArrowUp')moveUnified(-1);else if(event.key==='Escape')closeUnified()"
           autocomplete="off" />
-        <button class="go-btn" onclick="clearSearch()">
+        <button class="go-btn slim" onclick="clearStopSearch()">
           <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
@@ -133,10 +133,10 @@
     <!-- BUS SERVICE MODE -->
     <div id="mode-service">
       <div class="search-bar">
-        <input class="stop-input" type="text" id="serviceInput" placeholder="Search bus service"
+        <input class="stop-input text-mode" type="text" id="serviceInput" placeholder="Search bus service"
           oninput="onServiceInput()" onfocus="showRecentServices()" onkeydown="if(event.key==='Enter'){closeServiceDropdown();doServiceSearch()}" style="letter-spacing:3px" autocomplete="off" />
-        <button class="go-btn" onclick="doServiceSearch()">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <button class="go-btn slim" onclick="clearServiceSearch()">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
       <div id="svc-dropdown" class="stop-name-results"></div>

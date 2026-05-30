@@ -1906,7 +1906,7 @@ function closeUnified() {
   unifiedHighlight = -1;
 }
 
-function clearSearch() {
+function clearStopSearch() {
   document.getElementById('stopInput').value = '';
   lastStopCode = null;
   closeUnified();
@@ -1914,6 +1914,12 @@ function clearSearch() {
   document.getElementById('quickChips').style.display = 'block';
   document.getElementById('nearbySection').style.display = 'none';
 }
+
+function clearServiceSearch() {
+  document.getElementById('serviceInput').value = '';
+  document.getElementById('results-service').innerHTML = '';
+}
+
 
 // ── LTA FETCH ──
 // Fetches live bus arrival times from LTA DataMall v3 via the Cloudflare Worker
@@ -2675,7 +2681,7 @@ function buildPrivateStopCard(privateSvc, dir, arrivals, stopCode, cardIndex) {
       </div>
       <div class="card-right">
         <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch">
-          <button class="sun-toggle-btn fav-btn" data-key="svc_${svcNo}" onclick="event.stopPropagation();addSvcFavSmart('${svcNo}')" style="justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+svcNo]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+svcNo]?'★':'☆'}</button>
+          <button class="sun-toggle-btn fav-btn" data-key="svc_${svcNo}" onclick="event.stopPropagation();addSvcFavSmart('${svcNo}')" style="background:none;justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+svcNo]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+svcNo]?'★':'☆'}</button>
         </div>
       </div>
     </div>
@@ -2821,7 +2827,7 @@ function render(code, data) {
         <div class="card-right">
           <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch">
             <button class="sun-toggle-btn fav-btn" data-key="svc_${s.ServiceNo}" onclick="event.stopPropagation();addSvcFavSmart('${s.ServiceNo}')" style="justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+s.ServiceNo]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+s.ServiceNo]?'★':'☆'}</button>
-            <div class="sun-toggle-btn" style="color:var(--cyan);background:#00C8E015;border-color:#00C8E030;justify-content:center" onclick="toggleStopTiming(${i},'${s.ServiceNo}','${code}')">🕐</div>
+            <div class="sun-toggle-btn" style="color:var(--cyan);background:none;border-color:transparent;justify-content:center" onclick="toggleStopTiming(${i},'${s.ServiceNo}','${code}')">🕐</div>
           </div>
         </div>
       </div>
