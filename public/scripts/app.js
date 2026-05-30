@@ -692,12 +692,35 @@ function serviceHistorySub(svc) {
   const info1 = ALL_SERVICES?.[svcNorm + '-1'] || null;
   const info2 = ALL_SERVICES?.[svcNorm + '-2'] || null;
   if (!info1) return '';
-  const sn = c => ALL_STOPS?.find(s => s.BusStopCode === c)?.Description || c || '';
-  const orig = sn(info1.OriginCode);
-  const dest = sn(info1.DestinationCode);
+  const orig = info1.OriginCode ? (stopName(info1.OriginCode) || info1.OriginCode) : '';
+  const dest = info1.DestinationCode ? (stopName(info1.DestinationCode) || info1.DestinationCode) : '';
   const isLoop = info1 && !info2 && (info1.OriginCode === info1.DestinationCode || !!info1.LoopDesc);
-  if (isLoop) return info1.LoopDesc ? `${orig} ↻ ${info1.LoopDesc}` : `${orig} loop`;
-  return info2 ? `${orig} ↔ ${dest}` : `${orig} → ${dest}`;
+  const isBidi = !!info2;
+  const isDualLoop = (svc in DUAL_LOOP_SVCS) || (isBidi && info1 && info2
+    && info1.OriginCode && info1.OriginCode === info1.DestinationCode
+    && info2.OriginCode && info2.OriginCode === info2.DestinationCode
+    && info1.OriginCode === info2.OriginCode);
+  const midpoint = LOOP_SVC_MIDPOINTS[svc];
+  const loopDesc = midpoint
+    ? (/int|stn|hub|ter|ctr|zoo|wetland reserve/i.test(midpoint.Description) ? midpoint.Description : midpoint.RoadName)
+    : (info1?.LoopDesc || '');
+  const isPrivate = !!(info1?._isPrivate || info2?._isPrivate);
+  if (isPrivate) {
+    const origDesc = info1?.OriginDesc || orig;
+    const destDesc = info1?.DestinationDesc || dest;
+    return isBidi ? `${origDesc} ↔ ${destDesc}` : `${origDesc} → ${destDesc}`;
+  }
+  if (!orig) return '';
+  if (isDualLoop) {
+    const dualData = DUAL_LOOP_SVCS[svc] || {};
+    const loop1 = dualData.dir1 || info1.LoopDesc || '';
+    const loop2 = dualData.dir2 || info2?.LoopDesc || '';
+    const loops = [loop1, loop2].filter(Boolean).join(' / ');
+    return loops ? `${orig} ↻ via ${loops}` : `${orig} ↻`;
+  }
+  if (isBidi) return `${orig} ↔ ${dest}`;
+  if (isLoop) return loopDesc ? `${orig} ↻ via ${loopDesc}` : `${orig} ↻`;
+  return `${orig} → ${dest}`;
 }
 
 function rememberStopHistory(code) {
