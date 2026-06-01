@@ -1197,6 +1197,7 @@ header {
 .go-btn {
   background: var(--red);
   border: none;
+  color: #fff;
   border-radius: 14px;
   width: 50px;
   min-height: 48px;
@@ -1938,7 +1939,7 @@ body.light .unified-name {
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--muted);
+  color: #fff;
   font-size: 14px;
   padding: 2px 4px;
   line-height: 1;
@@ -1948,6 +1949,10 @@ body.light .unified-name {
 
 .plan-stop-clear.visible {
   display: block;
+}
+
+body.light .plan-stop-clear {
+  color: #fff !important;
 }
 
 .plan-stop-input {
@@ -3109,7 +3114,7 @@ body.light #svc-dropdown {
   font-size: 13px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--yellow);
+  color: var(--cyan);
   margin-bottom: 10px;
 }
 

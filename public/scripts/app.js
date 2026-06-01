@@ -568,7 +568,7 @@ window.addEventListener('DOMContentLoaded', () => {
             btn.onclick = openTrainAlertModal;
             btn.title = `Train disruption on ${alerts.map(a => a.Line).join(', ')}`;
             btn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:20px;padding:0;line-height:1;flex-shrink:0';
-            btn.textContent = '⚠️';
+            btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
             titleEl.insertAdjacentElement('afterend', btn);
           }
         }
@@ -594,7 +594,7 @@ window.addEventListener('DOMContentLoaded', () => {
         btn.onclick = e => { e.stopPropagation(); openTrainAlertModal(); };
         btn.title = `Train disruption on ${as.map(a => a.Line).join(', ')}`;
         btn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1;flex-shrink:0';
-        btn.textContent = '⚠️';
+        btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
         favBtn.insertAdjacentElement('beforebegin', btn);
       });
     }
@@ -758,7 +758,7 @@ function showRecentServices() {
   <div class="svc-drop-item recent-drop-item" style="display:flex;align-items:center" onclick="selectService('${String(h.id).replace(/'/g, "\\'")}')">
     <span class="svc-drop-num">${formatSvcNo(h.id)}</span>
     <span class="svc-drop-cat" style="flex:1">${escapeHtml(h.sub || serviceHistorySub(h.id) || 'Service ' + formatSvcNo(h.id))}</span>
-    <button class="recent-remove-btn" onclick="event.stopPropagation();removeCommuteHistory('${String(h.key).replace(/'/g, "\\'")}');showRecentServices()" title="Remove">✕</button>
+    <button class="recent-remove-btn" onclick="event.stopPropagation();removeCommuteHistory('${String(h.key).replace(/'/g, "\\'")}');showRecentServices()" title="Remove"><i class="fa-solid fa-xmark"></i></button>
   </div>`).join('');
   dd.className = 'stop-name-results open';
 }
@@ -777,7 +777,7 @@ function showRecentStops() {
       <div class="sn-name">${escapeHtml(h.name || 'Bus Stop ' + h.id)}</div>
       ${h.sub ? `<div class="sn-road">${escapeHtml(h.sub)}</div>` : ''}
     </div>
-    <button class="recent-remove-btn" onclick="event.stopPropagation();removeCommuteHistory('${String(h.key).replace(/'/g, "\\'")}');showRecentStops()" title="Remove">✕</button>
+    <button class="recent-remove-btn" onclick="event.stopPropagation();removeCommuteHistory('${String(h.key).replace(/'/g, "\\'")}');showRecentStops()" title="Remove"><i class="fa-solid fa-xmark"></i></button>
   </div>`).join('');
 }
 
@@ -907,7 +907,7 @@ async function doSearch() {
   document.getElementById('quickChips').style.display = 'none';
   document.getElementById('results-stop').style.display = 'block';
   document.getElementById('results-stop').innerHTML =
-    `<div class="loading-state"><div class="bus-loader">🚌</div><div class="loading-txt">Fetching arrivals…</div></div>`;
+    `<div class="loading-state"><div class="bus-loader"><i class="fa-solid fa-bus"></i></div><div class="loading-txt">Fetching arrivals…</div></div>`;
   try {
     const data = await fetchLTA(code);
     const privateAtStop = getPrivateServicesForStop(code);
@@ -927,7 +927,7 @@ async function doSearch() {
       }).catch(() => {});
     }
   } catch(e) {
-    document.getElementById('results-stop').innerHTML = `<div class="error-card">⚠️ ${e.message}</div>`;
+    document.getElementById('results-stop').innerHTML = `<div class="error-card"><i class="fa-solid fa-triangle-exclamation"></i> ${e.message}</div>`;
   }
 }
 
@@ -965,13 +965,13 @@ async function doServiceSearch() {
   if (!svc) return;
   if (EXCLUDED_SERVICES.has(svc.replace(/^0+/, '').toUpperCase())) {
     document.getElementById('results-service').style.display = 'block';
-    document.getElementById('results-service').innerHTML = `<div class="error-card" style="text-align:center">⚠️ No route found for service <strong>${svc}</strong>.</div>`;
+    document.getElementById('results-service').innerHTML = `<div class="error-card" style="text-align:center"><i class="fa-solid fa-triangle-exclamation"></i> No route found for service <strong>${svc}</strong>.</div>`;
     return;
   }
 
   document.getElementById('results-service').style.display = 'block';
   document.getElementById('results-service').innerHTML =
-    `<div class="loading-state"><div class="bus-loader">🚌</div><div class="loading-txt">Fetching route for ${svc}…</div></div>`;
+    `<div class="loading-state"><div class="bus-loader"><i class="fa-solid fa-bus"></i></div><div class="loading-txt">Fetching route for ${svc}…</div></div>`;
 
   try {
     // Fetch route, stop names, and service metadata all in parallel
@@ -982,7 +982,7 @@ async function doServiceSearch() {
     ]);
 
     if (!routes || routes.length === 0) {
-      document.getElementById('results-service').innerHTML = `<div class="error-card" style="text-align:center">⚠️ No route found for service <strong>${svc}</strong>.</div>`;
+      document.getElementById('results-service').innerHTML = `<div class="error-card" style="text-align:center"><i class="fa-solid fa-triangle-exclamation"></i> No route found for service <strong>${svc}</strong>.</div>`;
       return;
     }
 
@@ -1005,7 +1005,7 @@ async function doServiceSearch() {
     rememberServiceHistory(svc);
     updateFavButtons();
   } catch(e) {
-    document.getElementById('results-service').innerHTML = `<div class="error-card">⚠️ ${e.message}</div>`;
+    document.getElementById('results-service').innerHTML = `<div class="error-card"><i class="fa-solid fa-triangle-exclamation"></i> ${e.message}</div>`;
   }
 }
 
@@ -1169,18 +1169,18 @@ function buildRouteSeatingPanel(analysis) {
 
   let headline, sub, emoji;
   if (avoidPct < 10) {
-    emoji = '😎';
+    emoji = '<i class="fa-solid fa-glasses"></i>';
     headline = `Any seat is fine`;
     sub = `The sun is low or behind the bus — no direct glare expected during this ride.`;
   } else {
-    emoji = recSide === 'left' ? '⬅️' : '➡️';
+    emoji = recSide === 'left' ? '<i class="fa-solid fa-arrow-left"></i>' : '<i class="fa-solid fa-arrow-right"></i>';
     headline = `Sit on the <strong>${recSide} side</strong> of the bus`;
     sub = `The sun will shine through the <strong style="color:#FFD000">${oppSide} windows</strong> for ${shade} the ${timeStr}. The ${recSide} side stays shaded.`;
   }
 
   return `
   <div class="rsp-card">
-    <div class="rsp-title">☀ Best Seat for This Journey</div>
+    <div class="rsp-title"><i class="fa-solid fa-sun"></i> Best Seat for This Journey</div>
     <div class="rsp-banner">
       <div class="rsp-emoji">${emoji}</div>
       <div>
@@ -1276,15 +1276,15 @@ function renderRoute(rd, allStops) {
       <div style="display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;white-space:nowrap">
         <div style="display:inline-flex;align-items:center;gap:6px;background:${opBg};color:#fff;padding:6px 16px;border-radius:12px;flex-shrink:0"><span class="stop-title" style="font-size:inherit">${formatSvcNo(rd.svc)}</span></div>
         ${freqPills}
-        ${rd.svcMap?.[svcNormKey + '-1']?._isScheduled ? `<span style="margin-left:auto;font-size:9px;color:var(--muted);white-space:normal;text-align:right;line-height:1.3;max-width:200px;flex-shrink:0">⚠️ Timings for this service are estimated based on schedules and may not be fully accurate.</span>` : ''}
+        ${rd.svcMap?.[svcNormKey + '-1']?._isScheduled ? `<span style="margin-left:auto;font-size:9px;color:var(--muted);white-space:normal;text-align:right;line-height:1.3;max-width:200px;flex-shrink:0"><i class="fa-solid fa-triangle-exclamation"></i> Timings for this service are estimated based on schedules and may not be fully accurate.</span>` : ''}
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         ${category ? `<span style="color:${catColor};font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px;flex-shrink:0">${catLabel}</span>` : ''}
         ${category && opLabel ? `<span style="color:var(--card-border);flex-shrink:0">·</span>` : ''}
         ${opLabel ? `<span style="color:var(--muted);font-size:11px;flex-shrink:0">${opLabel}</span>` : ''}
         <div style="flex:1"></div>
-        <button onclick="toggleJourneyDetails()" id="journey-details-btn" style="padding:4px 10px;border:1.5px solid var(--card-border);border-radius:8px;background:none;color:var(--muted);font-family:'LTAIdentity',sans-serif;font-weight:600;font-size:11px;cursor:pointer;letter-spacing:.5px;transition:all .2s;white-space:nowrap;flex-shrink:0">✳ Where to sit? ›</button>
-        <button id="svc-fav-btn-${rd.svc}" onclick="addSvcFavFromRoute('${rd.svc}')" style="background:none;border:1.5px solid var(--card-border);border-radius:8px;padding:4px 10px;font-size:18px;cursor:pointer;line-height:1;transition:all .2s;flex-shrink:0;color:${(window._favs||{})['svc_'+rd.svc]?'var(--yellow)':'var(--muted)'}" title="Favourite this service">${(window._favs||{})['svc_'+rd.svc]?'★':'☆'}</button>
+        <button onclick="toggleJourneyDetails()" id="journey-details-btn" style="padding:4px 10px;border:1.5px solid var(--card-border);border-radius:8px;background:none;color:var(--muted);font-family:'LTAIdentity',sans-serif;font-weight:600;font-size:11px;cursor:pointer;letter-spacing:.5px;transition:all .2s;white-space:nowrap;flex-shrink:0"><i class="fa-solid fa-circle-info"></i> Where to sit? ›</button>
+        <button id="svc-fav-btn-${rd.svc}" onclick="addSvcFavFromRoute('${rd.svc}')" style="background:none;border:1.5px solid var(--card-border);border-radius:8px;padding:4px 10px;font-size:18px;cursor:pointer;line-height:1;transition:all .2s;flex-shrink:0;color:${(window._favs||{})['svc_'+rd.svc]?'var(--yellow)':'var(--muted)'}" title="Favourite this service">${(window._favs||{})['svc_'+rd.svc]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
       </div>
     </div>
     <div id="journey-details-here"></div>
@@ -1370,23 +1370,23 @@ function renderRoute(rd, allStops) {
                 <span class="route-stop-code" style="margin:0">${displayCode}${road?' · '+road:''}</span>
                 <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
                   ${mrtPills(name, true)}
-                  ${(() => { const as = alertsForStopName(name); return as.length ? `<button onclick="event.stopPropagation();openTrainAlertModal()" title="Train disruption on ${as.map(a=>a.Line).join(', ')}" style="background:none;border:none;cursor:pointer;font-size:12px;padding:0;line-height:1;flex-shrink:0">⚠️</button>` : ''; })()}
-                  ${/Changi Airport Ter | Seletar Airport/i.test(name) ? '<span style="transform:rotate(-90deg)">✈</span>' : ''}
-                  ${/S'pore Zoo/i.test(name) ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="3" r="2.5"/><circle cx="15" cy="3" r="2.5"/><circle cx="4" cy="9" r="2.5"/><circle cx="20" cy="9" r="2.5"/><ellipse cx="12" cy="17" rx="5" ry="6"/></svg>' : ''}
-                  ${/Bird Paradise/i.test(name) ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23 2c-3 1-5.5 2.5-7 5-1-1-2.5-1.5-4-1-2 .7-3.5 2.5-3.5 5 0 .5 0 1 .2 1.5C5.5 12 2.5 10 1 7c0 0-1 6 4 9-1 .5-2 .5-3 0 1 2 3 3.5 6 3.5 4.5 0 8-3.5 8-8 0-.5 0-1-.1-1.5C18 9 21 6 23 2z"/></svg>' : ''}
-                  ${/Marina Bay Cruise Ctr/i.test(name) ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 21c-1.5 0-2.5-.5-3.5-.5S14.5 21 13 21s-2.5-.5-3.5-.5S7.5 21 6 21s-2-.5-3-.8L2 19c1 .3 2 .5 3 0 1-.5 2-1 3.5-1s2.5.5 3.5.5 2-.5 3.5-.5 2.5.5 3.5.5c1 0 2-.3 3-.8l-1 1.5c-.8.5-1.7.8-3 .8zM5 17l1.5-6h11L19 17H5zm2-8V7h10v2H7zm3-4V3h4v2h-4z"/></svg>' : ''}
-                  ${/Natl Stadium/i.test(name) ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 5 2 9v1h2V9c0-2.5 3.5-5 8-5s8 2.5 8 5v1h2V9c0-4-4.5-7-10-7zM4 11v2c0 3.5 3.5 6.5 8 6.5s8-3 8-6.5v-2H4zm4 1h8v1c0 2-1.8 3.5-4 3.5S8 15 8 13v-1zm-4 6h16v2H4v-2z"/></svg>' : ''}
+                  ${(() => { const as = alertsForStopName(name); return as.length ? `<button onclick="event.stopPropagation();openTrainAlertModal()" title="Train disruption on ${as.map(a=>a.Line).join(', ')}" style="background:none;border:none;cursor:pointer;font-size:12px;padding:0;line-height:1;flex-shrink:0"><i class="fa-solid fa-triangle-exclamation"></i></button>` : ''; })()}
+                  ${/Changi Airport Ter | Seletar Airport/i.test(name) ? '<span style="transform:rotate(-90deg)"><i class="fa-solid fa-plane"></i></span>' : ''}
+                  ${/S'pore Zoo/i.test(name) ? '<i class="fa-solid fa-paw"></i>' : ''}
+                  ${/Bird Paradise/i.test(name) ? '<i class="fa-solid fa-dove"></i>' : ''}
+                  ${/Marina Bay Cruise Ctr/i.test(name) ? '<i class="fa-solid fa-ship"></i>' : ''}
+                  ${/Natl Stadium/i.test(name) ? '<i class="fa-solid fa-stadium"></i>' : ''}
                   </div>
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-              <button class="fav-btn" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();addStopFav('${s.BusStopCode}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')" style="font-size:16px;color:var(--muted)">${(window._favs||{})['stop_'+s.BusStopCode]?'★':'☆'}</button>
+              <button class="fav-btn" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();addStopFav('${s.BusStopCode}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')" style="font-size:16px;color:var(--muted)">${(window._favs||{})['stop_'+s.BusStopCode]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
               <div class="rs-chevron">›</div>
             </div>
           </div>
           <div class="rs-expand" id="rs-${stopKey}-${i}">
             <div class="rs-expand-inner">
-              ${(timingRows || s._pbsStop) ? `<div class="rs-actions" style="display:flex;align-items:center;justify-content:space-between;gap:6px">${timingRows ? `<button class="rs-action-btn" style="color:var(--cyan);background:#00C8E015;border-color:#00C8E030" onclick="toggleRouteTiming('rtp-${stopKey}-${i}', this)">🕐 First / Last</button>` : '<div></div>'}<button class="rs-action-btn" style="color:var(--muted)" onclick="event.stopPropagation();loadArrivalsInRoute('${stopKey}', '${s.StopSequence}')">↻ Refresh</button></div>` : ''}
+              ${(timingRows || s._pbsStop) ? `<div class="rs-actions" style="display:flex;align-items:center;justify-content:space-between;gap:6px">${timingRows ? `<button class="rs-action-btn" style="color:var(--cyan);background:#00C8E015;border-color:#00C8E030" onclick="toggleRouteTiming('rtp-${stopKey}-${i}', this)"><i class="fa-regular fa-clock"></i> First / Last</button>` : '<div></div>'}<button class="rs-action-btn" style="color:var(--muted)" onclick="event.stopPropagation();loadArrivalsInRoute('${stopKey}', '${s.StopSequence}')">↻ Refresh</button></div>` : ''}
               <div class="rs-arrivals" id="ra-${stopKey}-${i}">
                 <div class="rs-arrivals-placeholder">Loading…</div>
               </div>
@@ -1411,18 +1411,18 @@ function renderRoute(rd, allStops) {
         <div class="plan-trip-wrap">
           <div style="display:flex;gap:10px">
             <div class="plan-stop-group" style="flex:1;min-width:0">
-              <div class="plan-stop-label">🟢 Board at</div>
+              <div class="plan-stop-label"><i class="fa-solid fa-circle-dot" style="color:var(--green)"></i> Board at</div>
               <div class="plan-stop-input-wrap">
                 <input class="plan-stop-input" id="plan-board-input" placeholder="Search stop name…" oninput="filterPlanStops('board');updatePlanClearBtn('board')" onfocus="openPlanDrop('board')" onblur="closePlanDropDelay('board')" autocomplete="off"/>
-                <button class="plan-stop-clear" id="plan-board-clear" onmousedown="event.preventDefault();clearPlanStop('board')">✕</button>
+                <button class="plan-stop-clear" id="plan-board-clear" onmousedown="event.preventDefault();clearPlanStop('board')"><i class="fa-solid fa-xmark" style="color:#fff"></i></button>
                 <div class="plan-stop-dropdown" id="plan-board-drop"></div>
               </div>
             </div>
             <div class="plan-stop-group" style="flex:1;min-width:0">
-              <div class="plan-stop-label">🔴 Alight at</div>
+              <div class="plan-stop-label"><i class="fa-solid fa-circle-dot" style="color:var(--red)"></i> Alight at</div>
               <div class="plan-stop-input-wrap">
                 <input class="plan-stop-input" id="plan-alight-input" placeholder="Search stop name…" oninput="filterPlanStops('alight');updatePlanClearBtn('alight')" onfocus="openPlanDrop('alight')" onblur="closePlanDropDelay('alight')" autocomplete="off"/>
-                <button class="plan-stop-clear" id="plan-alight-clear" onmousedown="event.preventDefault();clearPlanStop('alight')">✕</button>
+                <button class="plan-stop-clear" id="plan-alight-clear" onmousedown="event.preventDefault();clearPlanStop('alight')"><i class="fa-solid fa-xmark" style="color:#fff"></i></button>
                 <div class="plan-stop-dropdown" id="plan-alight-drop"></div>
               </div>
             </div>
@@ -1463,7 +1463,7 @@ function toggleJourneyDetails() {
   if (btn) {
     btn.style.color = isOpen ? 'var(--muted)' : 'var(--white)';
     btn.style.borderColor = isOpen ? 'var(--card-border)' : 'var(--cyan)';
-    btn.textContent = isOpen ? '✳ More Details ›' : '✳ More Details ∨';
+    btn.innerHTML = isOpen ? '<i class="fa-solid fa-circle-info"></i> Where to sit? ›' : '<i class="fa-solid fa-circle-info"></i> Where to sit? ∨';
   }
 }
 
@@ -1550,12 +1550,13 @@ function updatePlanClearBtn(which) {
   const btn = document.getElementById('plan-' + which + '-clear');
   if (!btn) return;
   btn.classList.toggle('visible', input.value.length > 0);
+  btn.style.color = '#fff';
 }
 
 function runPlanTrip() {
   if (planBoardIdx < 0 || planAlightIdx < 0) return;
   if (planAlightIdx <= planBoardIdx) {
-    toast('⚠️ Alighting stop must be after boarding stop.');
+    toast('<i class="fa-solid fa-triangle-exclamation"></i> Alighting stop must be after boarding stop.');
     return;
   }
   const sliced = planStops.slice(planBoardIdx, planAlightIdx + 1);
@@ -1570,7 +1571,7 @@ function renderPlanTripResult(analysis, sliced, boardIdx, alightIdx) {
 
   const { recSide, sunSide, avoidPct, totalMins } = analysis;
   const noSun = avoidPct < 10;
-  const emoji = noSun ? '😎' : recSide === 'left' ? '⬅️' : '➡️';
+  const emoji = noSun ? '<i class="fa-solid fa-glasses"></i>' : recSide === 'left' ? '<i class="fa-solid fa-arrow-left"></i>' : '<i class="fa-solid fa-arrow-right"></i>';
   const intensity = avoidPct > 60 ? 'strongly' : avoidPct > 30 ? 'moderately' : 'slightly';
   const isSunny = avoidPct > 40;
 
@@ -1616,8 +1617,8 @@ function renderPlanTripResult(analysis, sliced, boardIdx, alightIdx) {
       </div>
       <div class="trip-seg-strip">${stripHtml}</div>
       <div class="trip-stops-row">
-        <span>🟢 ${boardName}</span>
-        <span>🔴 ${alightName}</span>
+        <span><i class="fa-solid fa-circle-dot" style="color:var(--green)"></i> ${boardName}</span>
+        <span><i class="fa-solid fa-circle-dot" style="color:var(--red)"></i> ${alightName}</span>
       </div>
     </div>`;
 
@@ -1885,13 +1886,13 @@ function selectUnifiedStop(i) {
   document.getElementById('quickChips').style.display = 'none';
   document.getElementById('nearbySection').style.display = 'none';
   document.getElementById('results-stop').innerHTML =
-    `<div class="loading-state"><div class="bus-loader">🚌</div><div class="loading-txt">Fetching arrivals…</div></div>`;
+    `<div class="loading-state"><div class="bus-loader"><i class="fa-solid fa-bus"></i></div><div class="loading-txt">Fetching arrivals…</div></div>`;
   fetchLTA(s.BusStopCode).then(data => {
     render(s.BusStopCode, data);
     rememberStopHistory(s.BusStopCode);
     updateFavButtons();
   }).catch(e => {
-    document.getElementById('results-stop').innerHTML = `<div class="error-card">⚠️ ${e.message}</div>`;
+    document.getElementById('results-stop').innerHTML = `<div class="error-card"><i class="fa-solid fa-triangle-exclamation"></i> ${e.message}</div>`;
   });
 }
 
@@ -1997,7 +1998,7 @@ fetch('./assets/loop-midpoints.json')
   })
   .catch(err => {
     console.error("Failed to load loop midpoints:", err);
-    toast('⚠️ Loop route data failed to load — some service labels may be incorrect.');
+    toast('<i class="fa-solid fa-triangle-exclamation"></i> Loop route data failed to load — some service labels may be incorrect.');
   });
 
 let LOOPDESC_CLEAR = new Set();
@@ -2007,7 +2008,7 @@ fetch('./assets/loop-desc-clear.json')
   .then(data => { LOOPDESC_CLEAR = new Set(data); })
   .catch(err => {
     console.error('Failed to load loop-desc-clear:', err);
-    toast('⚠️ Loop descriptor data failed to load — some service labels may be incorrect.');
+    toast('<i class="fa-solid fa-triangle-exclamation"></i> Loop descriptor data failed to load — some service labels may be incorrect.');
   });
 
 // Dual-loop services (e.g. 358): two directions both looping from the same terminal,
@@ -2400,7 +2401,7 @@ async function findNearby() {
 
   // Get GPS
   if (!navigator.geolocation) {
-    toast('❌ Geolocation not supported by your browser');
+    toast('<i class="fa-solid fa-circle-xmark"></i> Geolocation not supported by your browser');
     return;
   }
 
@@ -2415,13 +2416,13 @@ async function findNearby() {
   } catch(e) {
     btn.classList.remove('loading');
     
-    toast('❌ Location access denied. Allow location in your browser settings.');
+    toast('<i class="fa-solid fa-circle-xmark"></i> Location access denied. Allow location in your browser settings.');
     return;
   }
 
   userLat = pos.coords.latitude;
   userLng = pos.coords.longitude;
-  if (sub) sub.textContent = `📍 ${userLat.toFixed(4)}, ${userLng.toFixed(4)}`;
+  if (sub) sub.textContent = `<i class="fa-solid fa-location-dot"></i> ${userLat.toFixed(4)}, ${userLng.toFixed(4)}`;
 
   // Fetch/use cached stop list
   let stops;
@@ -2430,7 +2431,7 @@ async function findNearby() {
   } catch(e) {
     btn.classList.remove('loading');
     
-    toast('❌ ' + e.message);
+    toast('<i class="fa-solid fa-circle-xmark"></i> ' + e.message);
     return;
   }
 
@@ -2480,7 +2481,7 @@ function renderNearby(stops) {
           <div class="nearby-dist-lbl">away</div>
           <div class="nearby-walk">~${walkMins} min walk</div>
         </div>
-        <button class="fav-btn" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();addStopFav('${s.BusStopCode}','${s.Description}','${s.RoadName}')" style="font-size:18px;flex-shrink:0;color:${(window._favs||{})['stop_'+s.BusStopCode]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['stop_'+s.BusStopCode]?'★':'☆'}</button>
+        <button class="fav-btn" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();addStopFav('${s.BusStopCode}','${s.Description}','${s.RoadName}')" style="font-size:18px;flex-shrink:0;color:${(window._favs||{})['stop_'+s.BusStopCode]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['stop_'+s.BusStopCode]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
       </div>`;
   });
 
@@ -2505,12 +2506,56 @@ function getPrivateServicesForStop(code) {
   if (!PRIVATE_SERVICES) return [];
   const results = [];
   for (const [svcKey, privateSvc] of Object.entries(PRIVATE_SERVICES)) {
+    if (!isServiceOperatingToday(privateSvc.ServiceNo)) continue;
     for (const [dirKey, dir] of Object.entries(privateSvc.Directions)) {
       const match = dir.Stops.find(s => s.BusStopCode && String(s.BusStopCode) === String(code));
       if (match) results.push({ svcKey, privateSvc, dirKey, dir, stop: match });
     }
   }
   return results;
+}
+
+// ── PUBLIC HOLIDAY & WEEKEND SERVICE EXCLUSIONS ──────────────────────────────
+// PBS services and certain LTA-operated services (LCS1, LCS2) do not run on
+// weekends or public holidays. PUBLIC_HOLIDAYS lists all Singapore public
+// holidays for the current year — update this set annually.
+const PUBLIC_HOLIDAYS = new Set([
+  '2026-01-01', '2026-02-17', '2026-02-18',
+  '2026-03-21', '2026-04-03', '2026-05-01',
+  '2026-05-27', '2026-05-31', '2026-06-01',
+  '2026-08-09', '2026-08-10', '2026-11-08',
+  '2026-11-09', '2026-12-25'
+]);
+
+// LTA-operated services that follow the same weekday-only rule as PBS.
+const WEEKDAY_ONLY_SERVICES = new Set(['LCS1', 'LCS2']);
+
+function isTodayPublicHoliday() {
+  const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+  return PUBLIC_HOLIDAYS.has(today);
+}
+
+function isTodayWeekend() {
+  const dow = new Date().getDay(); // 0 = Sun, 6 = Sat
+  return dow === 0 || dow === 6;
+}
+
+// Returns false if the service should not operate today (weekend or public holiday).
+// Applies to all PBS (PRIVATE_SERVICES) entries and explicitly listed LTA services.
+function isServiceOperatingToday(serviceNo) {
+  if (!serviceNo) return true;
+  const svc = serviceNo.toUpperCase().replace(/\s+/g, '');
+  const isPBS = !!(PRIVATE_SERVICES && (
+    PRIVATE_SERVICES[svc] ||
+    Object.values(PRIVATE_SERVICES).find(p =>
+      p.ServiceNo.toUpperCase().replace(/\s+/g, '') === svc
+    )
+  ));
+  const isWeekdayOnly = WEEKDAY_ONLY_SERVICES.has(svc);
+  if (isPBS || isWeekdayOnly) {
+    if (isTodayWeekend() || isTodayPublicHoliday()) return false;
+  }
+  return true;
 }
 
 // ── OPERATING HOURS CHECKER ──────────────────────────────────────────────────
@@ -2677,11 +2722,11 @@ function buildPrivateStopCard(privateSvc, dir, arrivals, stopCode, cardIndex) {
           </div>
           ${nextPills}
         </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">⚠️ Estimated from schedule</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px"><i class="fa-solid fa-triangle-exclamation"></i> Estimated from schedule</div>
       </div>
       <div class="card-right">
         <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch">
-          <button class="sun-toggle-btn fav-btn" data-key="svc_${svcNo}" onclick="event.stopPropagation();addSvcFavSmart('${svcNo}')" style="background:none;justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+svcNo]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+svcNo]?'★':'☆'}</button>
+          <button class="sun-toggle-btn fav-btn" data-key="svc_${svcNo}" onclick="event.stopPropagation();addSvcFavSmart('${svcNo}')" style="background:none;justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+svcNo]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+svcNo]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
         </div>
       </div>
     </div>
@@ -2728,7 +2773,7 @@ function render(code, data) {
       <div style="min-width:0;flex:1">
         <div style="display:flex;align-items:center;gap:8px">
           <div class="stop-title" id="stop-title-${code}" style="flex:1;min-width:0">${stopLabel(name, true)}</div>
-          <button class="fav-btn" data-key="stop_${code}" title="Favourite this stop" onclick="addStopFav('${code}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')\" style="font-size:20px;color:${(window._favs||{})['stop_'+code]?'var(--yellow)':'var(--muted)'}\">${(window._favs||{})['stop_'+code]?'★':'☆'}</button>
+          <button class="fav-btn" data-key="stop_${code}" title="Favourite this stop" onclick="addStopFav('${code}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')\" style="font-size:20px;color:${(window._favs||{})['stop_'+code]?'var(--yellow)':'var(--muted)'}\">${(window._favs||{})['stop_'+code]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
         </div>
         ${road ? `<div class="stop-road-block">(${road})</div>` : ''}
         ${(() => { const si = ALL_STOPS?.find(s=>s.BusStopCode===code); const lat = parseFloat(si?.Latitude), lng = parseFloat(si?.Longitude); const fc = getRainForCoords(lat, lng); return rainBadgeHtml(fc); })()}
@@ -2826,8 +2871,8 @@ function render(code, data) {
         </div>
         <div class="card-right">
           <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch">
-            <button class="sun-toggle-btn fav-btn" data-key="svc_${s.ServiceNo}" onclick="event.stopPropagation();addSvcFavSmart('${s.ServiceNo}')" style="justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+s.ServiceNo]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+s.ServiceNo]?'★':'☆'}</button>
-            <div class="sun-toggle-btn" style="color:var(--cyan);background:none;border-color:transparent;justify-content:center" onclick="toggleStopTiming(${i},'${s.ServiceNo}','${code}')">🕐</div>
+            <button class="sun-toggle-btn fav-btn" data-key="svc_${s.ServiceNo}" onclick="event.stopPropagation();addSvcFavSmart('${s.ServiceNo}')" style="justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+s.ServiceNo]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+s.ServiceNo]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
+            <div class="sun-toggle-btn" style="color:var(--cyan);background:none;border-color:transparent;justify-content:center" onclick="toggleStopTiming(${i},'${s.ServiceNo}','${code}')"><i class="fa-regular fa-clock"></i></div>
           </div>
         </div>
       </div>
@@ -2870,7 +2915,7 @@ function render(code, data) {
         btn.onclick = openTrainAlertModal;
         btn.title = `Train disruption on ${alerts.map(a => a.Line).join(', ')}`;
         btn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:20px;padding:0;line-height:1;flex-shrink:0';
-        btn.textContent = '⚠️';
+        btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
         titleEl.insertAdjacentElement('afterend', btn);
       }
     }
@@ -3016,7 +3061,7 @@ async function toggleStopTiming(i, svcNo, stopCode) {
         ${su1 ? `<div class="rs-timing-day">Sunday</div><div class="rs-timing-val">${su1}</div><div class="rs-timing-val">${su2||'—'}</div>` : ''}
       </div>`;
   } catch(e) {
-    inner.innerHTML = `<div class="rs-arrivals-placeholder" style="color:#FF9999">⚠️ ${e.message}</div>`;
+    inner.innerHTML = `<div class="rs-arrivals-placeholder" style="color:#FF9999"><i class="fa-solid fa-triangle-exclamation"></i> ${e.message}</div>`;
   }
 }
 
@@ -3061,13 +3106,14 @@ function buildPBSArrivalRows(code, stopSeq) {
     if (dir) {
       const nullEntry = dir.stops.find(s => s._pbsStop &&
         !s.BusStopCode && stopSeq != null && s.StopSequence === stopSeq);
-      if (nullEntry) matchingEntries.push(nullEntry);
+      if (nullEntry && isServiceOperatingToday(nullEntry.ServiceNo)) matchingEntries.push(nullEntry);
     }
   }
 
   // O(1) lookup via precomputed index for stops with this bus stop code
   if (code && !code.startsWith('pbs-seq-')) {
     for (const stop of (PRIVATE_STOP_INDEX[code] || [])) {
+      if (!isServiceOperatingToday(stop.ServiceNo)) continue;
       const alreadyAdded = matchingEntries.some(e =>
         e.ServiceNo === stop.ServiceNo && e.Direction === stop.Direction
       );
@@ -3344,7 +3390,7 @@ async function loadArrivalsInRoute(code, stopSeq) {
     if (pbsHtml) {
       containers.forEach(c => c.innerHTML = pbsHtml);
     } else {
-      containers.forEach(c => c.innerHTML = `<div class="rs-arrivals-placeholder" style="color:#FF9999">⚠️ ${e.message}</div>`);
+      containers.forEach(c => c.innerHTML = `<div class="rs-arrivals-placeholder" style="color:#FF9999"><i class="fa-solid fa-triangle-exclamation"></i> ${e.message}</div>`);
     }
   }
 }
@@ -3382,17 +3428,17 @@ function buildPanel(rec, isDD) {
   const busDir=card(rec.bear), sunDir=card(SUN_AZ);
   let bannerClass='good', emoji='', msg='';
   if(rec.side==='any') {
-    bannerClass='any'; emoji='😎';
+    bannerClass='any'; emoji='<i class="fa-solid fa-glasses"></i>';
     msg=`Sun is low on the horizon — <span class="rec-strong">any seat is comfortable</span> right now.`;
   } else {
-    emoji=rec.side==='left'?'⬅️':'➡️';
+    emoji=rec.side==='left'?'<i class="fa-solid fa-arrow-left"></i>':'<i class="fa-solid fa-arrow-right"></i>';
     const oppSide = rec.side === 'left' ? 'right' : 'left';
     const howMuch = rec.intensity==='high' ? 'directly' : 'partially';
     msg=`Sit on the <span class="rec-strong">${rec.side} side</span> — the sun is ${howMuch} shining through the <span class="rec-dir">${oppSide} windows</span> right now.`;
     bannerClass=rec.intensity==='high'?'hot':'good';
   }
   return `
-    <div class="panel-title">☀ Sun-Smart Seating</div>
+    <div class="panel-title"><i class="fa-solid fa-sun"></i> Sun-Smart Seating</div>
     <div class="diagram-wrap">
       <div class="bus-map"><div class="bus-shell">
         <div class="bus-windshield">
@@ -3406,8 +3452,8 @@ function buildPanel(rec, isDD) {
         <div class="leg-row"><div class="leg-swatch" style="background:var(--green)"></div>Shaded side</div>
         <div class="leg-row"><div class="leg-swatch" style="background:#FF222730;border:1px solid #FF222270"></div>Sunny side</div>
         <div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.8">
-          🚌 Bus going<br><strong style="color:var(--white)">${busDir}</strong><br><br>
-          ☀ Sun is in the<br><strong style="color:var(--yellow)">${sunDir}</strong><br>
+          <i class="fa-solid fa-bus"></i> Bus going<br><strong style="color:var(--white)">${busDir}</strong><br><br>
+          <i class="fa-solid fa-sun"></i> Sun is in the<br><strong style="color:var(--yellow)">${sunDir}</strong><br>
           <span style="color:var(--muted)">${SUN_ALT.toFixed(0)}° above horizon</span>
         </div>
       </div>
@@ -3461,7 +3507,7 @@ function renderFavourites() {
 
   const renderCard = key => {
     const f = favs[key];
-    const icon = f.type === 'stop' ? '🚏' : f.type === 'plan' ? '🗺' : '🚌';
+    const icon = f.type === 'stop' ? '<i class="fa-solid fa-sign-hanging"></i>' : f.type === 'plan' ? '<i class="fa-solid fa-map-location-dot"></i>' : '<i class="fa-solid fa-bus"></i>';
     let sub = f.sub || '';
     if (f.type === 'service' && ALL_SERVICES) {
       const svc = f.id;
@@ -3482,7 +3528,7 @@ function renderFavourites() {
       <div class="fav-card-type">${icon} ${f.type}</div>
       <div class="fav-card-name">${escapeHtml(f.name)}</div>
       ${sub ? `<div class="fav-card-sub">${escapeHtml(sub)}</div>` : ''}
-      <div class="fav-remove" data-remove="${key}">✕</div>
+      <div class="fav-remove" data-remove="${key}"><i class="fa-solid fa-xmark"></i></div>
     </div>`;
   };
 
@@ -3677,7 +3723,7 @@ function addPlanFav() {
     if (!btn) return;
     const nowSaved = !isSaved;
     btn.style.color = nowSaved ? 'var(--yellow)' : 'var(--muted)';
-    btn.textContent = nowSaved ? '★ Saved' : '☆ Save route';
+    btn.innerHTML = nowSaved ? '<i class="fa-solid fa-star"></i> Saved' : '<i class="fa-regular fa-star"></i> Save route';
   });
 }
 
@@ -3704,13 +3750,13 @@ function updateFavButtons() {
   document.querySelectorAll('.fav-btn').forEach(btn => {
     const key = btn.dataset.key;
     const isFav = !!(window._favs && window._favs[key]);
-    btn.textContent = isFav ? '★' : '☆';
+    btn.innerHTML = isFav ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
     btn.style.setProperty('color', isFav ? 'var(--yellow)' : 'var(--muted)', 'important');
   });
   document.querySelectorAll('[id^="svc-fav-btn-"]').forEach(btn => {
     const svc = btn.id.replace('svc-fav-btn-', '');
     const isFav = !!(window._favs && window._favs['svc_' + svc]);
-    btn.textContent = isFav ? '★' : '☆';
+    btn.innerHTML = isFav ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
     btn.style.setProperty('color', isFav ? 'var(--yellow)' : 'var(--muted)', 'important');
   });
 }
@@ -3909,13 +3955,13 @@ function stopLabel(name, showPills = false) {
   if (!name) return name;
   let label = name;
   const pills = mrtPills(name);
-  if (/\bInt\b/.test(name)) label += ' <svg style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.85" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="18" height="17" rx="2"/><path d="M3 8h18"/><path d="M3 13h18"/><path d="M8 2v6"/><path d="M16 2v6"/><circle cx="7.5" cy="18.5" r="1.5"/><circle cx="16.5" cy="18.5" r="1.5"/><path d="M7.5 20v2"/><path d="M16.5 20v2"/></svg>';
-  else if ((/\bStn\b/.test(name) || /\bLrt\b/.test(name)) && pills) label += ' <svg style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.85" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="16" rx="2"/><path d="M4 10h16"/><path d="M9 2v8"/><path d="M15 2v8"/><path d="M8 18l-2 4"/><path d="M16 18l2 4"/><path d="M9 22h6"/></svg>';
+  if (/\bInt\b/.test(name)) label += ' <i class="fa-solid fa-bus" style="margin-left:3px;opacity:.85;font-size:11px"></i>';
+  else if ((/\bStn\b/.test(name) || /\bLrt\b/.test(name)) && pills) label += ' <i class="fa-solid fa-train-subway" style="margin-left:3px;opacity:.85;font-size:11px"></i>';
   if (showPills) label += pills;
   return label;
 }
 // Restore saved theme
-try { if (localStorage.getItem('shiokbus_theme') === 'light') { document.body.classList.add('light'); document.getElementById('themeToggle').textContent = '🌙 Dark'; } } catch(e) {}
+try { if (localStorage.getItem('shiokbus_theme') === 'light') { document.body.classList.add('light'); document.getElementById('themeToggle').innerHTML = '<i class="fa-solid fa-moon"></i> Dark'; } } catch(e) {}
 // Restore alert banner setting
 try { if (localStorage.getItem('shiokbus_alert_banner') === 'off') alertBannerEnabled = false; } catch(e) {}
 // ── HTML ESCAPING ──
@@ -3936,7 +3982,7 @@ function minsFrom(iso) {
 }
 function toast(msg, duration=2800) {
   const t=document.createElement('div');
-  t.className='toast'; t.textContent=msg;
+  t.className='toast'; t.innerHTML=msg;
   document.body.appendChild(t);
   setTimeout(()=>t.remove(),duration);
 }
@@ -3947,7 +3993,7 @@ let planFromHighlight = -1, planToHighlight = -1;
 function showPlanNearMe(which) {
   const resultsId = which === 'from' ? 'planFromResults' : 'planToResults';
   const el = document.getElementById(resultsId);
-  el.innerHTML = `<div class="plan-near-me-item" id="plan-near-me-${which}">📍 Near me</div>`;
+  el.innerHTML = `<div class="plan-near-me-item" id="plan-near-me-${which}"><i class="fa-solid fa-location-dot"></i> Near me</div>`;
   el.style.display = 'block';
   document.getElementById(`plan-near-me-${which}`)?.addEventListener('mousedown', e => {
     e.preventDefault();
@@ -3969,7 +4015,7 @@ function onPlanBlur(which) {
 function selectGlobalNearestStop(which) {
   const resultsId = which === 'from' ? 'planFromResults' : 'planToResults';
   const nearEl = document.getElementById(`plan-near-me-${which}`);
-  if (nearEl) nearEl.textContent = '📍 Locating…';
+  if (nearEl) nearEl.textContent = '<i class="fa-solid fa-location-dot"></i> Locating…';
 
   const resolve = (lat, lng) => {
     if (!ALL_STOPS) { toast('Stop data not loaded yet'); return; }
@@ -4062,13 +4108,13 @@ function clearPlanInput(which) {
 // Each bus leg in the result also gets a sun seat pill computed client-side
 // from the leg's geometry and the sun's position at the estimated travel time.
 async function doPlanSearch() {
-  if (!planFromCode || !planToCode) { toast('⚠️ Please select both a From and To stop'); return; }
-  if (planFromCode === planToCode) { toast('⚠️ From and To stops are the same'); return; }
+  if (!planFromCode || !planToCode) { toast('<i class="fa-solid fa-triangle-exclamation"></i> Please select both a From and To stop'); return; }
+  if (planFromCode === planToCode) { toast('<i class="fa-solid fa-triangle-exclamation"></i> From and To stops are the same'); return; }
   const fromStop = ALL_STOPS?.find(s => s.BusStopCode === planFromCode);
   const toStop = ALL_STOPS?.find(s => s.BusStopCode === planToCode);
-  if (!fromStop || !toStop) { toast('⚠️ Stop coordinates not found. Try again shortly.'); return; }
+  if (!fromStop || !toStop) { toast('<i class="fa-solid fa-triangle-exclamation"></i> Stop coordinates not found. Try again shortly.'); return; }
   const resultsEl = document.getElementById('plan-results');
-  resultsEl.innerHTML = `<div class="loading-state"><div class="bus-loader">🚌</div><div class="loading-txt">Finding routes…</div></div>`;
+  resultsEl.innerHTML = `<div class="loading-state"><div class="bus-loader"><i class="fa-solid fa-bus"></i></div><div class="loading-txt">Finding routes…</div></div>`;
   try {
     const onemapParams = `start=${fromStop.Latitude},${fromStop.Longitude}&end=${toStop.Latitude},${toStop.Longitude}&routeType=pt&date=${getTodayStr()}&time=${getTimeStr()}&mode=TRANSIT&maxWalkDistance=500&numItineraries=3`;
     const url = `${PROXY_URL}?endpoint=onemap&${onemapParams}`;
@@ -4080,7 +4126,7 @@ async function doPlanSearch() {
     window._lastPlanItineraries = itineraries;
     renderPlanResults(itineraries);
   } catch(e) {
-    resultsEl.innerHTML = `<div class="error-card">⚠️ ${e.message}</div>`;
+    resultsEl.innerHTML = `<div class="error-card"><i class="fa-solid fa-triangle-exclamation"></i> ${e.message}</div>`;
   }
 }
 
@@ -4168,11 +4214,11 @@ function renderSettingsAlerts() {
   const el = document.getElementById('settings-alert-banner');
   if (!el) return;
   el.innerHTML = [
-    { id: true,  label: '🔔 Enabled' },
-    { id: false, label: '🔕 Disabled' },
+    { id: true,  label: '<i class="fa-solid fa-bell"></i> Enabled' },
+    { id: false, label: '<i class="fa-solid fa-bell-slash"></i> Disabled' },
   ].map(t => `<div class="settings-tab-opt ${enabled === t.id ? 'active' : ''}" onclick="setAlertBanner(${t.id})">
     <span>${t.label}</span>
-    <span class="check">✓</span>
+    <span class="check"><i class="fa-solid fa-check"></i></span>
   </div>`).join('');
 }
 
@@ -4182,7 +4228,7 @@ function setAlertBanner(enabled) {
   if (!enabled) document.getElementById('train-alert-banner')?.classList.remove('visible');
   else updateTrainAlertBanner();
   renderSettingsAlerts();
-  toast(enabled ? '🔔 Train alerts enabled' : '🔕 Train alerts disabled');
+  toast(enabled ? '<i class="fa-solid fa-bell"></i> Train alerts enabled' : '<i class="fa-solid fa-bell-slash"></i> Train alerts disabled');
 }
 
 function updateTrainAlertBanner() {
@@ -4225,7 +4271,7 @@ function renderInlineAlert(alert) {
   const msg = escapeHtml(alert.Message?.Content || '');
   const date = alert.Message?.CreatedDate ? new Date(alert.Message.CreatedDate).toLocaleTimeString('en-SG', { hour:'2-digit', minute:'2-digit' }) : '';
   return `<div class="train-alert-inline">
-    <div class="tai-icon">⚠️</div>
+    <div class="tai-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
     <div class="tai-body">
       <div class="tai-title"><span class="tai-pill" style="background:${color}">${escapeHtml(alert.Line)}</span> Service Disruption</div>
       ${direction ? `<div class="tai-detail"><b>Direction:</b> ${direction}</div>` : ''}
@@ -4253,8 +4299,8 @@ function openTrainAlertModal() {
         <div class="tam-alert-line"><span style="background:${color};padding:2px 8px;border-radius:4px;color:#fff;font-size:12px">${escapeHtml(a.Line)}</span> Service Disruption</div>
         ${a.Direction ? `<div class="tam-alert-row">Direction: <span>${escapeHtml(a.Direction)}</span></div>` : ''}
         ${a.Stations ? `<div class="tam-alert-row">Affected stations: <span>${formatStationList(a.Stations)}</span></div>` : ''}
-        ${a.FreePublicBus ? `<div class="tam-alert-row">🚌 Free bus at: <span>${formatStationList(a.FreePublicBus)}</span></div>` : ''}
-        ${a.FreeMRTShuttle ? `<div class="tam-alert-row">🚇 Free shuttle at: <span>${formatStationList(a.FreeMRTShuttle)}</span></div>` : ''}
+        ${a.FreePublicBus ? `<div class="tam-alert-row"><i class="fa-solid fa-bus"></i> Free bus at: <span>${formatStationList(a.FreePublicBus)}</span></div>` : ''}
+        ${a.FreeMRTShuttle ? `<div class="tam-alert-row"><i class="fa-solid fa-train-subway"></i> Free shuttle at: <span>${formatStationList(a.FreeMRTShuttle)}</span></div>` : ''}
         ${msg ? `<div class="tam-alert-msg">${msg}${date ? `<br><span style="opacity:.5;font-size:10px">${date}</span>` : ''}</div>` : ''}
       </div>`;
     }).join('');
@@ -4310,7 +4356,7 @@ async function renderPlanResults(itineraries) {
   let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px">
     <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;flex-shrink:0">${itineraries.length} route${itineraries.length>1?'s':''} found</div>
     <button onclick="addPlanFav()" id="plan-fav-btn" style="background:none;border:1.5px solid var(--card-border);border-radius:20px;padding:4px 12px;font-size:12px;cursor:pointer;color:${isSaved?'var(--yellow)':'var(--muted)'};font-family:'LTAIdentity',sans-serif;font-weight:700;letter-spacing:.5px;transition:all .2s;white-space:nowrap;flex-shrink:0">
-      ${isSaved ? '★ Saved' : '☆ Save route'}
+      ${isSaved ? '<i class="fa-solid fa-star"></i> Saved' : '<i class="fa-regular fa-star"></i> Save route'}
     </button>
   </div>`;
   itineraries.forEach((itin, idx) => {
@@ -4323,7 +4369,7 @@ async function renderPlanResults(itineraries) {
     itin.legs.forEach(leg => {
       if (leg.mode === 'WALK') {
         const wm = Math.round(leg.duration / 60);
-        if (wm > 0) legHtml += `<div class="plan-leg plan-leg-walk" style="display:flex;align-items:center;gap:8px">🚶 <span class="plan-walk-pill">Walk</span> <span class="plan-leg-meta">${formatMins(wm)}</span></div>`;
+        if (wm > 0) legHtml += `<div class="plan-leg plan-leg-walk" style="display:flex;align-items:center;gap:8px"><i class="fa-solid fa-person-walking"></i> <span class="plan-walk-pill">Walk</span> <span class="plan-leg-meta">${formatMins(wm)}</span></div>`;
       } else if (leg.mode === 'BUS') {
         const svc = leg.routeShortName || leg.route || '?';
         const legMins = Math.round(leg.duration / 60);
@@ -4334,13 +4380,13 @@ async function renderPlanResults(itineraries) {
         legHtml += `
           <div class="plan-leg plan-leg-bus">
             <div style="display:flex;align-items:center;gap:8px">
-              🚌 <div class="plan-bus-badge" style="background:${badgeColor}">${formatSvcNo(svc)}</div>
+              <i class="fa-solid fa-bus"></i> <div class="plan-bus-badge" style="background:${badgeColor}">${formatSvcNo(svc)}</div>
               <div class="plan-leg-meta">${formatMins(legMins)}</div>
               <div style="flex:1"></div>
               ${sunHtml}
             </div>
             <div class="plan-leg-stops" style="padding-left:24px"><span class="plan-stop-link" data-stop-name="${leg.from?.name||''}">${leg.from?.name||''}</span> → <span class="plan-stop-link" data-stop-name="${leg.to?.name||''}">${leg.to?.name||''}</span></div>
-            <div id="${arrivalId}" style="padding-left:24px;margin-top:5px;font-size:12px;color:var(--muted)">⏳ Fetching arrival…</div>
+            <div id="${arrivalId}" style="padding-left:24px;margin-top:5px;font-size:12px;color:var(--muted)"><i class="fa-solid fa-spinner fa-spin"></i> Fetching arrival…</div>
           </div>`;
       } else if (leg.mode === 'SUBWAY' || leg.mode === 'TRAM') {
         const code = leg.routeShortName || leg.route || '?';
@@ -4357,7 +4403,7 @@ async function renderPlanResults(itineraries) {
         };
         legHtml += `<div class="plan-leg plan-leg-mrt">
           <div style="display:flex;align-items:center;gap:8px">
-            🚇 <div class="plan-bus-badge" style="background:${lineColor}">${lineName}</div>
+            <i class="fa-solid fa-train-subway"></i> <div class="plan-bus-badge" style="background:${lineColor}">${lineName}</div>
             <span class="plan-leg-meta">${formatMins(legMins)}</span>
           </div>
           <div class="plan-leg-stops" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-left:24px">
@@ -4385,7 +4431,7 @@ async function renderPlanResults(itineraries) {
     itin.legs.forEach(leg => {
       if (leg.mode === 'WALK') {
         const wm = Math.round(leg.duration / 60);
-        if (wm > 0) summaryParts.push(`<span class="plan-summary-walk">🚶</span>`);
+        if (wm > 0) summaryParts.push(`<span class="plan-summary-walk"><i class="fa-solid fa-person-walking"></i></span>`);
       } else if (leg.mode === 'BUS') {
         const svc = leg.routeShortName || leg.route || '?';
         const { badgeColor } = getBusLegInfo(svc);
@@ -4412,7 +4458,7 @@ async function renderPlanResults(itineraries) {
       });
     });
     const itinWarnHtml = itinAlerts.size
-      ? `<button onclick="event.stopPropagation();openTrainAlertModal()" title="Train disruption: ${[...itinAlerts.keys()].join(', ')}" style="background:none;border:none;cursor:pointer;font-size:18px;padding:0;line-height:1;flex-shrink:0">⚠️</button>`
+      ? `<button onclick="event.stopPropagation();openTrainAlertModal()" title="Train disruption: ${[...itinAlerts.keys()].join(', ')}" style="background:none;border:none;cursor:pointer;font-size:18px;padding:0;line-height:1;flex-shrink:0"><i class="fa-solid fa-triangle-exclamation"></i></button>`
       : '';
 
     html += `
@@ -4452,7 +4498,7 @@ async function renderPlanResults(itineraries) {
           if (!el) return;
           const match = data.Services?.find(s => s.ServiceNo === svc);
           if (!match || !match.NextBus?.EstimatedArrival) {
-            el.innerHTML = '<span style="font-size:11px;color:var(--muted)">⚠️ No data</span>';
+            el.innerHTML = '<span style="font-size:11px;color:var(--muted)"><i class="fa-solid fa-triangle-exclamation"></i> No data</span>';
             return;
           }
           const nb1 = match.NextBus, nb2 = match.NextBus2, nb3 = match.NextBus3;
@@ -4496,14 +4542,14 @@ function getPlanSunPill(leg) {
   if (!fromLat || !toLat) return '';
   const bear = bearingBetween(fromLat, fromLng, toLat, toLng);
   const sun = getSunAtTime(new Date());
-  if (sun.alt < 3) return `<div class="plan-sun-pill" style="background:#1E3560;color:var(--muted)">😎 Any seat</div>`;
+  if (sun.alt < 3) return `<div class="plan-sun-pill" style="background:#1E3560;color:var(--muted)"><i class="fa-solid fa-glasses"></i> Any seat</div>`;
   const rel = (sun.az - bear + 360) % 360;
   const perp = Math.abs(Math.sin(rel*Math.PI/180));
   const altF = Math.sin(Math.abs(sun.alt)*Math.PI/180);
   const score = perp * altF;
-  if (score < 0.1) return `<div class="plan-sun-pill" style="background:#1E3560;color:var(--muted)">😎 Any seat</div>`;
+  if (score < 0.1) return `<div class="plan-sun-pill" style="background:#1E3560;color:var(--muted)"><i class="fa-solid fa-glasses"></i> Any seat</div>`;
   const recSide = rel < 180 ? 'left' : 'right';
-  return `<div class="plan-sun-pill">☀ Sit ${recSide}</div>`;
+  return `<div class="plan-sun-pill"><i class="fa-solid fa-sun"></i> Sit ${recSide}</div>`;
 }
 
 // ── SETTINGS DRAWER ──
@@ -4542,17 +4588,17 @@ function renderSettingsAccount() {
   } else {
     el.innerHTML = `
       <div style="font-size:13px;color:var(--muted);margin-bottom:12px;padding-top:4px">Sign in to save favourites and routes across devices.</div>
-      <button class="settings-signin-btn" onclick="settingsSignIn()">👤 Sign in with Google</button>`;
+      <button class="settings-signin-btn" onclick="settingsSignIn()"><i class="fa-solid fa-user"></i> Sign in with Google</button>`;
   }
 }
 
 function renderSettingsDefaultTab() {
   const saved = localStorage.getItem('shiokbus_default_tab') || 'service';
   const tabs = [
-    { id: 'service', label: '🚌 Bus Service' },
-    { id: 'stop',    label: '🔍 Bus Stop' },
-    { id: 'plan',    label: '🗺 Plan' },
-    { id: 'favs',    label: '⭐ Favourites', requiresAuth: true },
+    { id: 'service', label: '<i class="fa-solid fa-bus"></i> Bus Service' },
+    { id: 'stop',    label: '<i class="fa-solid fa-magnifying-glass"></i> Bus Stop' },
+    { id: 'plan',    label: '<i class="fa-solid fa-map-location-dot"></i> Plan' },
+    { id: 'favs',    label: '<i class="fa-solid fa-star"></i> Favourites', requiresAuth: true },
   ];
   const el = document.getElementById('settings-default-tab');
   if (!el) return;
@@ -4560,7 +4606,7 @@ function renderSettingsDefaultTab() {
     .filter(t => !t.requiresAuth || window._currentUser)
     .map(t => `<div class="settings-tab-opt ${saved === t.id ? 'active' : ''}" onclick="setDefaultTab('${t.id}')">
       <span>${t.label}</span>
-      <span class="check">✓</span>
+      <span class="check"><i class="fa-solid fa-check"></i></span>
     </div>`).join('');
 }
 
@@ -4569,11 +4615,11 @@ function renderSettingsTheme() {
   const el = document.getElementById('settings-theme-opts');
   if (!el) return;
   el.innerHTML = [
-    { id: 'dark',  label: '🌙 Dark' },
-    { id: 'light', label: '☀ Light' },
+    { id: 'dark',  label: '<i class="fa-solid fa-moon"></i> Dark' },
+    { id: 'light', label: '<i class="fa-solid fa-sun"></i> Light' },
   ].map(t => `<div class="settings-tab-opt ${(!isLight && t.id==='dark') || (isLight && t.id==='light') ? 'active' : ''}" onclick="setTheme('${t.id}')">
     <span>${t.label}</span>
-    <span class="check">✓</span>
+    <span class="check"><i class="fa-solid fa-check"></i></span>
   </div>`).join('');
 }
 
@@ -4606,7 +4652,7 @@ function setTheme(theme, opts = {}) {
   if (saveRemote) saveUiPreferences({ theme });
   renderSettingsTheme();
   if (showToast && changed) {
-    toast(theme === 'light' ? '☀ Light mode enabled' : '🌙 Dark mode enabled');
+    toast(theme === 'light' ? '<i class="fa-solid fa-sun"></i> Light mode enabled' : '<i class="fa-solid fa-moon"></i> Dark mode enabled');
   }
 }
 
@@ -4614,7 +4660,7 @@ function setDefaultTab(tab) {
   try { localStorage.setItem('shiokbus_default_tab', tab); } catch(e) {}
   saveUiPreferences({ defaultTab: tab });
   renderSettingsDefaultTab();
-  toast('✓ Default tab saved');
+  toast('<i class="fa-solid fa-check"></i> Default tab saved');
 }
 
 async function loadUiPreferences() {
@@ -4756,7 +4802,7 @@ function rainBadgeHtml(forecast) {
   if (f.includes('fair') || f.includes('partly cloudy') || f.includes('cloudy')) return '';
   if (f.includes('thunder') || f.includes('shower') || f.includes('rain') ||
       f.includes('drizzle') || f.includes('mist') || f.includes('fog')) {
-    return `<div class="rain-badge">🌧 ${forecast}</div>`;
+    return `<div class="rain-badge"><i class="fa-solid fa-cloud-rain"></i> ${forecast}</div>`;
   }
   return '';
 }

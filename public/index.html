@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="assets/leaflet.css"/>
 <link rel="stylesheet" href="styles.css" />
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <!-- Firebase -->
 <script type="module" src="scripts/firebase.js"></script>
@@ -19,7 +20,7 @@
 <body>
 <!-- Train Service Alert Banner -->
 <div id="train-alert-banner" onclick="openTrainAlertModal()">
-  <div class="alert-icon">🚨</div>
+  <div class="alert-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
   <div class="alert-body">
     <div class="alert-title" id="train-alert-banner-title">Train Service Disruption</div>
     <div class="alert-msg" id="train-alert-banner-msg"></div>
@@ -31,7 +32,7 @@
 <!-- Train Service Alert Modal -->
 <div id="train-alert-modal" onclick="if(event.target===this)closeTrainAlertModal()">
   <div id="train-alert-modal-inner">
-    <h3>🚨 Train Service Alerts</h3>
+    <h3><i class="fa-solid fa-triangle-exclamation"></i> Train Service Alerts</h3>
     <div id="train-alert-modal-content"></div>
     <button onclick="closeTrainAlertModal()" style="margin-top:8px;width:100%;padding:12px;background:var(--card-border);border:none;border-radius:10px;color:var(--white);font-size:14px;font-family:'LTAIdentity',sans-serif;font-weight:600;cursor:pointer;">Close</button>
   </div>
@@ -44,8 +45,8 @@
     </div>
     <div class="header-right">
       <div style="display:flex;align-items:center;gap:10px">
-        <button class="auth-btn" id="mrt-map-btn" onclick="toggleMrtMap()" title="MRT Map" style="padding:5px 10px;gap:6px"><span style="font-size:16px">🗺️</span><span class="auth-name">MRT Map</span></button>
-        <button class="auth-btn" id="auth-btn" onclick="openSettings()"><span style="font-size:16px;margin-right:4px">👤</span><span class="auth-name"> Sign in</span></button>
+        <button class="auth-btn" id="mrt-map-btn" onclick="toggleMrtMap()" title="MRT Map" style="padding:5px 10px;gap:6px"><span style="font-size:16px"><i class="fa-solid fa-map"></i></span><span class="auth-name">MRT Map</span></button>
+        <button class="auth-btn" id="auth-btn" onclick="openSettings()"><span style="font-size:16px;margin-right:4px"><i class="fa-solid fa-user"></i></span><span class="auth-name"> Sign in</span></button>
       </div>
     </div>
   </header>
@@ -70,10 +71,10 @@
 
     <!-- SEARCH TABS -->
     <div class="search-tabs">
-      <button class="search-tab active" id="tab-service" onclick="switchTab('service')">🚌 Service</button>
-      <button class="search-tab" id="tab-stop" onclick="switchTab('stop')">🔍 Stop</button>
-      <button class="search-tab" id="tab-plan" onclick="switchTab('plan')">🗺 Plan</button>
-      <button class="search-tab" id="tab-favs" onclick="switchTab('favs')" style="display:none">⭐ Favourites</button>
+      <button class="search-tab active" id="tab-service" onclick="switchTab('service')"><i class="fa-solid fa-bus"></i> Service</button>
+      <button class="search-tab" id="tab-stop" onclick="switchTab('stop')"><i class="fa-solid fa-magnifying-glass"></i> Stop</button>
+      <button class="search-tab" id="tab-plan" onclick="switchTab('plan')"><i class="fa-solid fa-map-location-dot"></i> Plan</button>
+      <button class="search-tab" id="tab-favs" onclick="switchTab('favs')" style="display:none"><i class="fa-solid fa-star"></i> Favourites</button>
     </div>
 
     <!-- BUS STOP MODE (unified name + code search) -->
@@ -86,13 +87,13 @@
           onkeydown="if(event.key==='Enter'&&unifiedHighlight>=0)selectUnifiedStop(unifiedHighlight);else if(event.key==='ArrowDown')moveUnified(1);else if(event.key==='ArrowUp')moveUnified(-1);else if(event.key==='Escape')closeUnified()"
           autocomplete="off" />
         <button class="go-btn slim" onclick="clearStopSearch()">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
       <div class="stop-name-results" id="unifiedResults"></div>
       <!-- NEAR ME BUTTON -->
       <button class="near-me-btn" id="nearMeBtn" onclick="findNearby()">
-        <span class="btn-icon">📍</span>
+        <span class="btn-icon"><i class="fa-solid fa-location-dot"></i></span>
         <div>
           <div>Near Me</div>
           
@@ -103,7 +104,7 @@
         <div class="nearby-section">
           <div class="nearby-header">
             <div>
-              <div class="nearby-title">📍 Nearby Stops</div>
+              <div class="nearby-title"><i class="fa-solid fa-location-dot"></i> Nearby Stops</div>
               <div class="nearby-sub" id="nearbySubtitle"></div>
             </div>
             <button class="clear-nearby" onclick="clearNearby()">✕ Clear</button>
@@ -112,7 +113,7 @@
         </div>
       </div>
       <div id="quickChips">
-        <div class="interchange-header">🚉 Popular Interchanges</div>
+        <div class="interchange-header"><i class="fa-solid fa-house"></i> Popular Interchanges</div>
         <div class="interchange-grid">
           <div class="int-card" onclick="quickLoad('54009')"><div class="int-name">Ang Mo Kio</div><div class="int-code">54009</div></div>
           <div class="int-card" onclick="quickLoad('22009')"><div class="int-name">Boon Lay</div><div class="int-code">22009</div></div>
@@ -136,7 +137,7 @@
         <input class="stop-input text-mode" type="text" id="serviceInput" placeholder="Search bus service"
           oninput="onServiceInput()" onfocus="showRecentServices()" onkeydown="if(event.key==='Enter'){closeServiceDropdown();doServiceSearch()}" style="letter-spacing:3px" autocomplete="off" />
         <button class="go-btn slim" onclick="clearServiceSearch()">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
       <div id="svc-dropdown" class="stop-name-results"></div>
@@ -157,7 +158,7 @@
                 onkeydown="onPlanKey(event,'from')"
                 autocomplete="off" />
               <button class="go-btn slim" onclick="clearPlanInput('from')">
-                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <i class="fa-solid fa-xmark"></i>
               </button>
             </div>
             <div class="stop-name-results" id="planFromResults" style="display:none;position:absolute;left:0;right:0;z-index:9999;margin-top:4px"></div>
@@ -173,29 +174,29 @@
                 onkeydown="onPlanKey(event,'to')"
                 autocomplete="off" />
               <button class="go-btn slim" onclick="clearPlanInput('to')">
-                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <i class="fa-solid fa-xmark"></i>
               </button>
             </div>
             <div class="stop-name-results" id="planToResults" style="display:none;position:absolute;left:0;right:0;z-index:9999;margin-top:4px"></div>
           </div>
         </div>
         <div style="display:flex;gap:8px;margin-top:2px">
-          <button onclick="doPlanSearch()" style="width:100%;padding:10px;background:var(--red);color:#fff;border:none;border-radius:14px;font-family:'LTAIdentity',sans-serif;font-weight:700;font-size:18px;letter-spacing:1px;cursor:pointer">🗺 Find Route</button>
+          <button onclick="doPlanSearch()" style="width:100%;padding:10px;background:var(--red);color:#fff;border:none;border-radius:14px;font-family:'LTAIdentity',sans-serif;font-weight:700;font-size:18px;letter-spacing:1px;cursor:pointer"><i class="fa-solid fa-map-location-dot"></i> Find Route</button>
         </div>
       </div>
       <div id="plan-results" style="margin-top:16px"></div>
     </div>
     <div id="mode-favs" style="display:none">
       <div style="margin-top:12px">
-        <div class="fav-header">🚌 Services</div>
+        <div class="fav-header"><i class="fa-solid fa-bus"></i> Services</div>
         <div class="fav-grid" id="fav-grid-services"><div class="fav-empty">No favourite services yet.</div></div>
       </div>
       <div style="margin-top:20px">
-        <div class="fav-header">🚏 Bus Stops</div>
+        <div class="fav-header"><i class="fa-solid fa-sign-hanging"></i> Bus Stops</div>
         <div class="fav-grid" id="fav-grid-stops"><div class="fav-empty">No favourite stops yet.</div></div>
       </div>
       <div style="margin-top:20px">
-        <div class="fav-header">🗺 Plans</div>
+        <div class="fav-header"><i class="fa-solid fa-map-location-dot"></i> Plans</div>
         <div class="fav-grid" id="fav-grid-plans"><div class="fav-empty">No favourite plans yet.</div></div>
       </div>
     </div>
@@ -208,7 +209,7 @@
 <!-- REMOVE FAVOURITE MODAL -->
 <div class="modal-overlay" id="fav-remove-modal" style="display:none" onclick="if(event.target===this)closeFavModal()">
   <div class="modal-box">
-    <div class="modal-icon">⭐</div>
+    <div class="modal-icon"><i class="fa-solid fa-star"></i></div>
     <div class="modal-title">Remove Favourite?</div>
     <div class="modal-body">Remove <span class="modal-name" id="fav-modal-name"></span> from your favourites?</div>
     <div class="modal-btns">
@@ -220,7 +221,7 @@
 
 <div class="modal-overlay" id="signout-modal" style="display:none" onclick="if(event.target===this)closeSignOutModal()">
   <div class="modal-box">
-    <div class="modal-icon">👤</div>
+    <div class="modal-icon"><i class="fa-solid fa-user"></i></div>
     <div class="modal-title">Sign Out?</div>
     <div class="modal-body">Are you sure you want to sign out?</div>
     <div class="modal-btns">
