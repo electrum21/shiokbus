@@ -1236,6 +1236,7 @@ header {
   box-shadow: none;
   border: 2px solid var(--card-border);
   border-left: none;
+  color: #fff;
 }
 
 .go-btn.slim svg {
@@ -3389,6 +3390,14 @@ body.light .modal-btn.cancel {
   color: var(--muted);
 }
 
+.plan-leg-walk > i {
+  color: #fff;
+}
+
+body.light .plan-leg-walk > i {
+  color: #08101A;
+}
+
 .plan-route-summary {
   display: flex;
   align-items: center;
@@ -3440,7 +3449,7 @@ body.light .modal-btn.cancel {
   color: #08101A;
   font-family: 'LTAIdentity', sans-serif;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 14px;
   padding: 3px 10px;
   border-radius: 20px;
 }
@@ -3514,6 +3523,10 @@ body.light .plan-leg-meta {
   padding: 3px 8px;
   border-radius: 8px;
   white-space: nowrap;
+}
+
+body.light .plan-sun-pill {
+  color: #fff;
 }
 
 /* ERROR */

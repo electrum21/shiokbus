@@ -657,12 +657,30 @@ function card(az) { return ['N','NE','E','SE','S','SW','W','NW'][Math.round(az/4
 // ── SEARCH MODE ──
 let currentTab = 'service';
 let lastStopCode = null; // tracks the actual stop code regardless of input display text
-const COMMUTE_HISTORY_KEY = 'shiokbus_commute_history';
-const COMMUTE_HISTORY_MAX = 18;
+const HISTORY_KEY_SERVICES  = 'shiokbus_history_services';
+const HISTORY_KEY_STOPS     = 'shiokbus_history_stops';
+const HISTORY_STORE_MAX     = 10; // max items kept in localStorage per type
+const HISTORY_DISPLAY_MAX   = 5;  // max items shown in dropdown
+const _LEGACY_HISTORY_KEY   = 'shiokbus_commute_history';
 
-function loadCommuteHistory() {
+// One-time migration: move legacy unified history into separate stores
+(function _migrateHistory() {
   try {
-    const raw = localStorage.getItem(COMMUTE_HISTORY_KEY);
+    const raw = localStorage.getItem(_LEGACY_HISTORY_KEY);
+    if (!raw) return;
+    const old = JSON.parse(raw);
+    if (!Array.isArray(old) || !old.length) { localStorage.removeItem(_LEGACY_HISTORY_KEY); return; }
+    const svcs  = old.filter(h => h.type === 'service').slice(0, HISTORY_STORE_MAX);
+    const stops = old.filter(h => h.type === 'stop').slice(0, HISTORY_STORE_MAX);
+    if (svcs.length)  localStorage.setItem(HISTORY_KEY_SERVICES, JSON.stringify(svcs));
+    if (stops.length) localStorage.setItem(HISTORY_KEY_STOPS,    JSON.stringify(stops));
+    localStorage.removeItem(_LEGACY_HISTORY_KEY);
+  } catch(e) {}
+})();
+
+function _loadHistory(key) {
+  try {
+    const raw = localStorage.getItem(key);
     const parsed = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed : [];
   } catch(e) {
@@ -670,21 +688,43 @@ function loadCommuteHistory() {
   }
 }
 
-function saveCommuteHistory(items) {
-  try { localStorage.setItem(COMMUTE_HISTORY_KEY, JSON.stringify(items.slice(0, COMMUTE_HISTORY_MAX))); } catch(e) {}
+function _saveHistory(key, items) {
+  // Enforce storage cap and purge excess
+  const capped = items.slice(0, HISTORY_STORE_MAX);
+  try { localStorage.setItem(key, JSON.stringify(capped)); } catch(e) {}
+}
+
+function _historyKey(item) {
+  return item?.type === 'service' ? HISTORY_KEY_SERVICES : HISTORY_KEY_STOPS;
+}
+
+function loadCommuteHistory() {
+  // Returns combined history (services then stops) for backwards-compat callers
+  return [
+    ..._loadHistory(HISTORY_KEY_SERVICES),
+    ..._loadHistory(HISTORY_KEY_STOPS)
+  ];
 }
 
 function addCommuteHistory(item) {
   if (!item?.type || !item?.key) return;
+  const key = _historyKey(item);
+  const current = _loadHistory(key);
+  // Deduplicate by item key, newest first, then cap at HISTORY_STORE_MAX
   const next = [
     { ...item, ts: Date.now() },
-    ...loadCommuteHistory().filter(h => h.key !== item.key)
-  ].slice(0, COMMUTE_HISTORY_MAX);
-  saveCommuteHistory(next);
+    ...current.filter(h => h.key !== item.key)
+  ].slice(0, HISTORY_STORE_MAX);
+  _saveHistory(key, next);
 }
 
-function removeCommuteHistory(key) {
-  saveCommuteHistory(loadCommuteHistory().filter(h => h.key !== key));
+function removeCommuteHistory(itemKey) {
+  // Remove from whichever store contains the key
+  [HISTORY_KEY_SERVICES, HISTORY_KEY_STOPS].forEach(storeKey => {
+    const items = _loadHistory(storeKey);
+    const filtered = items.filter(h => h.key !== itemKey);
+    if (filtered.length !== items.length) _saveHistory(storeKey, filtered);
+  });
 }
 
 function serviceHistorySub(svc) {
@@ -745,7 +785,8 @@ function rememberServiceHistory(svc) {
 }
 
 function recentHistory(type) {
-  return loadCommuteHistory().filter(h => h.type === type).slice(0, 5);
+  const key = type === 'service' ? HISTORY_KEY_SERVICES : HISTORY_KEY_STOPS;
+  return _loadHistory(key).slice(0, HISTORY_DISPLAY_MAX);
 }
 
 function showRecentServices() {
@@ -1575,14 +1616,19 @@ function renderPlanTripResult(analysis, sliced, boardIdx, alightIdx) {
   const intensity = avoidPct > 60 ? 'strongly' : avoidPct > 30 ? 'moderately' : 'slightly';
   const isSunny = avoidPct > 40;
 
-  // Build per-segment strip for sliced route
   const segResults = planSunAnalysis?.segResults?.slice(boardIdx, alightIdx) || [];
-  const stripHtml = segResults.map(seg => {
+  const stripHtml = segResults.map((seg, i) => {
     if (!seg || seg.exposure === 'none' || seg.side === 'any')
       return `<div class="trip-seg" style="flex:${Math.round(seg?.dist||1)};background:#FFFFFF10"></div>`;
-    const sunOnRec = seg.side === recSide;
-    const col = sunOnRec ? '#FF880060' : seg.exposure==='high'?'#FF333370':seg.exposure==='medium'?'#FF880050':'#00E07A40';
-    return `<div class="trip-seg" style="flex:${Math.round(seg.dist)};background:${col}"></div>`;
+    const score = seg.score || 0;
+    const lerpHex = (a, b, t) => {
+      const c = (hex) => [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)];
+      const [ar,ag,ab] = c(a), [br,bg,bb] = c(b);
+      const r = Math.round(ar+(br-ar)*t), g = Math.round(ag+(bg-ag)*t), bv = Math.round(ab+(bb-ab)*t);
+      return '#' + [r,g,bv].map(v=>v.toString(16).padStart(2,'0')).join('');
+    };
+    const baseColor = score < 0.5 ? lerpHex('#FFD000','#FF8800', score/0.5) : lerpHex('#FF8800','#FF3333',(score-0.5)/0.5);
+    return `<div class="trip-seg" style="flex:${Math.round(seg.dist)};background:${baseColor}80"></div>`;
   }).join('');
 
   const boardStop = planStops[boardIdx];
@@ -1598,10 +1644,13 @@ function renderPlanTripResult(analysis, sliced, boardIdx, alightIdx) {
             <span>Sun Intensity</span><span id="map-legend-chevron" style="font-size:10px;transition:transform .2s">▾</span>
           </div>
           <div id="map-legend-items" style="margin-top:3px">
-            <div style="display:flex;align-items:center;gap:6px"><div class="legend-nosun-swatch" style="width:22px;height:4px;border-radius:2px;flex-shrink:0"></div><span class="map-legend-item-label">No direct sun</span></div>
-            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FFD000;flex-shrink:0"></div><span class="map-legend-item-label">Mild sun</span></div>
-            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FF8800;flex-shrink:0"></div><span class="map-legend-item-label">Moderate sun</span></div>
-            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#FF3333;flex-shrink:0"></div><span class="map-legend-item-label">Strong sun</span></div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="width:80px;height:4px;border-radius:2px;flex-shrink:0;background:linear-gradient(to right,#4A6090,#FFD000,#FF8800,#FF3333)"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;width:80px;margin-top:2px">
+              <span class="map-legend-item-label">No sun</span>
+              <span class="map-legend-item-label">Strong</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1644,12 +1693,34 @@ function initTripMap(sliced, boardIdx, alightIdx) {
   L.tileLayer(document.body.classList.contains('light') ? 'https://www.onemap.gov.sg/maps/tiles/Default/{z}/{x}/{y}.png' : 'https://www.onemap.gov.sg/maps/tiles/Night/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.onemap.gov.sg" target="_blank">OneMap</a> &copy; Singapore Land Authority' }).addTo(tripMap);
 
   const segResults = planSunAnalysis?.segResults?.slice(boardIdx, alightIdx) || [];
-  function segColor(i) {
-    const seg = segResults[i];
-    if (!seg || seg.exposure === 'none' || seg.side === 'any') return document.body.classList.contains('light') ? '#4A6090' : '#FFFFFF';
-    return seg.exposure === 'high' ? '#FF3333' : seg.exposure === 'medium' ? '#FF8800' : '#FFD000';
+  const isLight = document.body.classList.contains('light');
+
+  // Map a segment's raw score (0–1) to a hex color by lerping through
+  // the intensity ramp: no-sun → mild (#FFD000) → moderate (#FF8800) → strong (#FF3333)
+  function scoreToColor(score) {
+    if (score <= 0) return isLight ? '#4A6090' : '#8899BB';
+    const lerpHex = (a, b, t) => {
+      const c = (hex) => [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)];
+      const [ar,ag,ab] = c(a), [br,bg,bb] = c(b);
+      const r = Math.round(ar + (br-ar)*t), g = Math.round(ag + (bg-ag)*t), bv = Math.round(ab + (bb-ab)*t);
+      return '#' + [r,g,bv].map(v=>v.toString(16).padStart(2,'0')).join('');
+    };
+    if (score < 0.5) return lerpHex('#FFD000', '#FF8800', score / 0.5);
+    return lerpHex('#FF8800', '#FF3333', (score - 0.5) / 0.5);
   }
 
+  function segScore(i) {
+    const seg = segResults[i];
+    if (!seg || seg.exposure === 'none' || seg.side === 'any') return 0;
+    return seg.score || 0;
+  }
+
+  // Returns a smoothly interpolated color at the midpoint between seg i and i+1
+  function segColor(i) {
+    const s0 = segScore(i);
+    const s1 = segScore(Math.min(i + 1, segResults.length - 1));
+    return scoreToColor((s0 + s1) / 2);
+  }
   // Draw stop markers immediately
   sliced.forEach((s, i) => {
     const coords = stopLatLng(s);
@@ -2422,7 +2493,7 @@ async function findNearby() {
 
   userLat = pos.coords.latitude;
   userLng = pos.coords.longitude;
-  if (sub) sub.textContent = `<i class="fa-solid fa-location-dot"></i> ${userLat.toFixed(4)}, ${userLng.toFixed(4)}`;
+  if (sub) sub.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${userLat.toFixed(4)}, ${userLng.toFixed(4)}`;
 
   // Fetch/use cached stop list
   let stops;
@@ -4015,7 +4086,7 @@ function onPlanBlur(which) {
 function selectGlobalNearestStop(which) {
   const resultsId = which === 'from' ? 'planFromResults' : 'planToResults';
   const nearEl = document.getElementById(`plan-near-me-${which}`);
-  if (nearEl) nearEl.textContent = '<i class="fa-solid fa-location-dot"></i> Locating…';
+  if (nearEl) nearEl.innerHTML = '<i class="fa-solid fa-location-dot"></i> Locating…';
 
   const resolve = (lat, lng) => {
     if (!ALL_STOPS) { toast('Stop data not loaded yet'); return; }
@@ -4397,7 +4468,7 @@ async function renderPlanResults(itineraries) {
         const stationPill = (c) => {
           if (!c) return '';
           const upper = c.toUpperCase();
-          const isMrt = /^(NS|EW|CG|NE|CC|CE|DT|TE|BP|SE|SW|STC|PE|PW|PTC)\d/.test(upper);
+          const isMrt = /^(NS|EW|CG|NE|CC|CE|DT|TE|BP|SE|SW|PE|PW)\d/.test(upper) || /^(STC|PTC)$/.test(upper);
           if (!isMrt) return '';
           return `<span class="mrt-line-pill" style="background:${lineColor}">${c}</span>`;
         };
