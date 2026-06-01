@@ -61,7 +61,7 @@ onAuthStateChanged(auth, user => {
         });
         });
     } else {
-        document.getElementById('auth-btn').innerHTML = '<span style="font-size:16px;margin-right:4px">👤</span><span class="auth-name"> Sign in</span>';
+        document.getElementById('auth-btn').innerHTML = '<span style="font-size:16px;margin-right:4px"><i class="fa-solid fa-user"></i></span><span class="auth-name"> Sign in</span>';
         document.getElementById('auth-btn').title = 'Settings';
         window.renderSettingsAccount && window.renderSettingsAccount();
         // Hide favourites tab and switch away if currently on it
@@ -91,7 +91,7 @@ window.authAction = async () => {
             'auth/invalid-api-key': 'Invalid API key — check your Firebase config.',
             'auth/network-request-failed': 'Network error. Check your internet connection.',
         }[e.code] || `Error: ${e.code || e.message}`;
-        toast('⚠️ ' + msg, 5000);
+        toast('<i class="fa-solid fa-triangle-exclamation"></i> ' + msg, 5000);
         }
     }
 };
@@ -104,6 +104,6 @@ window.toggleFav = async (key, data) => {
         toast('Removed from favourites');
     } else {
         await setDoc(ref, data);
-        toast('Added to favourites ⭐');
+        toast('Added to favourites <i class="fa-solid fa-star"></i>');
     }
 };
