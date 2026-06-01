@@ -320,6 +320,7 @@ function _expandMrtAbbreviations(core) {
     .replace(/\bgdn\b/g, 'garden')
     .replace(/\bupp\b/g, 'upper')
     .replace(/\bs'goon\b/g, 'serangoon')
+    .replace(/\btg\b/g, 'tanjong')
     .replace(/\bjln\b/g, 'jalan')
     .replace(/\bsth\b/g, 'south')
     .replace(/\bnth\b/g, 'north')
