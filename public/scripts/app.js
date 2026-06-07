@@ -1422,7 +1422,8 @@ function renderRoute(rd, allStops) {
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-              <button class="fav-btn" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();addStopFav('${s.BusStopCode}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')" style="font-size:16px;color:var(--muted)">${(window._favs||{})['stop_'+s.BusStopCode]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
+              <button class="view-btn" title="View bus stop location on map" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();viewStopOnMap('${s.BusStopCode}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')" style="font-size:16px;color:var(--muted)">${(window._favs||{})['stop_'+s.BusStopCode]?'<i class="fa-solid fa-location-dot"></i>':'<i class="fa-solid fa-location-dot"></i>'}</button>
+              <button class="fav-btn" title="Add bus stop to favourites" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();addStopFav('${s.BusStopCode}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')" style="font-size:16px;color:var(--muted)">${(window._favs||{})['stop_'+s.BusStopCode]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
               <div class="rs-chevron">›</div>
             </div>
           </div>
@@ -2570,10 +2571,7 @@ function clearNearby() {
   
 }
 
-// ── RENDER ARRIVALS ──
-
 // ── PRIVATE STOP VIEW HELPERS ──
-
 function getPrivateServicesForStop(code) {
   if (!PRIVATE_SERVICES) return [];
   const results = [];
@@ -3890,6 +3888,49 @@ function addStopFav(code, name, road) {
     promptRemoveFav('stop_'+code);
   } else {
     toggleFav('stop_'+code, {type:'stop', id:code, name:name, sub:road||''});
+  }
+}
+
+function viewStopOnMap(code) {
+  const stop = (ALL_STOPS || []).find(s => s.BusStopCode === code);
+  if (!stop) return;
+
+  const lat = parseFloat(stop.Latitude);
+  const lng = parseFloat(stop.Longitude);
+  const name = stop.Description || code;
+  const road = stop.RoadName || '';
+
+  document.getElementById('stop-map-modal').style.display = 'flex';
+
+  if (window._stopMap) {
+    window._stopMap.remove();
+    window._stopMap = null;
+  }
+
+  const isLight = document.body.classList.contains('light');
+  const tileUrl = isLight ? 'https://www.onemap.gov.sg/maps/tiles/Default/{z}/{x}/{y}.png':'https://www.onemap.gov.sg/maps/tiles/Night/{z}/{x}/{y}.png';
+
+  window._stopMap = L.map('stop-map-container', { zoomControl: true, attributionControl: false });
+  L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(window._stopMap);
+  window._stopMap.setView([lat, lng], 17);
+
+  const markerIcon = L.divIcon({
+    html: `<div style="background:var(--cyan);width:14px;height:14px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px #0008"></div>`,
+    className: '',
+    iconAnchor: [7, 7]
+  });
+
+  L.marker([lat, lng], { icon: markerIcon })
+    .addTo(window._stopMap)
+    .bindPopup(`<strong>${name}</strong><br>${road}`)
+    .openPopup();
+}
+
+function closeStopMapModal() {
+  document.getElementById('stop-map-modal').style.display = 'none';
+  if (window._stopMap) {
+    window._stopMap.remove();
+    window._stopMap = null;
   }
 }
 

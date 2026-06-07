@@ -27,7 +27,17 @@
   </div>
   <div class="alert-expand">Tap for details ›</div>
 </div>
-<!-- MRT Map Modal -->
+
+<!-- Bus Stop Location on Map Modal -->
+<div id="stop-map-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:#0008;align-items:center;justify-content:center">
+  <div style="background:#0d1b2e;border-radius:16px;width:min(92vw,480px);position:relative">
+    <div class="stop-map-header">
+      <span style="font-weight:700;font-size:14px">Stop Location</span>
+      <button onclick="closeStopMapModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="stop-map-container" style="height:340px;width:100%;border-radius:0 0 16px 16px;overflow:hidden"></div>
+  </div>
+</div>
 
 <!-- Train Service Alert Modal -->
 <div id="train-alert-modal" onclick="if(event.target===this)closeTrainAlertModal()">
