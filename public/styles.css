@@ -2520,6 +2520,23 @@ body.light ::-webkit-scrollbar-thumb:hover {
   min-width: 42px;
   text-align: center;
   flex-shrink: 0;
+  background: var(--red);
+}
+
+.svc-drop-num.op-gas {
+  background: #9A7000;
+}
+
+.svc-drop-num.op-tts {
+  background: #1A6B2A;
+}
+
+.svc-drop-num.op-sbs {
+  background: #5B2D8E;
+}
+
+.svc-drop-num.op-smrt {
+  background: var(--red);
 }
 
 .svc-drop-cat {
@@ -2545,6 +2562,102 @@ body.light .svc-drop-item:hover {
 
 body.light #svc-dropdown {
   background: #FFFFFF;
+}
+
+/* ── ALL SERVICES BROWSE LIST ── */
+.svc-browse-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  margin-bottom: 8px;
+  padding: 0 2px;
+}
+
+.svc-browse-header .svc-browse-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: 'LTAIdentity', sans-serif;
+}
+
+.svc-browse-header .svc-browse-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--card-border);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+
+.svc-browse-list {
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
+  border-radius: 14px;
+  overflow-y: auto;
+  max-height: calc(100vh - 380px);
+  min-height: 160px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.svc-browse-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.svc-browse-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.svc-browse-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+}
+
+.svc-browse-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+body.light .svc-browse-list {
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+.svc-browse-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: background .15s;
+  font-family: 'LTAIdentity', sans-serif;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.svc-browse-item:last-child {
+  border-bottom: none;
+  border-radius: 0 0 12px 12px;
+}
+
+.svc-browse-item:first-child {
+  border-radius: 12px 12px 0 0;
+}
+
+.svc-browse-item:hover {
+  background: var(--card-border);
+}
+
+body.light .svc-browse-item:hover {
+  background: #EEF4FF;
+}
+
+.svc-browse-empty {
+  padding: 24px 14px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  font-family: 'LTAIdentity', sans-serif;
 }
 
 .stop-hero {

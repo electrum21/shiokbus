@@ -111,6 +111,9 @@ const MRT_PNG_COORDS = {
   'CC27': [33.516, 67.888], // Labrador Park
   'CC28': [35.592, 70.208], // Telok Blangah
   'CC29': [39.255, 72.527], // HarbourFront
+  'CC30': [44.379, 73.817], // Keppel
+  'CC31': [47.781, 74.112], // Cantonment
+  'CC32': [51.331, 73.817], // Prince Edward Road
   'CE1': [60.745, 70.085], // Bayfront
   'CE2': [54.884, 72.283], // Marina Bay
   'DT1': [25.214, 30.525], // Bukit Panjang
@@ -545,10 +548,13 @@ window.addEventListener('DOMContentLoaded', () => {
     const cached = localStorage.getItem('shiokbus_stops');
     if (cached) ALL_STOPS = JSON.parse(cached);
   } catch(e) {}
-  // Preload services silently for instant dropdown
-  if (!ALL_SERVICES) fetchAllServices().catch(() => {});
-  if (!ALL_STOPS) fetchAllStops().catch(() => {});
-  fetchPBSServices().catch(() => {});
+  // Preload services silently for instant dropdown, then populate the browse list
+  if (ALL_SERVICES) renderServiceBrowseList();
+  const svcPreload = ALL_SERVICES ? Promise.resolve(ALL_SERVICES) : fetchAllServices().catch(() => {});
+  const stopsPreload = ALL_STOPS ? Promise.resolve(ALL_STOPS) : fetchAllStops().catch(() => {});
+  Promise.resolve(svcPreload).then(() => renderServiceBrowseList());
+  Promise.resolve(stopsPreload).then(() => renderServiceBrowseList());
+  fetchPBSServices().then(() => renderServiceBrowseList()).catch(() => {});
   loadMrtData().then(() => {
     startTrainAlertPolling();
     // Re-render stop title pills if a stop is currently displayed
@@ -841,6 +847,10 @@ function switchTab(tab) {
     if (mode) mode.style.display = t===tab ? 'block' : 'none';
     if (tabBtn) tabBtn.classList.toggle('active', t===tab);
   });
+  if (tab === 'service' && ALL_SERVICES) {
+    const browseList = document.getElementById('svc-browse-list');
+    if (browseList && !browseList.children.length) renderServiceBrowseList();
+  }
   const resultsService = document.getElementById('results-service');
   const resultsStop = document.getElementById('results-stop');
   if (resultsService) resultsService.style.display = tab==='service' ? 'block' : 'none';
@@ -856,66 +866,106 @@ function switchTab(tab) {
 // ── STOP CODE SEARCH ──
 function quickLoad(code) { switchTab('stop'); document.getElementById('stopInput').value = code; lastStopCode = code; document.getElementById('nearbySection').style.display = 'none'; closeUnified(); doSearch(); }
 
+// Builds the inner markup (badge + route description) for a single service row.
+// Shared by the live search dropdown and the persistent "All Services" browse list.
+function buildServiceRowInner(svc) {
+  const info1 = ALL_SERVICES[svc + '-1'] || null;
+  const info2 = ALL_SERVICES[svc + '-2'] || null;
+  const op = (info1?.Operator || info2?.Operator || '').toUpperCase();
+  const opCls = opClass(op, !!(info1?._isPrivate||info2?._isPrivate));
+  const orig = info1?.OriginCode ? (stopName(info1.OriginCode) || info1.OriginCode) : '';
+  const dest = info1?.DestinationCode ? (stopName(info1.DestinationCode) || info1.DestinationCode) : '';
+  const isLoop = info1 && !info2 && (info1.OriginCode === info1.DestinationCode || !!info1.LoopDesc);
+  const isBidi = !!info2;
+  // Dual-loop: two directions both starting and ending at the same terminal
+  // Prefer build-time set; fall back to runtime detection
+  const isDualLoop = (svc in DUAL_LOOP_SVCS) || (isBidi && info1 && info2
+    && info1.OriginCode && info1.OriginCode === info1.DestinationCode
+    && info2.OriginCode && info2.OriginCode === info2.DestinationCode
+    && info1.OriginCode === info2.OriginCode);
+  const midpoint = LOOP_SVC_MIDPOINTS[svc];
+  const loopDesc = midpoint ? (/int|stn|hub|ter|ctr|zoo|wetland reserve/i.test(midpoint.Description) ? midpoint.Description : midpoint.RoadName)
+: (info1?.LoopDesc || '');
+  const isPrivate = !!(info1?._isPrivate || info2?._isPrivate);
+  let route = '';
+  if (isPrivate) {
+    const origDesc = info1?.OriginDesc || orig;
+    const destDesc = info1?.DestinationDesc || dest;
+    route = isBidi ? `${origDesc} ↔ ${destDesc}` : `${origDesc} → ${destDesc}`;
+  } else if (orig) {
+    if (isDualLoop) {
+      const dualData = DUAL_LOOP_SVCS[svc] || {};
+      const loop1 = dualData.dir1 || info1.LoopDesc || '';
+      const loop2 = dualData.dir2 || info2?.LoopDesc || '';
+      const loops = [loop1, loop2].filter(Boolean).join(' / ');
+      route = loops ? `${orig} ↻ via ${loops}` : `${orig} ↻`;
+    } else if (isBidi) route = `${orig} ↔ ${dest}`;
+    else if (isLoop) route = loopDesc ? `${orig} ↻ via ${loopDesc}` : `${orig} ↻`;
+    else route = `${orig} → ${dest}`;
+  }
+  const pbsBadge = isPrivate ? `<span style="font-size:9px;background:#1A2C5B20;color:#1A2C5B;border:1px solid #1A2C5B40;border-radius:4px;padding:1px 4px;margin-left:4px;font-weight:700;flex-shrink:0">Private</span>` : '';
+  return { opCls, route, pbsBadge };
+}
+
+function allServiceNumbersSorted() {
+  if (!ALL_SERVICES) return [];
+  const seen = new Set();
+  const list = [];
+  Object.keys(ALL_SERVICES).forEach(k => {
+    const svcNo = k.split('-')[0];
+    if (!seen.has(svcNo) && !EXCLUDED_SERVICES.has(svcNo.replace(/^0+/, '').toUpperCase())) {
+      seen.add(svcNo);
+      list.push(svcNo);
+    }
+  });
+  list.sort((a, b) => {
+    const aNum = parseInt(a), bNum = parseInt(b);
+    if (!isNaN(aNum) && !isNaN(bNum)) {
+      if (aNum !== bNum) return aNum - bNum;
+      return a.localeCompare(b); // e.g. "950" before "950e"
+    }
+    return a.localeCompare(b);
+  });
+  return list;
+}
+
+// Renders the always-visible, ascending-order, colour-coded list of every
+// bus service below the service search bar.
+function renderServiceBrowseList() {
+  const box = document.getElementById('svc-browse-list');
+  if (!box) return;
+  if (!ALL_SERVICES) {
+    box.innerHTML = `<div class="svc-browse-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading services…</div>`;
+    return;
+  }
+  const svcNos = allServiceNumbersSorted();
+  if (!svcNos.length) {
+    box.innerHTML = `<div class="svc-browse-empty">No services found.</div>`;
+    return;
+  }
+  box.innerHTML = svcNos.map(svc => {
+    const { opCls, route, pbsBadge } = buildServiceRowInner(svc);
+    return `<div class="svc-browse-item" onclick="selectService('${svc}')">
+      <span class="svc-drop-num ${opCls}">${formatSvcNo(svc)}</span>
+      <span class="svc-drop-cat" style="display:flex;align-items:center;gap:0">${route}${pbsBadge}</span>
+    </div>`;
+  }).join('');
+}
+
 function onServiceInput() {
   const val = document.getElementById('serviceInput').value.trim().toUpperCase().replace(/^(\d+)E$/, '$1e');
   const dd = document.getElementById('svc-dropdown');
   if (!val) { showRecentServices(); return; }
   if (!ALL_SERVICES) { dd.className = 'stop-name-results'; return; }
 
-
-  const seen = new Set();
-  const matches = [];
-  Object.keys(ALL_SERVICES).forEach(k => {
-    const svcNo = k.split('-')[0];
-    if (!seen.has(svcNo) && svcNo.toUpperCase().startsWith(val.toUpperCase()) && !EXCLUDED_SERVICES.has(svcNo.replace(/^0+/, '').toUpperCase())) {
-      seen.add(svcNo);
-      matches.push(svcNo);
-    }
-  });
-  matches.sort((a, b) => {
-    const aNum = parseInt(a), bNum = parseInt(b);
-    if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
-    return a.localeCompare(b);
-  });
+  const matches = allServiceNumbersSorted().filter(svcNo =>
+    svcNo.toUpperCase().startsWith(val.toUpperCase())
+  );
 
   if (!matches.length) { dd.className = 'stop-name-results'; return; }
 
   dd.innerHTML = matches.slice(0, 20).map(svc => {
-    const info1 = ALL_SERVICES[svc + '-1'] || null;
-    const info2 = ALL_SERVICES[svc + '-2'] || null;
-    const op = (info1?.Operator || info2?.Operator || '').toUpperCase();
-    const opCls = opClass(op, !!(info1?._isPrivate||info2?._isPrivate));
-    const orig = info1?.OriginCode ? (stopName(info1.OriginCode) || info1.OriginCode) : '';
-    const dest = info1?.DestinationCode ? (stopName(info1.DestinationCode) || info1.DestinationCode) : '';
-    const isLoop = info1 && !info2 && (info1.OriginCode === info1.DestinationCode || !!info1.LoopDesc);
-    const isBidi = !!info2;
-    // Dual-loop: two directions both starting and ending at the same terminal
-    // Prefer build-time set; fall back to runtime detection
-    const isDualLoop = (svc in DUAL_LOOP_SVCS) || (isBidi && info1 && info2
-      && info1.OriginCode && info1.OriginCode === info1.DestinationCode
-      && info2.OriginCode && info2.OriginCode === info2.DestinationCode
-      && info1.OriginCode === info2.OriginCode);
-    const midpoint = LOOP_SVC_MIDPOINTS[svc];
-    const loopDesc = midpoint ? (/int|stn|hub|ter|ctr|zoo|wetland reserve/i.test(midpoint.Description) ? midpoint.Description : midpoint.RoadName)
-  : (info1?.LoopDesc || '');
-    const isPrivate = !!(info1?._isPrivate || info2?._isPrivate);
-    let route = '';
-    if (isPrivate) {
-      const origDesc = info1?.OriginDesc || orig;
-      const destDesc = info1?.DestinationDesc || dest;
-      route = isBidi ? `${origDesc} ↔ ${destDesc}` : `${origDesc} → ${destDesc}`;
-    } else if (orig) {
-      if (isDualLoop) {
-        const dualData = DUAL_LOOP_SVCS[svc] || {};
-        const loop1 = dualData.dir1 || info1.LoopDesc || '';
-        const loop2 = dualData.dir2 || info2?.LoopDesc || '';
-        const loops = [loop1, loop2].filter(Boolean).join(' / ');
-        route = loops ? `${orig} ↻ via ${loops}` : `${orig} ↻`;
-      } else if (isBidi) route = `${orig} ↔ ${dest}`;
-      else if (isLoop) route = loopDesc ? `${orig} ↻ via ${loopDesc}` : `${orig} ↻`;
-      else route = `${orig} → ${dest}`;
-    }
-    const pbsBadge = isPrivate ? `<span style="font-size:9px;background:#1A2C5B20;color:#1A2C5B;border:1px solid #1A2C5B40;border-radius:4px;padding:1px 4px;margin-left:4px;font-weight:700;flex-shrink:0">Private</span>` : '';
+    const { opCls, route, pbsBadge } = buildServiceRowInner(svc);
     return `<div class="svc-drop-item" onclick="selectService('${svc}')">
       <span class="svc-drop-num ${opCls}">${formatSvcNo(svc)}</span>
       <span class="svc-drop-cat" style="display:flex;align-items:center;gap:0">${route}${pbsBadge}</span>
