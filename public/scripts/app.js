@@ -802,12 +802,15 @@ function showRecentServices() {
   if (!input || !dd || input.value.trim()) return;
   const recent = recentHistory('service');
   if (!recent.length) { dd.className = 'stop-name-results'; return; }
-  dd.innerHTML = `<div class="recent-drop-header">Recently searched</div>` + recent.map(h => `
-  <div class="svc-drop-item recent-drop-item" style="display:flex;align-items:center" onclick="selectService('${String(h.id).replace(/'/g, "\\'")}')">
-    <span class="svc-drop-num">${formatSvcNo(h.id)}</span>
-    <span class="svc-drop-cat" style="flex:1">${escapeHtml(h.sub || serviceHistorySub(h.id) || 'Service ' + formatSvcNo(h.id))}</span>
-    <button class="recent-remove-btn" onclick="event.stopPropagation();removeCommuteHistory('${String(h.key).replace(/'/g, "\\'")}');showRecentServices()" title="Remove"><i class="fa-solid fa-xmark"></i></button>
-  </div>`).join('');
+  dd.innerHTML = `<div class="recent-drop-header">Recently searched</div>` + recent.map(h => {
+    const opCls = ALL_SERVICES ? buildServiceRowInner(h.id).opCls : '';
+    return `
+    <div class="svc-drop-item recent-drop-item" style="display:flex;align-items:center" onclick="selectService('${String(h.id).replace(/'/g, "\\'")}')">
+      <span class="svc-drop-num ${opCls}">${formatSvcNo(h.id)}</span>
+      <span class="svc-drop-cat" style="flex:1">${escapeHtml(h.sub || serviceHistorySub(h.id) || 'Service ' + formatSvcNo(h.id))}</span>
+      <button class="recent-remove-btn" onclick="event.stopPropagation();removeCommuteHistory('${String(h.key).replace(/'/g, "\\'")}');showRecentServices()" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+    </div>`
+    }).join('');
   dd.className = 'stop-name-results open';
 }
 
@@ -855,6 +858,9 @@ function switchTab(tab) {
   const resultsStop = document.getElementById('results-stop');
   if (resultsService) resultsService.style.display = tab==='service' ? 'block' : 'none';
   if (resultsStop) resultsStop.style.display = tab==='stop' ? 'block' : 'none';
+  if (tab === 'service') {
+    setServiceBrowseVisible(!resultsService || !resultsService.innerHTML.trim());
+  }
   updateTrainAlertBanner();
   const favMode = document.getElementById('mode-favs');
   const favTab = document.getElementById('tab-favs');
@@ -930,15 +936,23 @@ function allServiceNumbersSorted() {
 }
 
 // Renders the always-visible, ascending-order, colour-coded list of every
-// bus service below the service search bar.
-function renderServiceBrowseList() {
+// bus service below the service search bar. Pass a filter string to narrow
+// the list down to services whose number starts with it (used while typing
+// in the search bar); omit it (or pass '') to show every service.
+function renderServiceBrowseList(filter) {
   const box = document.getElementById('svc-browse-list');
   if (!box) return;
   if (!ALL_SERVICES) {
     box.innerHTML = `<div class="svc-browse-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading services…</div>`;
     return;
   }
-  const svcNos = allServiceNumbersSorted();
+  let svcNos = allServiceNumbersSorted();
+  const val = (filter || '').trim().toUpperCase();
+  if (val) svcNos = svcNos.filter(svcNo => svcNo.toUpperCase().startsWith(val));
+
+  const header = document.querySelector('.svc-browse-title');
+  if (header) header.textContent = val ? `${svcNos.length} service${svcNos.length === 1 ? '' : 's'} found` : 'All Services';
+
   if (!svcNos.length) {
     box.innerHTML = `<div class="svc-browse-empty">No services found.</div>`;
     return;
@@ -947,36 +961,21 @@ function renderServiceBrowseList() {
     const { opCls, route, pbsBadge } = buildServiceRowInner(svc);
     return `<div class="svc-browse-item" onclick="selectService('${svc}')">
       <span class="svc-drop-num ${opCls}">${formatSvcNo(svc)}</span>
-      <span class="svc-drop-cat" style="display:flex;align-items:center;gap:0">${route}${pbsBadge}</span>
+      <span class="svc-drop-cat" style="display:flex;align-items:center;gap:0">${route}</span>
     </div>`;
   }).join('');
 }
 
 function onServiceInput() {
   const val = document.getElementById('serviceInput').value.trim().toUpperCase().replace(/^(\d+)E$/, '$1e');
-  const dd = document.getElementById('svc-dropdown');
-  if (!val) { showRecentServices(); return; }
-  if (!ALL_SERVICES) { dd.className = 'stop-name-results'; return; }
-
-  const matches = allServiceNumbersSorted().filter(svcNo =>
-    svcNo.toUpperCase().startsWith(val.toUpperCase())
-  );
-
-  if (!matches.length) { dd.className = 'stop-name-results'; return; }
-
-  dd.innerHTML = matches.slice(0, 20).map(svc => {
-    const { opCls, route, pbsBadge } = buildServiceRowInner(svc);
-    return `<div class="svc-drop-item" onclick="selectService('${svc}')">
-      <span class="svc-drop-num ${opCls}">${formatSvcNo(svc)}</span>
-      <span class="svc-drop-cat" style="display:flex;align-items:center;gap:0">${route}${pbsBadge}</span>
-    </div>`;
-  }).join('');
-  dd.className = 'stop-name-results open';
+  closeServiceDropdown();
+  renderServiceBrowseList(val);
 }
 
 function selectService(svc) {
   document.getElementById('serviceInput').value = svc;
   closeServiceDropdown();
+  renderServiceBrowseList();
   doServiceSearch();
 }
 
@@ -1051,16 +1050,25 @@ function opClass(op, isPrivate) {
   return isPrivate ? 'op-private' : 'op-smrt';
 }
 
+function setServiceBrowseVisible(visible) {
+  const header = document.querySelector('.svc-browse-header');
+  const list = document.getElementById('svc-browse-list');
+  if (header) header.style.display = visible ? '' : 'none';
+  if (list) list.style.display = visible ? '' : 'none';
+}
+
 async function doServiceSearch() {
   closeServiceDropdown();
   const svc = document.getElementById('serviceInput').value.trim().toUpperCase().replace(/^(\d+)E$/, '$1e');
   if (!svc) return;
   if (EXCLUDED_SERVICES.has(svc.replace(/^0+/, '').toUpperCase())) {
+    setServiceBrowseVisible(false);
     document.getElementById('results-service').style.display = 'block';
     document.getElementById('results-service').innerHTML = `<div class="error-card" style="text-align:center"><i class="fa-solid fa-triangle-exclamation"></i> No route found for service <strong>${svc}</strong>.</div>`;
     return;
   }
 
+  setServiceBrowseVisible(false);
   document.getElementById('results-service').style.display = 'block';
   document.getElementById('results-service').innerHTML =
     `<div class="loading-state"><div class="bus-loader"><i class="fa-solid fa-bus"></i></div><div class="loading-txt">Fetching route for ${svc}…</div></div>`;
@@ -2042,6 +2050,7 @@ function clearStopSearch() {
 function clearServiceSearch() {
   document.getElementById('serviceInput').value = '';
   document.getElementById('results-service').innerHTML = '';
+  setServiceBrowseVisible(true);
 }
 
 

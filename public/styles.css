@@ -2597,8 +2597,7 @@ body.light #svc-dropdown {
   border: 1.5px solid var(--card-border);
   border-radius: 14px;
   overflow-y: auto;
-  max-height: calc(100vh - 380px);
-  min-height: 160px;
+  max-height: 460px;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
@@ -2653,7 +2652,11 @@ body.light .svc-browse-item:hover {
 }
 
 .svc-browse-empty {
-  padding: 24px 14px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
   text-align: center;
   color: var(--muted);
   font-size: 13px;
