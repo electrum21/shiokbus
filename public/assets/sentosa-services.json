@@ -70,7 +70,7 @@
           },
           {
             "StopSequence": 6,
-            "BusStopCode": 14519,
+            "BusStopCode": "14519",
             "Description": "Resorts World Sentosa",
             "RoadName": "Sentosa Gateway",
             "Latitude": 1.25641,

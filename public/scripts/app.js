@@ -2681,7 +2681,7 @@ function isServiceOperatingToday(serviceNo) {
       p.ServiceNo.toUpperCase().replace(/\s+/g, '') === svc
     )
   );
-  const isPBS = !!match && !match._isSentosa;   // ← this line
+  const isPBS = !!match && !match._isSentosa;
   const isWeekdayOnly = WEEKDAY_ONLY_SERVICES.has(svc);
   if (isPBS || isWeekdayOnly) {
     if (isTodayWeekend() || isTodayPublicHoliday()) return false;
@@ -3176,7 +3176,7 @@ async function toggleStopTiming(i, svcNo, stopCode) {
     const stopData = ALL_ROUTES.find(s =>
       s.ServiceNo.replace(/^0+/,'').toUpperCase() === svcNorm && s.BusStopCode === stopCode
     );
-    if (!stopData) { inner.innerHTML = '<div class="rs-arrivals-placeholder">No timing data for this stop</div>'; return; }
+    if (!stopData) { inner.innerHTML = '<div class="rs-arrivals-placeholder">No first/last bus timing data for this stop</div>'; return; }
 
     const wd1 = fmtTime(stopData.WD_FirstBus), wd2 = fmtTime(stopData.WD_LastBus);
     const sa1 = fmtTime(stopData.SAT_FirstBus), sa2 = fmtTime(stopData.SAT_LastBus);
