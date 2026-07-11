@@ -2486,15 +2486,17 @@ function injectPrivateIntoServices() {
 // services, like Beach Station 14539) are skipped to avoid duplicates.
 function injectPrivateIntoStops() {
   if (!PRIVATE_SERVICES || !ALL_STOPS) return;
-  const existingCodes = new Set(ALL_STOPS.map(s => s.BusStopCode));
+  const existingCodes = new Set(ALL_STOPS.map(s => String(s.BusStopCode)));
   const toAdd = [];
   for (const svc of Object.values(PRIVATE_SERVICES)) {
     for (const dir of Object.values(svc.Directions)) {
       for (const stop of dir.Stops) {
-        if (!stop.BusStopCode || existingCodes.has(stop.BusStopCode)) continue;
-        existingCodes.add(stop.BusStopCode);
+        if (!stop.BusStopCode) continue;
+        const code = String(stop.BusStopCode);
+        if (existingCodes.has(code)) continue;
+        existingCodes.add(code);
         toAdd.push({
-          BusStopCode: stop.BusStopCode,
+          BusStopCode: code,
           RoadName: stop.RoadName || '',
           Description: stop.Description || '',
           Latitude: stop.Latitude || 0,
@@ -2853,7 +2855,7 @@ function buildPrivateStopCard(privateSvc, dir, arrivals, stopCode, cardIndex) {
           </div>
           ${nextPills}
         </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px"><i class="fa-solid fa-triangle-exclamation"></i> Estimated from schedule</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px"><i class="fa-solid fa-triangle-exclamation"></i> Arrival timings are estimated from schedule</div>
       </div>
       <div class="card-right">
         <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch">
