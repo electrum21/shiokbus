@@ -2418,6 +2418,7 @@ async function fetchPBSServices() {
     // Merge Sentosa services into PRIVATE_SERVICES so they go through the same pipeline
     if (resSentosa?.ok) {
       const sentosaData = await resSentosa.json();
+      Object.values(sentosaData).forEach(svc => { svc._isSentosa = true; });
       Object.assign(PRIVATE_SERVICES, sentosaData);
     }
     if (ALL_SERVICES) injectPrivateIntoServices();
@@ -2674,12 +2675,13 @@ function isTodayWeekend() {
 function isServiceOperatingToday(serviceNo) {
   if (!serviceNo) return true;
   const svc = serviceNo.toUpperCase().replace(/\s+/g, '');
-  const isPBS = !!(PRIVATE_SERVICES && (
+  const match = PRIVATE_SERVICES && (
     PRIVATE_SERVICES[svc] ||
     Object.values(PRIVATE_SERVICES).find(p =>
       p.ServiceNo.toUpperCase().replace(/\s+/g, '') === svc
     )
-  ));
+  );
+  const isPBS = !!match && !match._isSentosa;   // ← this line
   const isWeekdayOnly = WEEKDAY_ONLY_SERVICES.has(svc);
   if (isPBS || isWeekdayOnly) {
     if (isTodayWeekend() || isTodayPublicHoliday()) return false;
