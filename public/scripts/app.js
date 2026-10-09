@@ -555,6 +555,7 @@ window.addEventListener('DOMContentLoaded', () => {
   Promise.resolve(svcPreload).then(() => renderServiceBrowseList());
   Promise.resolve(stopsPreload).then(() => renderServiceBrowseList());
   fetchPBSServices().then(() => renderServiceBrowseList()).catch(() => {});
+  if (typeof loadNusData === 'function') loadNusData(); // NUS shuttle stops + routes (scripts/nus.js)
   loadMrtData().then(() => {
     startTrainAlertPolling();
     // Re-render stop title pills if a stop is currently displayed
@@ -909,7 +910,8 @@ function buildServiceRowInner(svc) {
     else if (isLoop) route = loopDesc ? `${orig} ↻ via ${loopDesc}` : `${orig} ↻`;
     else route = `${orig} → ${dest}`;
   }
-  const pbsBadge = isPrivate ? `<span style="font-size:9px;background:#1A2C5B20;color:#1A2C5B;border:1px solid #1A2C5B40;border-radius:4px;padding:1px 4px;margin-left:4px;font-weight:700;flex-shrink:0">Private</span>` : '';
+  if (info1?._isNus) route = escapeHtml(info1._nusDesc || '');
+  const pbsBadge = info1?._isNus ? nusBadgeHtml() : isPrivate ? `<span style="font-size:9px;background:#1A2C5B20;color:#1A2C5B;border:1px solid #1A2C5B40;border-radius:4px;padding:1px 4px;margin-left:4px;font-weight:700;flex-shrink:0">Private</span>` : '';
   return { opCls, route, pbsBadge };
 }
 
@@ -1043,6 +1045,7 @@ function formatSvcNo(svc) {
 function opClass(op, isPrivate) {
   const u = (op||'').toUpperCase();
   if (u === 'TTS') return 'op-tts';
+  if (u === 'NUS') return 'op-nus';
   if (u === 'SBST' || u === 'SBS' || u.includes('SBS')) return 'op-sbs';
   if (u === 'GAS') return 'op-gas';
   if (u === 'SMRT') return 'op-smrt';
@@ -1122,6 +1125,9 @@ let alertBannerEnabled = true; // in-memory only, resets each session
 // service's stops don't re-fetch.
 async function fetchBusRoute(svc) {
   const svcNorm = svc.replace(/^0+/, '').toUpperCase();
+
+  // NUS campus shuttle (A1, A2, D1, …) — see scripts/nus.js
+  if (typeof isNusService === 'function' && isNusService(svcNorm)) return nusFetchRoute(svcNorm);
 
   // Check if this is a private service — serve from local PRIVATE_SERVICES instead of worker
   if (PRIVATE_SERVICES) {
@@ -1342,12 +1348,13 @@ function renderRoute(rd, allStops) {
   const pmPeak   = formatFreq(svcInfo?.PM_Peak_Freq);
   const pmOff    = formatFreq(svcInfo?.PM_Offpeak_Freq);
 
-  const opLabel = operator === 'SBST' ? 'SBS Transit' : operator === 'SMRT' ? 'SMRT Buses' : operator === 'TTS' ? 'Tower Transit' : operator === 'GAS' ? 'Go-Ahead' : operator || '';
+  const opLabel = operator === 'SBST' ? 'SBS Transit' : operator === 'SMRT' ? 'SMRT Buses' : operator === 'TTS' ? 'Tower Transit' : operator === 'GAS' ? 'Go-Ahead' : operator === 'NUS' ? 'NUS Shuttle' : operator || '';
   const catColor = 'var(--white)';
   const catLabel = category === 'CITY_LINK' ? 'CITY DIRECT' : category;
   function opToColor(op, isPrivate) {
     const u = (op||'').toUpperCase();
     if (u === 'TTS') return '#1A6B2A';
+    if (u === 'NUS') return '#EF7C00';
     if (u === 'SBST' || u === 'SBS' || u.includes('SBS')) return '#5B2D8E';
     if (u === 'GAS') return '#9A7000';
     if (u === 'SMRT') return '#D7181C';
@@ -1736,6 +1743,7 @@ function renderPlanTripResult(analysis, sliced, boardIdx, alightIdx) {
 }
 
 function initTripMap(sliced, boardIdx, alightIdx) {
+  if (typeof nusDetachLiveBuses === 'function') nusDetachLiveBuses();
   if (tripMap) { tripMap.remove(); tripMap = null; }
   function stopLatLng(s) {
     const info = s.BusStopCode ? planStopMap[s.BusStopCode] : null;
@@ -1794,6 +1802,7 @@ function initTripMap(sliced, boardIdx, alightIdx) {
   });
 
   tripMap.fitBounds(validCoords, { padding: [48, 48] });
+  if (typeof nusAttachLiveBuses === 'function' && routeData?.svc) nusAttachLiveBuses(tripMap, routeData.svc);
   tripMap.whenReady(() => {
     setTimeout(() => updateSunDirectionOnTripMap(), 300);
   });
@@ -2059,7 +2068,26 @@ function clearServiceSearch() {
 // proxy (which holds the API key so it never touches the browser). The proxy
 // also handles CORS. We pass an empty headers object — App Check was removed
 // since the worker's CORS origin check is sufficient for our threat model.
+// Live arrivals for a stop: LTA DataMall plus any NUS shuttles serving it.
+// NUS is best-effort (nusArrivalsFor never rejects) and never blocks LTA.
 async function fetchLTA(code) {
+  const nusP = typeof nusArrivalsFor === 'function' ? nusArrivalsFor(code) : Promise.resolve([]);
+  if (typeof isNusCode === 'function' && isNusCode(code)) {
+    const nus = await nusP;
+    if (!nus.length) throw new Error('No live NUS shuttle data for this stop right now.');
+    return { Services: nus };
+  }
+  let lta, ltaErr;
+  try { lta = await fetchLTAOnly(code); } catch (e) { ltaErr = e; }
+  const nus = await nusP;
+  if (ltaErr) {
+    if (nus.length) return { Services: nus }; // LTA down but NUS shuttles available
+    throw ltaErr;
+  }
+  return { Services: lta.Services.concat(nus) };
+}
+
+async function fetchLTAOnly(code) {
   const url = PROXY_URL + '?endpoint=BusArrival&BusStopCode=' + code;
   let res;
   try { res = await fetch(url, { headers: await getProxyHeaders() }); } catch(e) {
@@ -2093,6 +2121,7 @@ async function fetchAllStops() {
   ALL_STOPS = await res.json();
   try { localStorage.setItem('shiokbus_stops', JSON.stringify(ALL_STOPS)); } catch(e) {}
   if (PRIVATE_SERVICES) injectPrivateIntoStops();
+  if (typeof injectNusIntoStops === 'function') injectNusIntoStops();
   setNearMeSub(`${ALL_STOPS.length.toLocaleString()} stops loaded`);
   return ALL_STOPS;
 }
@@ -2521,6 +2550,7 @@ async function fetchAllServices() {
   try { localStorage.setItem('shiokbus_services', JSON.stringify(raw)); } catch(e) {}
   ALL_SERVICES = indexServices(raw);
   if (PRIVATE_SERVICES) injectPrivateIntoServices();
+  if (typeof injectNusIntoServices === 'function') injectNusIntoServices();
   return ALL_SERVICES;
 }
 
@@ -2925,7 +2955,7 @@ function render(code, data) {
     const m3=nb3.EstimatedArrival ? minsFrom(nb3.EstimatedArrival) : null;
     const arrCls = '';
     const label = m1<=0?'ARR':`${m1}`, unit = m1<=0?'':'min';
-    const rec = seatRec(nb.Latitude,nb.Longitude,nb2?.Latitude,nb2?.Longitude);
+    const rec = nb._nus ? (nb._heading == null ? null : seatRecFromBearing(nb._heading)) : seatRec(nb.Latitude,nb.Longitude,nb2?.Latitude,nb2?.Longitude);
     const loadColor = {SEA:'var(--green)', SDA:'#FF8C00', LSD:'#FF3333'};
     const _isDualForPill = normalizeServiceNo((s?.ServiceNo||'').replace(/^0+/,'').toUpperCase()) in DUAL_LOOP_SVCS;
     const nextPills = [[m2,nb2],[m3,nb3]].filter(([m])=>m!==null).map(([m,nb]) => {
@@ -3010,7 +3040,7 @@ function render(code, data) {
         </div>
       </div>
       <div class="sun-panel" id="sp${i}">
-        <div class="sun-inner">${buildPanel(rec, nb.Type==='DD')}</div>
+        <div class="sun-inner">${rec ? buildPanel(rec, nb.Type==='DD') : nusNoSunPanel()}</div>
       </div>
       <div class="stop-timing-panel" id="stp${i}" style="display:none">
         <div class="stop-timing-inner" id="sti${i}">
@@ -3535,6 +3565,11 @@ function seatRec(lat1,lng1,lat2,lng2) {
   const y=Math.sin(dλ)*Math.cos(φ2);
   const x=Math.cos(φ1)*Math.sin(φ2)-Math.sin(φ1)*Math.cos(φ2)*Math.cos(dλ);
   let bear=Math.atan2(y,x)*180/Math.PI; if(bear<0) bear+=360;
+  return seatRecFromBearing(bear);
+}
+
+// Same scoring as seatRec, but from a bus heading in degrees (0 = north).
+function seatRecFromBearing(bear) {
   if(SUN_ALT<5) return {side:'any',bear,intensity:'none'};
   const rel=(SUN_AZ-bear+360)%360;
   const goodSide=rel<180?'left':'right', sunSide=rel<180?'right':'left';

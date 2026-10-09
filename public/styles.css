@@ -4017,3 +4017,8 @@ body.light .legend-nosun-swatch {
   color: var(--white);
   opacity: .9;
 }
+
+/* ── NUS campus shuttle operator colour ── */
+.rs-svc-col.op-nus { background: #EF7C00; color: #fff; }
+.bus-num-col.op-nus { background: #EF7C00; }
+.svc-drop-num.op-nus { background: #EF7C00 !important; color: #fff !important; }
