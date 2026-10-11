@@ -1351,7 +1351,7 @@ function renderRoute(rd, allStops) {
   const pmPeak   = formatFreq(svcInfo?.PM_Peak_Freq);
   const pmOff    = formatFreq(svcInfo?.PM_Offpeak_Freq);
 
-  const opLabel = operator === 'SBST' ? 'SBS Transit' : operator === 'SMRT' ? 'SMRT Buses' : operator === 'TTS' ? 'Tower Transit' : operator === 'GAS' ? 'Go-Ahead' : operator === 'NTU' ? 'NTU (ComfortDelGro)' : operator || '';
+  const opLabel = operator === 'SBST' ? 'SBS Transit' : operator === 'SMRT' ? 'SMRT Buses' : operator === 'TTS' ? 'Tower Transit' : operator === 'GAS' ? 'Go-Ahead' : operator === 'NTU' ? 'NTU (CDG)' : operator || '';
   const catColor = 'var(--white)';
   const catLabel = category === 'CITY_LINK' ? 'CITY DIRECT' : category === 'CAMPUS' ? 'CAMPUS RIDER' : category;
   function opToColor(op, isPrivate) {
