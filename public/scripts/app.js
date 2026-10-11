@@ -734,6 +734,16 @@ function removeCommuteHistory(itemKey) {
   });
 }
 
+// NTU campus shuttles are all loops, so their label is "first stop ↻ last stop" (e.g. Opp Hall 11 ↻ Opp NY Cres Halls).
+// The last stop comes from the route's own stop list, since LTA-style origin/destination are both the first stop.
+function ntuLoopLabel(info, fallbackOrig) {
+  const svc = Object.values(PRIVATE_SERVICES || {}).find(p => p._isNtu && p.ServiceNo === info?.ServiceNo);
+  const stops = svc?.Directions?.['1']?.Stops || [];
+  const first = stops[0]?.Description || info?.OriginDesc || fallbackOrig || '';
+  const last = stops[stops.length - 1]?.Description || '';
+  return last && last !== first ? `${first} ↻ ${last}` : `${first} ↻`;
+}
+
 function serviceHistorySub(svc) {
   const svcNorm = normalizeServiceNo(svc);
   const info1 = ALL_SERVICES?.[svcNorm + '-1'] || null;
@@ -752,6 +762,7 @@ function serviceHistorySub(svc) {
     ? (/int|stn|hub|ter|ctr|zoo|wetland reserve/i.test(midpoint.Description) ? midpoint.Description : midpoint.RoadName)
     : (info1?.LoopDesc || '');
   const isPrivate = !!(info1?._isPrivate || info2?._isPrivate);
+  if (info1?._isNtu) return ntuLoopLabel(info1, orig);
   if (isPrivate) {
     const origDesc = info1?.OriginDesc || orig;
     const destDesc = info1?.DestinationDesc || dest;
@@ -894,7 +905,9 @@ function buildServiceRowInner(svc) {
 : (info1?.LoopDesc || '');
   const isPrivate = !!(info1?._isPrivate || info2?._isPrivate);
   let route = '';
-  if (isPrivate) {
+  if (info1?._isNtu) {
+    route = ntuLoopLabel(info1, orig);
+  } else if (isPrivate) {
     const origDesc = info1?.OriginDesc || orig;
     const destDesc = info1?.DestinationDesc || dest;
     route = isBidi ? `${origDesc} ↔ ${destDesc}` : `${origDesc} → ${destDesc}`;
@@ -1424,6 +1437,9 @@ function renderRoute(rd, allStops) {
         label = '<div class="dir-btn-dest">' + dFirst + ' ↻</div>'
           + (dirLoopDesc ? '<div class="dir-btn-loop">via ' + dirLoopDesc + '</div>' : '');
       }
+    } else if (isNtuSvc) {
+      // NTU campus shuttles are all loops: loop arrow instead of →
+      label = '<div class="dir-btn-dest">' + dFirst + ' ↻ ' + dLast + '</div>';
     } else {
       const loopLine = (isLoop && loopDesc) ? '<div class="dir-btn-loop">via ' + loopDesc + '</div>' : '';
       label = isLoop
@@ -2701,6 +2717,49 @@ function fetchNtuEta(stopName, route) {
   return promise;
 }
 
+// Active buses on a route with crowd level: { buses: [{ lat, lng, crowd }] }. Crowd is optional,
+// so this never reports errors: on any failure it just returns no buses and ETAs still render.
+const _ntuBusCache = new Map(); // route → { t, promise }
+function fetchNtuBuses(route) {
+  const hit = _ntuBusCache.get(route);
+  if (hit && Date.now() - hit.t < NTU_ETA_TTL_MS) return hit.promise;
+  const promise = (async () => {
+    try {
+      const url = `${PROXY_URL}?endpoint=NtuBuses&RouteCode=${encodeURIComponent(route)}`;
+      const res = await fetch(url, { headers: await getProxyHeaders() });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json.error) return { buses: [], failed: true };
+      return { buses: json.buses || [] };
+    } catch (e) { return { buses: [], failed: true }; }
+  })();
+  _ntuBusCache.set(route, { t: Date.now(), promise });
+  promise.then(r => { if (r.failed) _ntuBusCache.delete(route); }); // don't cache failures
+  return promise;
+}
+
+const NTU_LOAD_COLOR = { SEA: 'var(--green)', SDA: '#FF8C00', LSD: '#FF3333' };
+
+// Estimated crowd level of the next two buses to reach a stop (soonest first), as [c1, c2].
+// NTU's ETA call has no vehicle id, so each active bus is snapped to its nearest stop on the loop
+// and ranked by how many stops it is from the target. Approximate where the loop doubles back.
+function ntuCrowdForStop(svc, stopName, buses) {
+  const stops = svc?.Directions?.['1']?.Stops || [];
+  const n = stops.length;
+  const target = stops.findIndex(s => s.NtuStopName === stopName);
+  if (target < 0 || !buses || !buses.length) return [];
+  const rad = x => x * Math.PI / 180;
+  const dist = (b, s) => Math.hypot(rad(b.lat - s.Latitude), rad(b.lng - s.Longitude) * Math.cos(rad(b.lat)));
+  return buses.map(b => {
+    let near = 0, best = Infinity;
+    stops.forEach((s, i) => {
+      if (s.Latitude == null || s.Longitude == null) return;
+      const d = dist(b, s);
+      if (d < best) { best = d; near = i; }
+    });
+    return { crowd: b.crowd, away: (target - near + n) % n };
+  }).sort((a, b) => a.away - b.away).slice(0, 2).map(x => x.crowd);
+}
+
 // Every NTU service entry (service meta + stop entry) that calls at this synthetic code.
 function ntuEntriesAtStop(code) {
   return (PRIVATE_STOP_INDEX[code] || [])
@@ -2727,18 +2786,21 @@ async function renderNtuStopCards(code, publicCount) {
   const wrap = document.createElement('div');
   wrap.id = 'ntu-cards';
   host.appendChild(wrap);
-  const results = await Promise.all(entries.map(e => fetchNtuEta(e.stop.NtuStopName, e.svc.NtuRoute)));
+  const [results, busRes] = await Promise.all([
+    Promise.all(entries.map(e => fetchNtuEta(e.stop.NtuStopName, e.svc.NtuRoute))),
+    Promise.all(entries.map(e => fetchNtuBuses(e.svc.NtuRoute))),
+  ]);
   if (document.getElementById('ntu-cards') !== wrap) return; // user navigated away mid-fetch
   wrap.innerHTML = entries.map(({ svc, stop }, i) => {
     const r = results[i];
     const d = svc.Directions['1'];
     const first = r.error ? null : _ntuMins(r.ETA);
     const next = r.error ? null : _ntuMins(r.NextETA);
+    const [crowd1, crowd2] = ntuCrowdForStop(svc, stop.NtuStopName, busRes[i].buses);
+    const lc1 = NTU_LOAD_COLOR[crowd1] || 'var(--muted)';
+    const lc2 = NTU_LOAD_COLOR[crowd2] || 'var(--muted)';
     const big = first === 'ARR' ? 'ARR' : first ? first.replace(' min', '') : '—';
     const unit = first && first !== 'ARR' ? 'min' : '';
-    const note = r.error
-      ? 'Live NTU shuttle data is unavailable right now.'
-      : (first === null ? 'No ETA — shuttle may not be running on this route.' : 'Live ETA from NTU Omnibus');
     return `
     <div class="bus-card" style="animation-delay:${(publicCount + i) * .09}s">
       <div class="card-top">
@@ -2750,9 +2812,9 @@ async function renderNtuStopCards(code, publicCount) {
         <div class="card-middle">
           <div class="arrival-row">
             <div class="first-timing"><div class="mins-big">${big}</div><div class="mins-unit">${unit}</div></div>
-            ${next ? `<div class="next-pill"><span>${next}</span></div>` : ''}
+            ${next ? `<div class="next-pill"><span>${next}</span>${busTypeIcon('SD', true, lc2)}</div>` : ''}
           </div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px"><i class="fa-solid fa-circle-info"></i> ${note}</div>
+          ${first !== null ? `<div class="bus-type-tag">${busTypeIcon('SD', false, lc1)}</div>` : ''}
         </div>
         <div class="card-right">
           <button class="sun-toggle-btn fav-btn" data-key="svc_${svc.ServiceNo}" onclick="event.stopPropagation();addSvcFavSmart('${svc.ServiceNo}')" style="background:none;justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+svc.ServiceNo]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+svc.ServiceNo]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
@@ -2766,13 +2828,21 @@ async function renderNtuStopCards(code, publicCount) {
 async function loadNtuArrivalsInRoute(code, containers) {
   const entries = ntuEntriesAtStop(code);
   if (!entries.length) { containers.forEach(c => c.innerHTML = '<div class="rs-arrivals-placeholder">No live data</div>'); return; }
-  const results = await Promise.all(entries.map(e => fetchNtuEta(e.stop.NtuStopName, e.svc.NtuRoute)));
-  const cell = (m, err) => `<div class="rs-time-cell"><span class="rs-time-main${m !== null && m <= 1 && !err ? ' arriving' : ''}">${err || m === null ? '—' : (m <= 0 ? 'Arr' : m + ' min')}</span></div>`;
+  const [results, busRes] = await Promise.all([
+    Promise.all(entries.map(e => fetchNtuEta(e.stop.NtuStopName, e.svc.NtuRoute))),
+    Promise.all(entries.map(e => fetchNtuBuses(e.svc.NtuRoute))),
+  ]);
+  const cell = (m, err, crowd) => {
+    const ok = !err && m !== null;
+    const icon = ok ? `<div class="rs-time-meta">${busTypeIcon('SD', true, NTU_LOAD_COLOR[crowd] || 'var(--muted)')}</div>` : '';
+    return `<div class="rs-time-cell"><span class="rs-time-main${m !== null && m <= 1 && !err ? ' arriving' : ''}">${err || m === null ? '—' : (m <= 0 ? 'Arr' : m + ' min')}</span>${icon}</div>`;
+  };
   const html = entries.map(({ svc }, i) => {
     const r = results[i];
+    const [crowd1, crowd2] = ntuCrowdForStop(svc, entries[i].stop.NtuStopName, busRes[i].buses);
     return `<div class="rs-arrival-row">
       <div class="rs-svc-col op-ntu" style="${svc.Color ? `background:${svc.Color}` : ''}" onclick="goToService('${svc.ServiceNo}', '${code}')">${svc.NtuRoute}</div>
-      ${cell(r.ETA, r.error)}${cell(r.NextETA, r.error)}<div class="rs-time-cell"></div>
+      ${cell(r.ETA, r.error, crowd1)}${cell(r.NextETA, r.error, crowd2)}<div class="rs-time-cell"></div>
     </div>`;
   }).join('');
   const anyErr = results.some(r => r.error);

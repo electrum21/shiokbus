@@ -6,3 +6,4 @@ shiokbus_writeup.docx
 dist/images/
 helper_scripts/
 worker/
+*.zip
