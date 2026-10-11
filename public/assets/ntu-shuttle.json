@@ -1,0 +1,631 @@
+{
+  "NTUBlue": {
+    "ServiceNo": "NTU Blue",
+    "Operator": "NTU",
+    "Category": "CAMPUS",
+    "Fare": "Free",
+    "_isNtu": true,
+    "NtuRoute": "Blue",
+    "Color": "#0054A6",
+    "OperatingHours": "",
+    "LoopDesc": "",
+    "Directions": {
+      "1": {
+        "Direction": 1,
+        "OriginCode": "NTU-OPP-HALL-11",
+        "OriginDesc": "Opp Hall 11",
+        "DestinationCode": "NTU-OPP-HALL-11",
+        "DestinationDesc": "Opp Hall 11",
+        "OperatingHours": "",
+        "Frequency": "",
+        "DepartureTimes": [],
+        "Stops": [
+          {
+            "StopSequence": 1,
+            "BusStopCode": "NTU-OPP-HALL-11",
+            "NtuStopName": "Opp Hall 11",
+            "Description": "Opp Hall 11",
+            "RoadName": "NTU",
+            "Latitude": 1.3547,
+            "Longitude": 103.6872
+          },
+          {
+            "StopSequence": 2,
+            "BusStopCode": "NTU-NANYANG-HEIGHTS",
+            "NtuStopName": "Nanyang Heights",
+            "Description": "Nanyang Heights",
+            "RoadName": "NTU",
+            "Latitude": 1.350878,
+            "Longitude": 103.685805
+          },
+          {
+            "StopSequence": 3,
+            "BusStopCode": "NTU-HALL-6",
+            "NtuStopName": "Hall 6",
+            "Description": "Hall 6",
+            "RoadName": "NTU",
+            "Latitude": 1.34733,
+            "Longitude": 103.68662
+          },
+          {
+            "StopSequence": 4,
+            "BusStopCode": "NTU-OPP-HALL-4",
+            "NtuStopName": "Opp Hall 4",
+            "Description": "Opp Hall 4",
+            "RoadName": "NTU",
+            "Latitude": 1.34363,
+            "Longitude": 103.68695
+          },
+          {
+            "StopSequence": 5,
+            "BusStopCode": "NTU-OPP-YUNNAN-GDN",
+            "NtuStopName": "Opp Yunnan Gdn",
+            "Description": "Opp Yunnan Gdn",
+            "RoadName": "NTU",
+            "Latitude": 1.34164,
+            "Longitude": 103.68449
+          },
+          {
+            "StopSequence": 6,
+            "BusStopCode": "NTU-OPP-SPMS",
+            "NtuStopName": "Opp SPMS",
+            "Description": "Opp SPMS",
+            "RoadName": "NTU",
+            "Latitude": 1.34179,
+            "Longitude": 103.68121
+          },
+          {
+            "StopSequence": 7,
+            "BusStopCode": "NTU-OPP-S2",
+            "NtuStopName": "Opp S2",
+            "Description": "Opp S2",
+            "RoadName": "NTU",
+            "Latitude": 1.341305,
+            "Longitude": 103.680038
+          },
+          {
+            "StopSequence": 8,
+            "BusStopCode": "NTU-OPP-WKWSCI",
+            "NtuStopName": "Opp WKWSCI",
+            "Description": "Opp WKWSCI",
+            "RoadName": "NTU",
+            "Latitude": 1.34186,
+            "Longitude": 103.67908
+          },
+          {
+            "StopSequence": 9,
+            "BusStopCode": "NTU-OPP-CEE",
+            "NtuStopName": "Opp CEE",
+            "Description": "Opp CEE",
+            "RoadName": "NTU",
+            "Latitude": 1.34586,
+            "Longitude": 103.67839
+          },
+          {
+            "StopSequence": 10,
+            "BusStopCode": "NTU-NIE-BLK-2",
+            "NtuStopName": "NIE Blk 2",
+            "Description": "NIE Blk 2",
+            "RoadName": "NTU",
+            "Latitude": 1.34748,
+            "Longitude": 103.67947
+          },
+          {
+            "StopSequence": 11,
+            "BusStopCode": "NTU-OPP-HALL-16",
+            "NtuStopName": "Opp Hall 16",
+            "Description": "Opp Hall 16",
+            "RoadName": "NTU",
+            "Latitude": 1.35052,
+            "Longitude": 103.680387
+          },
+          {
+            "StopSequence": 12,
+            "BusStopCode": "NTU-OPP-HALL-14",
+            "NtuStopName": "Opp Hall 14",
+            "Description": "Opp Hall 14",
+            "RoadName": "NTU",
+            "Latitude": 1.353195,
+            "Longitude": 103.681573
+          },
+          {
+            "StopSequence": 13,
+            "BusStopCode": "NTU-OPP-NY-CRES-HALLS",
+            "NtuStopName": "Opp NY Cres Halls",
+            "Description": "Opp NY Cres Halls",
+            "RoadName": "NTU",
+            "Latitude": 1.35496,
+            "Longitude": 103.68401
+          }
+        ]
+      }
+    }
+  },
+  "NTUBrown": {
+    "ServiceNo": "NTU Brown",
+    "Operator": "NTU",
+    "Category": "CAMPUS",
+    "Fare": "Free",
+    "_isNtu": true,
+    "NtuRoute": "Brown",
+    "Color": "#866D4B",
+    "OperatingHours": "",
+    "LoopDesc": "",
+    "Directions": {
+      "1": {
+        "Direction": 1,
+        "OriginCode": "NTU-PIONEER-STN-EXIT-B",
+        "OriginDesc": "Pioneer Stn Exit B",
+        "DestinationCode": "NTU-PIONEER-STN-EXIT-B",
+        "DestinationDesc": "Pioneer Stn Exit B",
+        "OperatingHours": "",
+        "Frequency": "",
+        "DepartureTimes": [],
+        "Stops": [
+          {
+            "StopSequence": 1,
+            "BusStopCode": "NTU-PIONEER-STN-EXIT-B",
+            "NtuStopName": "Pioneer Stn Exit B",
+            "Description": "Pioneer Stn Exit B",
+            "RoadName": "NTU",
+            "Latitude": 1.33781,
+            "Longitude": 103.69739
+          },
+          {
+            "StopSequence": 2,
+            "BusStopCode": "NTU-HALL-1",
+            "NtuStopName": "Hall 1",
+            "Description": "Hall 1",
+            "RoadName": "NTU",
+            "Latitude": 1.34564,
+            "Longitude": 103.6878
+          },
+          {
+            "StopSequence": 3,
+            "BusStopCode": "NTU-HALL-2",
+            "NtuStopName": "Hall 2",
+            "Description": "Hall 2",
+            "RoadName": "NTU",
+            "Latitude": 1.34882,
+            "Longitude": 103.68558
+          },
+          {
+            "StopSequence": 4,
+            "BusStopCode": "NTU-UNI-HEALTH-SERVICE",
+            "NtuStopName": "Uni Health Service",
+            "Description": "Uni Health Service",
+            "RoadName": "NTU",
+            "Latitude": 1.34571,
+            "Longitude": 103.68298
+          },
+          {
+            "StopSequence": 5,
+            "BusStopCode": "NTU-TCT-LT",
+            "NtuStopName": "TCT-LT",
+            "Description": "TCT-LT",
+            "RoadName": "NTU",
+            "Latitude": 1.34498,
+            "Longitude": 103.68157
+          },
+          {
+            "StopSequence": 6,
+            "BusStopCode": "NTU-SCH-OF-ADM",
+            "NtuStopName": "Sch of ADM",
+            "Description": "Sch of ADM",
+            "RoadName": "NTU",
+            "Latitude": 1.350143821,
+            "Longitude": 103.684388982
+          },
+          {
+            "StopSequence": 7,
+            "BusStopCode": "NTU-LEE-WEE-NAM-LIB",
+            "NtuStopName": "Lee Wee Nam Lib",
+            "Description": "Lee Wee Nam Lib",
+            "RoadName": "NTU",
+            "Latitude": 1.348085,
+            "Longitude": 103.680867
+          },
+          {
+            "StopSequence": 8,
+            "BusStopCode": "NTU-SCH-OF-BIOLOGICAL-SCIENCES",
+            "NtuStopName": "Sch of Biological Sciences",
+            "Description": "Sch of Biological Sciences",
+            "RoadName": "NTU",
+            "Latitude": 1.344549,
+            "Longitude": 103.678686
+          },
+          {
+            "StopSequence": 9,
+            "BusStopCode": "NTU-WKWSCI",
+            "NtuStopName": "WKWSCI",
+            "Description": "WKWSCI",
+            "RoadName": "NTU",
+            "Latitude": 1.34225,
+            "Longitude": 103.67923
+          },
+          {
+            "StopSequence": 10,
+            "BusStopCode": "NTU-SPMS",
+            "NtuStopName": "SPMS",
+            "Description": "SPMS",
+            "RoadName": "NTU",
+            "Latitude": 1.34008,
+            "Longitude": 103.68175
+          },
+          {
+            "StopSequence": 11,
+            "BusStopCode": "NTU-WEE-CHO-YAW-PLAZA",
+            "NtuStopName": "Wee Cho Yaw Plaza",
+            "Description": "Wee Cho Yaw Plaza",
+            "RoadName": "NTU",
+            "Latitude": 1.34115,
+            "Longitude": 103.68366
+          },
+          {
+            "StopSequence": 12,
+            "BusStopCode": "NTU-HALL-4",
+            "NtuStopName": "Hall 4",
+            "Description": "Hall 4",
+            "RoadName": "NTU",
+            "Latitude": 1.34378,
+            "Longitude": 103.68689
+          },
+          {
+            "StopSequence": 13,
+            "BusStopCode": "NTU-HALL-5",
+            "NtuStopName": "Hall 5",
+            "Description": "Hall 5",
+            "RoadName": "NTU",
+            "Latitude": 1.34417,
+            "Longitude": 103.68754
+          }
+        ]
+      }
+    }
+  },
+  "NTUGreen": {
+    "ServiceNo": "NTU Green",
+    "Operator": "NTU",
+    "Category": "CAMPUS",
+    "Fare": "Free",
+    "_isNtu": true,
+    "NtuRoute": "Green",
+    "Color": "#007C48",
+    "OperatingHours": "",
+    "LoopDesc": "",
+    "Directions": {
+      "1": {
+        "Direction": 1,
+        "OriginCode": "NTU-PIONEER-STN-EXIT-B",
+        "OriginDesc": "Pioneer Stn Exit B",
+        "DestinationCode": "NTU-PIONEER-STN-EXIT-B",
+        "DestinationDesc": "Pioneer Stn Exit B",
+        "OperatingHours": "",
+        "Frequency": "",
+        "DepartureTimes": [],
+        "Stops": [
+          {
+            "StopSequence": 1,
+            "BusStopCode": "NTU-PIONEER-STN-EXIT-B",
+            "NtuStopName": "Pioneer Stn Exit B",
+            "Description": "Pioneer Stn Exit B",
+            "RoadName": "NTU",
+            "Latitude": 1.33781,
+            "Longitude": 103.69739
+          },
+          {
+            "StopSequence": 2,
+            "BusStopCode": "NTU-HALL-1",
+            "NtuStopName": "Hall 1",
+            "Description": "Hall 1",
+            "RoadName": "NTU",
+            "Latitude": 1.34564,
+            "Longitude": 103.6878
+          },
+          {
+            "StopSequence": 3,
+            "BusStopCode": "NTU-HALL-2",
+            "NtuStopName": "Hall 2",
+            "Description": "Hall 2",
+            "RoadName": "NTU",
+            "Latitude": 1.34882,
+            "Longitude": 103.68558
+          },
+          {
+            "StopSequence": 4,
+            "BusStopCode": "NTU-UNI-HEALTH-SERVICE",
+            "NtuStopName": "Uni Health Service",
+            "Description": "Uni Health Service",
+            "RoadName": "NTU",
+            "Latitude": 1.34571,
+            "Longitude": 103.68298
+          },
+          {
+            "StopSequence": 5,
+            "BusStopCode": "NTU-TCT-LT",
+            "NtuStopName": "TCT-LT",
+            "Description": "TCT-LT",
+            "RoadName": "NTU",
+            "Latitude": 1.34498,
+            "Longitude": 103.68157
+          },
+          {
+            "StopSequence": 6,
+            "BusStopCode": "NTU-OPP-HALL-2",
+            "NtuStopName": "Opp Hall 2",
+            "Description": "Opp Hall 2",
+            "RoadName": "NTU",
+            "Latitude": 1.34904,
+            "Longitude": 103.68554
+          },
+          {
+            "StopSequence": 7,
+            "BusStopCode": "NTU-HALL-6",
+            "NtuStopName": "Hall 6",
+            "Description": "Hall 6",
+            "RoadName": "NTU",
+            "Latitude": 1.34733,
+            "Longitude": 103.68662
+          },
+          {
+            "StopSequence": 8,
+            "BusStopCode": "NTU-OPP-HALL-1",
+            "NtuStopName": "Opp Hall 1",
+            "Description": "Opp Hall 1",
+            "RoadName": "NTU",
+            "Latitude": 1.345819,
+            "Longitude": 103.68771
+          }
+        ]
+      }
+    }
+  },
+  "NTUGrey": {
+    "ServiceNo": "NTU Grey",
+    "Operator": "NTU",
+    "Category": "CAMPUS",
+    "Fare": "Free",
+    "_isNtu": true,
+    "NtuRoute": "Grey",
+    "Color": "#3B3838",
+    "OperatingHours": "",
+    "LoopDesc": "",
+    "Directions": {
+      "1": {
+        "Direction": 1,
+        "OriginCode": "NTU-HALL-11-BLK-55",
+        "OriginDesc": "Hall 11 Blk 55",
+        "DestinationCode": "NTU-HALL-11-BLK-55",
+        "DestinationDesc": "Hall 11 Blk 55",
+        "OperatingHours": "",
+        "Frequency": "",
+        "DepartureTimes": [],
+        "Stops": [
+          {
+            "StopSequence": 1,
+            "BusStopCode": "NTU-HALL-11-BLK-55",
+            "NtuStopName": "Hall 11 Blk 55",
+            "Description": "Hall 11 Blk 55",
+            "RoadName": "NTU",
+            "Latitude": 1.35591,
+            "Longitude": 103.686356
+          },
+          {
+            "StopSequence": 2,
+            "BusStopCode": "NTU-NY-CRES-HALLS",
+            "NtuStopName": "NY Cres Halls",
+            "Description": "NY Cres Halls",
+            "RoadName": "NTU",
+            "Latitude": 1.354861,
+            "Longitude": 103.684574
+          },
+          {
+            "StopSequence": 3,
+            "BusStopCode": "NTU-HALL-15",
+            "NtuStopName": "Hall 15",
+            "Description": "Hall 15",
+            "RoadName": "NTU",
+            "Latitude": 1.353216,
+            "Longitude": 103.682002
+          },
+          {
+            "StopSequence": 4,
+            "BusStopCode": "NTU-HALL-12",
+            "NtuStopName": "Hall 12",
+            "Description": "Hall 12",
+            "RoadName": "NTU",
+            "Latitude": 1.35186,
+            "Longitude": 103.68055
+          },
+          {
+            "StopSequence": 5,
+            "BusStopCode": "NTU-HALL-8-BLK-41",
+            "NtuStopName": "Hall 8 Blk 41",
+            "Description": "Hall 8 Blk 41",
+            "RoadName": "NTU",
+            "Latitude": 1.350054,
+            "Longitude": 103.684144
+          },
+          {
+            "StopSequence": 6,
+            "BusStopCode": "NTU-OPP-HALL-2",
+            "NtuStopName": "Opp Hall 2",
+            "Description": "Opp Hall 2",
+            "RoadName": "NTU",
+            "Latitude": 1.34904,
+            "Longitude": 103.68554
+          },
+          {
+            "StopSequence": 7,
+            "BusStopCode": "NTU-HALL-6",
+            "NtuStopName": "Hall 6",
+            "Description": "Hall 6",
+            "RoadName": "NTU",
+            "Latitude": 1.34733,
+            "Longitude": 103.68662
+          },
+          {
+            "StopSequence": 8,
+            "BusStopCode": "NTU-THE-WAVE",
+            "NtuStopName": "The Wave",
+            "Description": "The Wave",
+            "RoadName": "NTU",
+            "Latitude": 1.348852,
+            "Longitude": 103.68966
+          },
+          {
+            "StopSequence": 9,
+            "BusStopCode": "NTU-NANYANG-MEADOWS",
+            "NtuStopName": "Nanyang Meadows",
+            "Description": "Nanyang Meadows",
+            "RoadName": "NTU",
+            "Latitude": 1.353098,
+            "Longitude": 103.689338
+          }
+        ]
+      }
+    }
+  },
+  "NTURed": {
+    "ServiceNo": "NTU Red",
+    "Operator": "NTU",
+    "Category": "CAMPUS",
+    "Fare": "Free",
+    "_isNtu": true,
+    "NtuRoute": "Red",
+    "Color": "#D71440",
+    "OperatingHours": "",
+    "LoopDesc": "",
+    "Directions": {
+      "1": {
+        "Direction": 1,
+        "OriginCode": "NTU-HALL-11-BLK-55",
+        "OriginDesc": "Hall 11 Blk 55",
+        "DestinationCode": "NTU-HALL-11-BLK-55",
+        "DestinationDesc": "Hall 11 Blk 55",
+        "OperatingHours": "",
+        "Frequency": "",
+        "DepartureTimes": [],
+        "Stops": [
+          {
+            "StopSequence": 1,
+            "BusStopCode": "NTU-HALL-11-BLK-55",
+            "NtuStopName": "Hall 11 Blk 55",
+            "Description": "Hall 11 Blk 55",
+            "RoadName": "NTU",
+            "Latitude": 1.35591,
+            "Longitude": 103.686356
+          },
+          {
+            "StopSequence": 2,
+            "BusStopCode": "NTU-NANYANG-CRESCENT-HALLS",
+            "NtuStopName": "Nanyang Crescent Halls",
+            "Description": "Nanyang Crescent Halls",
+            "RoadName": "NTU",
+            "Latitude": 1.354978,
+            "Longitude": 103.684463
+          },
+          {
+            "StopSequence": 3,
+            "BusStopCode": "NTU-HALL-12",
+            "NtuStopName": "Hall 12",
+            "Description": "Hall 12",
+            "RoadName": "NTU",
+            "Latitude": 1.35186,
+            "Longitude": 103.68055
+          },
+          {
+            "StopSequence": 4,
+            "BusStopCode": "NTU-LEE-WEE-NAM-LIB",
+            "NtuStopName": "Lee Wee Nam Lib",
+            "Description": "Lee Wee Nam Lib",
+            "RoadName": "NTU",
+            "Latitude": 1.348085,
+            "Longitude": 103.680867
+          },
+          {
+            "StopSequence": 5,
+            "BusStopCode": "NTU-SCH-OF-BIOLOGICAL-SCIENCES",
+            "NtuStopName": "Sch of Biological Sciences",
+            "Description": "Sch of Biological Sciences",
+            "RoadName": "NTU",
+            "Latitude": 1.344549,
+            "Longitude": 103.678686
+          },
+          {
+            "StopSequence": 6,
+            "BusStopCode": "NTU-WKWSCI",
+            "NtuStopName": "WKWSCI",
+            "Description": "WKWSCI",
+            "RoadName": "NTU",
+            "Latitude": 1.34225,
+            "Longitude": 103.67923
+          },
+          {
+            "StopSequence": 7,
+            "BusStopCode": "NTU-SPMS",
+            "NtuStopName": "SPMS",
+            "Description": "SPMS",
+            "RoadName": "NTU",
+            "Latitude": 1.34008,
+            "Longitude": 103.68175
+          },
+          {
+            "StopSequence": 8,
+            "BusStopCode": "NTU-WEE-CHO-YAW-PLAZA",
+            "NtuStopName": "Wee Cho Yaw Plaza",
+            "Description": "Wee Cho Yaw Plaza",
+            "RoadName": "NTU",
+            "Latitude": 1.34115,
+            "Longitude": 103.68366
+          },
+          {
+            "StopSequence": 9,
+            "BusStopCode": "NTU-HALL-4",
+            "NtuStopName": "Hall 4",
+            "Description": "Hall 4",
+            "RoadName": "NTU",
+            "Latitude": 1.34378,
+            "Longitude": 103.68689
+          },
+          {
+            "StopSequence": 10,
+            "BusStopCode": "NTU-HALL-1",
+            "NtuStopName": "Hall 1",
+            "Description": "Hall 1",
+            "RoadName": "NTU",
+            "Latitude": 1.34564,
+            "Longitude": 103.6878
+          },
+          {
+            "StopSequence": 11,
+            "BusStopCode": "NTU-HALL-2",
+            "NtuStopName": "Hall 2",
+            "Description": "Hall 2",
+            "RoadName": "NTU",
+            "Latitude": 1.34882,
+            "Longitude": 103.68558
+          },
+          {
+            "StopSequence": 12,
+            "BusStopCode": "NTU-HALL-8-9",
+            "NtuStopName": "Hall 8 & 9",
+            "Description": "Hall 8 & 9",
+            "RoadName": "NTU",
+            "Latitude": 1.35141,
+            "Longitude": 103.68569
+          },
+          {
+            "StopSequence": 13,
+            "BusStopCode": "NTU-HALL-11",
+            "NtuStopName": "Hall 11",
+            "Description": "Hall 11",
+            "RoadName": "NTU",
+            "Latitude": 1.35462,
+            "Longitude": 103.68701
+          }
+        ]
+      }
+    }
+  }
+}

@@ -4025,3 +4025,15 @@ body.light .legend-nosun-swatch {
   background: #B5121B;
   color: #fff;
 }
+
+/* NTU service pills in search lists: route colour fill (inline) + NTU orange ring.
+   Inset shadow so the pill keeps its size. */
+:root { --ntu-orange: #F7941D; }
+.svc-drop-num.op-ntu,
+.rs-svc-col.op-ntu {
+  box-shadow: inset 0 0 0 2px var(--ntu-orange);
+}
+body.light .svc-drop-num.op-ntu,
+body.light .rs-svc-col.op-ntu {
+  color: #fff;
+}

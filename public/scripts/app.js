@@ -803,10 +803,10 @@ function showRecentServices() {
   const recent = recentHistory('service');
   if (!recent.length) { dd.className = 'stop-name-results'; return; }
   dd.innerHTML = `<div class="recent-drop-header">Recently searched</div>` + recent.map(h => {
-    const opCls = ALL_SERVICES ? buildServiceRowInner(h.id).opCls : '';
+    const { opCls = '', pillStyle = '' } = ALL_SERVICES ? buildServiceRowInner(h.id) : {};
     return `
     <div class="svc-drop-item recent-drop-item" style="display:flex;align-items:center" onclick="selectService('${String(h.id).replace(/'/g, "\\'")}')">
-      <span class="svc-drop-num ${opCls}">${formatSvcNo(h.id)}</span>
+      <span class="svc-drop-num ${opCls}" ${pillStyle}>${formatSvcNo(h.id)}</span>
       <span class="svc-drop-cat" style="flex:1">${escapeHtml(h.sub || serviceHistorySub(h.id) || 'Service ' + formatSvcNo(h.id))}</span>
       <button class="recent-remove-btn" onclick="event.stopPropagation();removeCommuteHistory('${String(h.key).replace(/'/g, "\\'")}');showRecentServices()" title="Remove"><i class="fa-solid fa-xmark"></i></button>
     </div>`
@@ -909,8 +909,10 @@ function buildServiceRowInner(svc) {
     else if (isLoop) route = loopDesc ? `${orig} ↻ via ${loopDesc}` : `${orig} ↻`;
     else route = `${orig} → ${dest}`;
   }
+  const ntuColor = (info1?._isNtu && info1.Color) || (info2?._isNtu && info2.Color) || '';
+  const pillStyle = ntuColor ? `style="background:${ntuColor}"` : '';
   const pbsBadge = isPrivate ? `<span style="font-size:9px;background:#1A2C5B20;color:#1A2C5B;border:1px solid #1A2C5B40;border-radius:4px;padding:1px 4px;margin-left:4px;font-weight:700;flex-shrink:0">Private</span>` : '';
-  return { opCls, route, pbsBadge };
+  return { opCls, route, pbsBadge, pillStyle };
 }
 
 function allServiceNumbersSorted() {
@@ -958,9 +960,9 @@ function renderServiceBrowseList(filter) {
     return;
   }
   box.innerHTML = svcNos.map(svc => {
-    const { opCls, route, pbsBadge } = buildServiceRowInner(svc);
+    const { opCls, route, pbsBadge, pillStyle } = buildServiceRowInner(svc);
     return `<div class="svc-browse-item" onclick="selectService('${svc}')">
-      <span class="svc-drop-num ${opCls}">${formatSvcNo(svc)}</span>
+      <span class="svc-drop-num ${opCls}" ${pillStyle}>${formatSvcNo(svc)}</span>
       <span class="svc-drop-cat" style="display:flex;align-items:center;gap:0">${route}</span>
     </div>`;
   }).join('');
@@ -1031,6 +1033,8 @@ let planStopMap = {};      // stopMap for current route/dir
 let planSunAnalysis = null;// sun analysis for current route/dir
 let planBoardIdx = -1;
 let planAlightIdx = -1;
+let planCircular = false;  // true for NTU campus loops: the bus keeps circling, so any other stop is a valid alight
+let planLastSegResults = []; // sun segments of the trip currently drawn (needed to redraw the map on theme change)
 
 const EXCLUDED_SERVICES = new Set(['382']); // ServiceNo values normalized to uppercase
 const SVC_DISPLAY_UPPER_E = new Set(['850e', '868e', '951e', '982e']);
@@ -1343,9 +1347,9 @@ function renderRoute(rd, allStops) {
   const pmPeak   = formatFreq(svcInfo?.PM_Peak_Freq);
   const pmOff    = formatFreq(svcInfo?.PM_Offpeak_Freq);
 
-  const opLabel = operator === 'SBST' ? 'SBS Transit' : operator === 'SMRT' ? 'SMRT Buses' : operator === 'TTS' ? 'Tower Transit' : operator === 'GAS' ? 'Go-Ahead' : operator || '';
+  const opLabel = operator === 'SBST' ? 'SBS Transit' : operator === 'SMRT' ? 'SMRT Buses' : operator === 'TTS' ? 'Tower Transit' : operator === 'GAS' ? 'Go-Ahead' : operator === 'NTU' ? 'NTU (ComfortDelGro)' : operator || '';
   const catColor = 'var(--white)';
-  const catLabel = category === 'CITY_LINK' ? 'CITY DIRECT' : category;
+  const catLabel = category === 'CITY_LINK' ? 'CITY DIRECT' : category === 'CAMPUS' ? 'CAMPUS RIDER' : category;
   function opToColor(op, isPrivate) {
     const u = (op||'').toUpperCase();
     if (u === 'TTS') return '#1A6B2A';
@@ -1355,7 +1359,8 @@ function renderRoute(rd, allStops) {
     if (u.includes('TONG TAR')) return '#1A6B2A';
     return isPrivate ? '#1A2C5B' : '#D7181C';
   }
-  const opBg = opToColor(operator, !!(rd.svcMap?.[svcNormKey + '-1']?._isPrivate || rd.svcMap?.[svcNormKey + '-2']?._isPrivate));
+  const isNtuSvc = !!svcInfo?._isNtu;
+  const opBg = (isNtuSvc && svcInfo.Color) ? svcInfo.Color : opToColor(operator, !!(rd.svcMap?.[svcNormKey + '-1']?._isPrivate || rd.svcMap?.[svcNormKey + '-2']?._isPrivate));
 
   const freqPills = [
     amPeak ? `<span class="svc-freq-pill"><span class="svc-freq-pill-label">AM</span>${amPeak}</span>` : '',
@@ -1365,7 +1370,8 @@ function renderRoute(rd, allStops) {
   ].filter(Boolean).join('');
 
   // Compute sun seating recommendation for the whole route
-  const routeSunAnalysis = computeRouteSeating(dir.stops, stopMap);
+  // NTU campus loops circle forever, so the closing leg (last stop back to the first) is part of the ride
+  const routeSunAnalysis = computeRouteSeating(isNtuSvc && dir.stops.length > 1 ? [...dir.stops, dir.stops[0]] : dir.stops, stopMap);
   const routeSunPanel = buildRouteSeatingPanel(routeSunAnalysis);
 
   // Store for addSvcFavFromRoute
@@ -1375,7 +1381,7 @@ function renderRoute(rd, allStops) {
     <div class="route-sticky-header">
     <div class="route-hero" style="display:flex;flex-direction:column;gap:6px">
       <div style="display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;white-space:nowrap">
-        <div style="display:inline-flex;align-items:center;gap:6px;background:${opBg};color:#fff;padding:6px 16px;border-radius:12px;flex-shrink:0"><span class="stop-title" style="font-size:inherit">${formatSvcNo(rd.svc)}</span></div>
+        <div style="display:inline-flex;align-items:center;gap:6px;background:${opBg};color:#fff;padding:6px 16px;border-radius:12px;flex-shrink:0${isNtuSvc ? ';box-shadow:inset 0 0 0 2px var(--ntu-orange)' : ''}"><span class="stop-title" style="font-size:inherit">${formatSvcNo(rd.svc)}</span></div>
         ${freqPills}
         ${rd.svcMap?.[svcNormKey + '-1']?._isScheduled ? `<span style="margin-left:auto;font-size:9px;color:var(--muted);white-space:normal;text-align:right;line-height:1.3;max-width:200px;flex-shrink:0"><i class="fa-solid fa-triangle-exclamation"></i> Timings for this service are estimated based on schedules and may not be fully accurate.</span>` : ''}
       </div>
@@ -1504,6 +1510,7 @@ function renderRoute(rd, allStops) {
   planStops = dir.stops;
   planStopMap = stopMap;
   planSunAnalysis = routeSunAnalysis;
+  planCircular = isNtuSvc;
   planBoardIdx = -1; planAlightIdx = -1;
 
   const tabsHtml = `
@@ -1578,8 +1585,17 @@ function populatePlanDropdowns() {
 function renderPlanDrop(which, query) {
   const drop = document.getElementById(`plan-${which}-drop`);
   const q = query.toLowerCase().trim();
-  const minIdx = (which === 'alight' && planBoardIdx >= 0) ? planBoardIdx + 1 : 0;
-  const filtered = planStops.map((s, i) => ({ s, i })).filter(({ s, i }) => {
+  const minIdx = (!planCircular && which === 'alight' && planBoardIdx >= 0) ? planBoardIdx + 1 : 0;
+  let ordered = planStops.map((s, i) => ({ s, i }));
+  if (planCircular) {
+    // Loop: any stop except the one on the other field. For alight, list stops in riding order after the board stop, wrapping round the loop.
+    const other = which === 'alight' ? planBoardIdx : planAlightIdx;
+    ordered = ordered.filter(({ i }) => i !== other);
+    if (which === 'alight' && planBoardIdx >= 0) {
+      ordered = [...ordered.filter(({ i }) => i > planBoardIdx), ...ordered.filter(({ i }) => i < planBoardIdx)];
+    }
+  }
+  const filtered = ordered.filter(({ s, i }) => {
     if (i < minIdx) return false;
     const info = s.BusStopCode ? planStopMap[padCode(s.BusStopCode)] : null;
     const name = (info?.Description || s._pbsStop?.Description || String(s.BusStopCode ?? '') || '').toLowerCase();
@@ -1626,13 +1642,19 @@ function selectPlanStop(which, idx, name) {
   document.getElementById(`plan-${which}-drop`).classList.remove('open');
   if (which === 'board') {
     planBoardIdx = idx;
-    // Reset alight if it's now before board
-    if (planAlightIdx >= 0 && planAlightIdx <= planBoardIdx) {
+    // Reset alight if it's now before board (on a loop: only if it's the same stop)
+    if (planAlightIdx >= 0 && (planCircular ? planAlightIdx === planBoardIdx : planAlightIdx <= planBoardIdx)) {
       planAlightIdx = -1;
       document.getElementById('plan-alight-input').value = '';
     }
     renderPlanDrop('alight', document.getElementById('plan-alight-input').value);
-  } else planAlightIdx = idx;
+  } else {
+    planAlightIdx = idx;
+    if (planCircular) {
+      if (planBoardIdx === idx) { planBoardIdx = -1; document.getElementById('plan-board-input').value = ''; }
+      renderPlanDrop('board', document.getElementById('plan-board-input').value);
+    }
+  }
   updatePlanClearBtn('board'); updatePlanClearBtn('alight');
   if (planBoardIdx >= 0 && planAlightIdx >= 0) runPlanTrip();
 }
@@ -1655,13 +1677,19 @@ function updatePlanClearBtn(which) {
   btn.style.color = '#fff';
 }
 
+// Stops ridden from board to alight. On a loop with alight before board, the bus runs on past the last stop and wraps to the start.
+function planTripStops(boardIdx, alightIdx) {
+  if (planCircular && alightIdx < boardIdx) return [...planStops.slice(boardIdx), ...planStops.slice(0, alightIdx + 1)];
+  return planStops.slice(boardIdx, alightIdx + 1);
+}
+
 function runPlanTrip() {
   if (planBoardIdx < 0 || planAlightIdx < 0) return;
-  if (planAlightIdx <= planBoardIdx) {
+  if (planAlightIdx === planBoardIdx || (!planCircular && planAlightIdx < planBoardIdx)) {
     toast('<i class="fa-solid fa-triangle-exclamation"></i> Alighting stop must be after boarding stop.');
     return;
   }
-  const sliced = planStops.slice(planBoardIdx, planAlightIdx + 1);
+  const sliced = planTripStops(planBoardIdx, planAlightIdx);
   const boardElapsed = planSunAnalysis?.segResults?.slice(0, planBoardIdx).reduce((a, s) => a + s.segTime, 0) || 0;
   const analysis = computeRouteSeatingSlice(sliced, planStopMap, boardElapsed);
   renderPlanTripResult(analysis, sliced, planBoardIdx, planAlightIdx);
@@ -1677,7 +1705,8 @@ function renderPlanTripResult(analysis, sliced, boardIdx, alightIdx) {
   const intensity = avoidPct > 60 ? 'strongly' : avoidPct > 30 ? 'moderately' : 'slightly';
   const isSunny = avoidPct > 40;
 
-  const segResults = planSunAnalysis?.segResults?.slice(boardIdx, alightIdx) || [];
+  const segResults = planCircular ? (analysis.segResults || []) : (planSunAnalysis?.segResults?.slice(boardIdx, alightIdx) || []);
+  planLastSegResults = segResults;
   const stripHtml = segResults.map((seg, i) => {
     if (!seg || seg.exposure === 'none' || seg.side === 'any')
       return `<div class="trip-seg" style="flex:${Math.round(seg?.dist||1)};background:#FFFFFF10"></div>`;
@@ -1733,10 +1762,10 @@ function renderPlanTripResult(analysis, sliced, boardIdx, alightIdx) {
     </div>`;
 
   // Init trip map
-  setTimeout(() => initTripMap(sliced, boardIdx, alightIdx), 50);
+  setTimeout(() => initTripMap(sliced, boardIdx, alightIdx, planCircular ? segResults : undefined), 50);
 }
 
-function initTripMap(sliced, boardIdx, alightIdx) {
+function initTripMap(sliced, boardIdx, alightIdx, segOverride) {
   if (tripMap) { tripMap.remove(); tripMap = null; }
   function stopLatLng(s) {
     const info = s.BusStopCode ? planStopMap[s.BusStopCode] : null;
@@ -1753,7 +1782,7 @@ function initTripMap(sliced, boardIdx, alightIdx) {
   tripMap = L.map('trip-map', { zoomControl: false, attributionControl: false });
   L.tileLayer(document.body.classList.contains('light') ? 'https://www.onemap.gov.sg/maps/tiles/Default/{z}/{x}/{y}.png' : 'https://www.onemap.gov.sg/maps/tiles/Night/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.onemap.gov.sg" target="_blank">OneMap</a> &copy; Singapore Land Authority' }).addTo(tripMap);
 
-  const segResults = planSunAnalysis?.segResults?.slice(boardIdx, alightIdx) || [];
+  const segResults = segOverride || planSunAnalysis?.segResults?.slice(boardIdx, alightIdx) || [];
   const isLight = document.body.classList.contains('light');
 
   // Map a segment's raw score (0–1) to a hex color by lerping through
@@ -1920,14 +1949,15 @@ function computeRouteSeatingSlice(stops, stopMap, startElapsed) {
   }
   if (!segments.length) return null;
   let leftSun=0, rightSun=0, totalDist=0;
-  segments.forEach(seg => {
-    if (seg.sun.alt < 3) return;
+  const segResults = segments.map(seg => {
+    if (seg.sun.alt < 3) return { ...seg, side:'any', score:0, exposure:'none' };
     const rel = (seg.sun.az - seg.bear + 360) % 360;
     const sunOnRight = rel < 180;
     const score = Math.abs(Math.sin(rel*Math.PI/180)) * Math.sin(Math.abs(seg.sun.alt)*Math.PI/180);
     if (sunOnRight) rightSun += score * seg.dist;
     else leftSun += score * seg.dist;
     totalDist += seg.dist;
+    return { ...seg, side: sunOnRight?'right':'left', score, exposure: score>.65?'high':score>.3?'medium':'low' };
   });
   const totalMins = Math.round(segments.reduce((a,s)=>a+s.segTime,0)/60);
   const leftPct = Math.round(leftSun/(totalDist||1)*100);
@@ -1935,7 +1965,7 @@ function computeRouteSeatingSlice(stops, stopMap, startElapsed) {
   const recSide = leftPct <= rightPct ? 'left' : 'right';
   const sunSide = recSide === 'left' ? 'right' : 'left';
   const avoidPct = Math.max(leftPct, rightPct);
-  return { recSide, sunSide, avoidPct, totalMins };
+  return { recSide, sunSide, avoidPct, totalMins, segResults };
 }
 
 function switchDir(i) {
@@ -2464,7 +2494,9 @@ function injectPrivateIntoServices() {
         Fare: svc.Fare,
         OperatingHours: dir.OperatingHours,
         _isPrivate: !['TTS','TONG TAR TRANSPORT'].includes((svc.Operator||'').toUpperCase()),
-        _isScheduled: true,
+        _isScheduled: !svc._isNtu, // NTU ETAs come live from the Worker, not from a timetable
+        _isNtu: !!svc._isNtu,
+        Color: svc.Color || '',
       };
       // Index stops by BusStopCode for O(1) lookup in buildPBSArrivalRows
       for (const stop of dir.Stops) {
@@ -5007,8 +5039,8 @@ function updateMapTiles() {
   });
   // Redraw polylines so no-sun color updates immediately
   if (tripMap && planBoardIdx >= 0 && planAlightIdx >= 0) {
-    const sliced = planStops.slice(planBoardIdx, planAlightIdx + 1);
-    initTripMap(sliced, planBoardIdx, planAlightIdx);
+    const sliced = planTripStops(planBoardIdx, planAlightIdx);
+    initTripMap(sliced, planBoardIdx, planAlightIdx, planCircular ? planLastSegResults : undefined);
   }
 }
 
