@@ -67,7 +67,9 @@ function ntuStatus(svc, now = new Date()) {
 
 // The NTU service object (from PRIVATE_SERVICES) for a ServiceNo like "NTU Red".
 function ntuServiceByNo(serviceNo) {
-  return Object.values(PRIVATE_SERVICES || {}).find(p => p._isNtu && p.ServiceNo === serviceNo);
+  // Tolerant match: the route view may hold the number as typed/normalised ("NTUBROWN", "ntu brown").
+  const norm = x => String(x || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  return Object.values(PRIVATE_SERVICES || {}).find(p => p._isNtu && norm(p.ServiceNo) === norm(serviceNo));
 }
 
 // NTU campus shuttles are all loops, so their label is "first stop ↻ last stop" (e.g. Opp Hall 11 ↻ Opp NY Cres Halls).
@@ -81,6 +83,7 @@ function ntuLoopLabel(info, fallbackOrig) {
 }
 
 const NTU_ETA_TTL_MS = 20000;
+const NTU_BUSES_TTL_MS = 10000;   // bus positions are polled faster than ETAs (live map)
 const _ntuEtaCache = new Map(); // "route|stop" → { t, promise }
 
 function isNtuCode(code) { return typeof code === 'string' && code.startsWith('NTU-'); }
@@ -109,14 +112,14 @@ function fetchNtuEta(stopName, route) {
 const _ntuBusCache = new Map(); // route → { t, promise }
 function fetchNtuBuses(route) {
   const hit = _ntuBusCache.get(route);
-  if (hit && Date.now() - hit.t < NTU_ETA_TTL_MS) return hit.promise;
+  if (hit && Date.now() - hit.t < NTU_BUSES_TTL_MS) return hit.promise;
   const promise = (async () => {
     try {
       const url = `${PROXY_URL}?endpoint=NtuBuses&RouteCode=${encodeURIComponent(route)}`;
       const res = await fetch(url, { headers: await getProxyHeaders() });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.error) return { buses: [], failed: true };
-      return { buses: json.buses || [] };
+      return { buses: json.buses || [], fetchedAt: json.fetchedAt };
     } catch (e) { return { buses: [], failed: true }; }
   })();
   _ntuBusCache.set(route, { t: Date.now(), promise });
@@ -222,12 +225,178 @@ async function ntuRowsHtml(code) {
   };
   const html = entries.map(({ svc }, i) => {
     const r = results[i];
+    // No arrivals (e.g. Green doesn't run on weekends): hide the row. Errors still show so failures aren't silent.
+    if (!r.error && r.ETA == null && r.NextETA == null) return '';
     const [crowd1, crowd2] = ntuCrowdForStop(svc, entries[i].stop.NtuStopName, busRes[i].buses);
     return `<div class="rs-arrival-row">
-      <div class="rs-svc-col op-ntu" style="${svc.Color ? `background:${svc.Color}` : ''}" onclick="goToService('${svc.ServiceNo}', '${code}')">${svc.NtuRoute}</div>
+      <div class="rs-svc-col op-ntu" style="${svc.Color ? `background:${svc.Color}` : ''}" onclick="goToService('${svc.ServiceNo}', '${code}')">NTU ${svc.NtuRoute}<div class="rs-dest-label">Campus Loop</div></div>
       ${cell(r.ETA, r.error, crowd1)}${cell(r.NextETA, r.error, crowd2)}<div class="rs-time-cell"></div>
     </div>`;
   }).join('');
   const anyErr = results.some(r => r.error);
   return html + (anyErr ? '<div class="rs-arrivals-placeholder" style="color:#FF9999"><i class="fa-solid fa-triangle-exclamation"></i> Some NTU ETAs are unavailable right now.</div>' : '');
 }
+
+// ── Live map ──────────────────────────────────────────────────────────────────
+// "Live NTU buses" button → reuses the stop-map modal: loop lines + stops + one marker per active bus.
+// Data is fetchNtuBuses (worker caches 30s), so we poll just above the client TTL, only while the modal
+// is open and the tab is visible. NTU gives no bus id, so each poll's positions are matched to the
+// previous markers by nearest distance, which lets the markers glide instead of jumping.
+const NTU_LIVE_POLL_MS = 15000;
+const NTU_LIVE_MATCH_DEG = 0.004;   // ~440m: further than a bus moves in one poll, so treat as a different bus
+const NTU_LIVE_STALE_S = 90;
+const NTU_CROWD_LABEL = { SEA: 'Seats available', SDA: 'Standing available', LSD: 'Limited standing' };
+let _ntuLive = null;                // { routes, layer, poll, tick, updatedAt, failed }
+
+// Header button for one NTU service's route view (placed above the favourite star).
+function ntuLiveButton(serviceNo) {
+  return `<button class="ntu-live-btn" style="margin-left:auto;flex-shrink:0;padding:5px 10px;font-size:12px" onclick="event.stopPropagation();ntuLiveOpen('${serviceNo}')"><i class="fa-solid fa-location-crosshairs"></i> Live</button>`;
+}
+
+function ntuLiveStop() {
+  if (_ntuLive) { clearInterval(_ntuLive.poll); clearInterval(_ntuLive.tick); _ntuLive = null; }
+  const st = document.getElementById('stop-map-live'); if (st) st.style.display = 'none';
+  const ti = document.getElementById('stop-map-title'); if (ti) ti.textContent = 'Stop Location';
+}
+
+function _ntuLiveStatus() {
+  const live = _ntuLive, el = document.getElementById('stop-map-live');
+  if (!live || !el) return;
+  const n = live.routes.reduce((a, r) => a + r.markers.length, 0);
+  const age = live.updatedAt ? Math.round((Date.now() - live.updatedAt) / 1000) : null;
+  const stale = live.failed || (age !== null && age > NTU_LIVE_STALE_S);
+  el.style.display = '';
+  el.style.color = stale ? '#FF9999' : 'var(--muted)';
+  el.textContent = age === null ? (live.failed ? 'Unavailable' : 'Loading…')
+    : `${n} bus${n === 1 ? '' : 'es'} · ${age < 5 ? 'just now' : age + 's ago'}${stale ? ' · stale' : ''}`;
+  document.querySelectorAll('.ntu-live-bus').forEach(e => e.classList.toggle('stale', stale));
+}
+
+function _ntuBusIcon(color, crowd) {
+  return L.divIcon({
+    className: 'ntu-live-bus',
+    html: `<div class="ntu-live-dot" style="background:${color};box-shadow:0 0 0 3px ${NTU_LOAD_COLOR[crowd] || 'var(--muted)'}"></div>`,
+    iconSize: [18, 18], iconAnchor: [9, 9],
+  });
+}
+
+function _ntuBusTip(route, crowd) { return `NTU ${route.svc.NtuRoute}${NTU_CROWD_LABEL[crowd] ? ' · ' + NTU_CROWD_LABEL[crowd] : ''}`; }
+
+// Reconcile one route's markers with a fresh list of positions.
+function _ntuLiveSync(live, route, buses) {
+  const old = route.markers, pairs = [];
+  buses.forEach((b, bi) => old.forEach((m, mi) => {
+    const ll = m.getLatLng();
+    pairs.push({ bi, mi, d: Math.hypot(b.lat - ll.lat, b.lng - ll.lng) });
+  }));
+  pairs.sort((a, b) => a.d - b.d);
+  const usedB = new Set(), usedM = new Set(), next = [];
+  for (const p of pairs) {
+    if (p.d > NTU_LIVE_MATCH_DEG || usedB.has(p.bi) || usedM.has(p.mi)) continue;
+    usedB.add(p.bi); usedM.add(p.mi);
+    const m = old[p.mi], b = buses[p.bi];
+    m.setLatLng([b.lat, b.lng]);
+    if (m._crowd !== b.crowd) {
+      m._crowd = b.crowd;
+      const dot = m.getElement()?.firstChild;
+      if (dot) dot.style.boxShadow = `0 0 0 3px ${NTU_LOAD_COLOR[b.crowd] || 'var(--muted)'}`;
+      m.setTooltipContent(_ntuBusTip(route, b.crowd));
+    }
+    next.push(m);
+  }
+  buses.forEach((b, bi) => {
+    if (usedB.has(bi)) return;
+    const m = L.marker([b.lat, b.lng], { icon: _ntuBusIcon(route.color, b.crowd), zIndexOffset: 1000 })
+      .bindTooltip(_ntuBusTip(route, b.crowd), { direction: 'top', offset: [0, -8] }).addTo(live.layer);
+    m._crowd = b.crowd;
+    next.push(m);
+  });
+  old.forEach((m, mi) => { if (!usedM.has(mi)) live.layer.removeLayer(m); });
+  route.markers = next;
+}
+
+async function _ntuLivePoll(live) {
+  if (_ntuLive !== live || document.hidden || live.busy) return;
+  live.busy = true;
+  try {
+    const res = await Promise.all(live.routes.map(r => fetchNtuBuses(r.svc.NtuRoute)));
+    if (_ntuLive !== live) return;
+    live.failed = res.some(r => r.failed);
+    let oldest = null;
+    res.forEach((r, i) => {
+      if (r.failed) return; // keep the last known positions; they're greyed out as stale
+      _ntuLiveSync(live, live.routes[i], r.buses);
+      const t = r.fetchedAt ? Date.parse(r.fetchedAt) : Date.now();
+      oldest = oldest === null ? t : Math.min(oldest, t);
+    });
+    if (oldest !== null) live.updatedAt = oldest;
+    _ntuLiveStatus();
+  } finally { live.busy = false; }
+}
+
+// Road-following paths: assets/ntu-paths.json = { "<NtuRoute>": "<encoded polyline>" } built by
+// helper_scripts/ntu/build_ntu_paths.py. Optional: a missing file or route falls back to straight lines.
+let _ntuPathsP = null;
+function ntuPaths() {
+  return _ntuPathsP ||= fetch('./assets/ntu-paths.json')
+    .then(r => r.ok ? r.json() : {}).catch(() => ({}))
+    .then(raw => { const out = {}; for (const k in raw) out[k] = _ntuDecodePolyline(raw[k]); return out; });
+}
+function _ntuDecodePolyline(str) {   // Google encoded polyline, precision 5
+  const pts = []; let i = 0, lat = 0, lng = 0;
+  while (i < str.length) {
+    for (let axis = 0; axis < 2; axis++) {
+      let shift = 0, result = 0, b;
+      do { b = str.charCodeAt(i++) - 63; result |= (b & 31) << shift; shift += 5; } while (b >= 32);
+      const d = (result & 1) ? ~(result >> 1) : (result >> 1);
+      if (axis === 0) lat += d; else lng += d;
+    }
+    pts.push([lat / 1e5, lng / 1e5]);
+  }
+  return pts;
+}
+
+function ntuLiveOpen(serviceNo) {
+  const svc = ntuServiceByNo(serviceNo);
+  if (!svc || typeof L === 'undefined') return;
+  ntuLiveStop();
+  if (window._stopMap) { window._stopMap.remove(); window._stopMap = null; }
+  document.getElementById('stop-map-modal').style.display = 'flex';
+  document.getElementById('stop-map-title').textContent = `NTU ${svc.NtuRoute} · Live`;
+
+  const isLight = document.body.classList.contains('light');
+  const map = L.map('stop-map-container', { zoomControl: true, attributionControl: false });
+  window._stopMap = map;
+  L.tileLayer(`https://www.onemap.gov.sg/maps/tiles/${isLight ? 'Default' : 'Night'}/{z}/{x}/{y}.png`, { maxZoom: 19 }).addTo(map);
+  // markers glide between polls; switch that off while zooming so they don't lag behind the map
+  map.on('zoomstart', () => map.getContainer().classList.add('ntu-zooming'));
+  map.on('zoomend', () => map.getContainer().classList.remove('ntu-zooming'));
+
+  const all = [], routeLines = [];
+  const color = svc.Color || '#B5121B';
+  const pts = (svc.Directions['1'].Stops || []).filter(s => s.Latitude != null && s.Longitude != null);
+  const line = pts.map(s => [s.Latitude, s.Longitude]);
+  routeLines.push({ svc, color, line });
+  pts.forEach(s => L.circleMarker([s.Latitude, s.Longitude], { radius: 4, color: '#fff', weight: 1.5, fillColor: color, fillOpacity: 1 })
+    .bindTooltip(s.Description || s.NtuStopName).addTo(map));
+  all.push(...line);
+  const routes = [{ svc, color, markers: [] }];
+  if (all.length) map.fitBounds(all, { padding: [24, 24] }); else map.setView([1.3483, 103.6831], 15);
+
+  const live = _ntuLive = { routes, layer: L.layerGroup().addTo(map), updatedAt: null, failed: false, busy: false };
+  // Loop lines: follow the road path when we have one, else straight lines between stops (NTU shuttles are loops).
+  ntuPaths().then(paths => {
+    if (_ntuLive !== live) return; // modal closed meanwhile
+    routeLines.forEach(({ svc, color, line }) => {
+      const pts = paths[svc.NtuRoute] || (line.length > 1 ? [...line, line[0]] : null);
+      if (pts) L.polyline(pts, { color, weight: 4, opacity: .65, lineJoin: 'round' }).addTo(map).bringToBack();
+    });
+  });
+  live.poll = setInterval(() => _ntuLivePoll(live), NTU_LIVE_POLL_MS);
+  live.tick = setInterval(_ntuLiveStatus, 1000);
+  _ntuLiveStatus();
+  _ntuLivePoll(live);
+}
+
+// Coming back to the tab: refresh straight away instead of waiting for the next tick.
+document.addEventListener('visibilitychange', () => { if (!document.hidden && _ntuLive) _ntuLivePoll(_ntuLive); });

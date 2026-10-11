@@ -2553,7 +2553,7 @@ body.light .svc-drop-cat {
 }
 
 body.light .svc-drop-num {
-  color: #000000;
+  color: #ffffff;
 }
 
 body.light .svc-drop-item:hover {
@@ -4037,3 +4037,14 @@ body.light .svc-drop-num.op-ntu,
 body.light .rs-svc-col.op-ntu {
   color: #fff;
 }
+/* ── NTU live bus map ── */
+.ntu-live-btn {
+  background: #00C8E015; border: 1.5px solid #00C8E030; border-radius: 10px; padding: 7px 14px;
+  color: var(--cyan); font-family: 'LTAIdentity', sans-serif; font-weight: 700; font-size: 13px;
+  letter-spacing: .5px; cursor: pointer; transition: all .2s;
+}
+.ntu-live-btn:hover { filter: brightness(1.2); }
+.ntu-live-bus { transition: transform 16s linear, opacity .3s; }   /* a touch over NTU_LIVE_POLL_MS (15s) */
+.ntu-zooming .ntu-live-bus { transition: none; }
+.ntu-live-bus.stale { opacity: .45; }
+.ntu-live-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #fff; box-sizing: border-box; }

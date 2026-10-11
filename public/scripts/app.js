@@ -1387,6 +1387,7 @@ function renderRoute(rd, allStops) {
       <div style="display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;white-space:nowrap">
         <div style="display:inline-flex;align-items:center;gap:6px;background:${opBg};color:#fff;padding:6px 16px;border-radius:12px;flex-shrink:0${isNtuSvc ? ';box-shadow:inset 0 0 0 2px var(--ntu-orange)' : ''}"><span class="stop-title" style="font-size:inherit">${formatSvcNo(rd.svc)}</span></div>
         ${freqPills}
+        ${isNtuSvc ? ntuLiveButton(rd.svc) : ''}
         ${rd.svcMap?.[svcNormKey + '-1']?._isScheduled ? `<span style="margin-left:auto;font-size:9px;color:var(--muted);white-space:normal;text-align:right;line-height:1.3;max-width:200px;flex-shrink:0"><i class="fa-solid fa-triangle-exclamation"></i> Timings for this service are estimated based on schedules and may not be fully accurate.</span>` : ''}
       </div>
       <div style="display:flex;align-items:center;gap:8px">
@@ -4026,6 +4027,7 @@ function viewStopOnMap(code) {
     return;
   }
 
+  if (typeof ntuLiveStop === 'function') ntuLiveStop(); // shared modal: reset the live-bus title/status
   document.getElementById('stop-map-modal').style.display = 'flex';
 
   if (window._stopMap) {
@@ -4053,6 +4055,7 @@ function viewStopOnMap(code) {
 }
 
 function closeStopMapModal() {
+  if (typeof ntuLiveStop === 'function') ntuLiveStop(); // stop polling
   document.getElementById('stop-map-modal').style.display = 'none';
   if (window._stopMap) {
     window._stopMap.remove();
