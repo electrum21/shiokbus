@@ -9,6 +9,20 @@
     "Color": "#0054A6",
     "OperatingHours": "",
     "LoopDesc": "",
+    "Schedule": {
+      "Mon-Fri": {
+        "first": "07:30",
+        "last": "23:00"
+      },
+      "Sat": {
+        "first": "08:00",
+        "last": "23:00"
+      },
+      "Sun": {
+        "first": "08:00",
+        "last": "23:00"
+      }
+    },
     "Directions": {
       "1": {
         "Direction": 1,
@@ -103,7 +117,7 @@
           },
           {
             "StopSequence": 10,
-            "BusStopCode": "NTU-NIE-BLK-2",
+            "BusStopCode": "27219",
             "NtuStopName": "NIE Blk 2",
             "Description": "NIE Blk 2",
             "RoadName": "NTU",
@@ -151,12 +165,22 @@
     "Color": "#866D4B",
     "OperatingHours": "",
     "LoopDesc": "",
+    "Schedule": {
+      "Sat": {
+        "first": "07:30",
+        "last": "23:00"
+      },
+      "Sun": {
+        "first": "07:30",
+        "last": "23:00"
+      }
+    },
     "Directions": {
       "1": {
         "Direction": 1,
-        "OriginCode": "NTU-PIONEER-STN-EXIT-B",
+        "OriginCode": "22529",
         "OriginDesc": "Pioneer Stn Exit B",
-        "DestinationCode": "NTU-PIONEER-STN-EXIT-B",
+        "DestinationCode": "22529",
         "DestinationDesc": "Pioneer Stn Exit B",
         "OperatingHours": "",
         "Frequency": "",
@@ -164,7 +188,7 @@
         "Stops": [
           {
             "StopSequence": 1,
-            "BusStopCode": "NTU-PIONEER-STN-EXIT-B",
+            "BusStopCode": "22529",
             "NtuStopName": "Pioneer Stn Exit B",
             "Description": "Pioneer Stn Exit B",
             "RoadName": "NTU",
@@ -173,7 +197,7 @@
           },
           {
             "StopSequence": 2,
-            "BusStopCode": "NTU-HALL-1",
+            "BusStopCode": "27281",
             "NtuStopName": "Hall 1",
             "Description": "Hall 1",
             "RoadName": "NTU",
@@ -182,7 +206,7 @@
           },
           {
             "StopSequence": 3,
-            "BusStopCode": "NTU-HALL-2",
+            "BusStopCode": "27311",
             "NtuStopName": "Hall 2",
             "Description": "Hall 2",
             "RoadName": "NTU",
@@ -218,7 +242,7 @@
           },
           {
             "StopSequence": 7,
-            "BusStopCode": "NTU-LEE-WEE-NAM-LIB",
+            "BusStopCode": "27211",
             "NtuStopName": "Lee Wee Nam Lib",
             "Description": "Lee Wee Nam Lib",
             "RoadName": "NTU",
@@ -236,7 +260,7 @@
           },
           {
             "StopSequence": 9,
-            "BusStopCode": "NTU-WKWSCI",
+            "BusStopCode": "27231",
             "NtuStopName": "WKWSCI",
             "Description": "WKWSCI",
             "RoadName": "NTU",
@@ -245,7 +269,7 @@
           },
           {
             "StopSequence": 10,
-            "BusStopCode": "NTU-SPMS",
+            "BusStopCode": "27241",
             "NtuStopName": "SPMS",
             "Description": "SPMS",
             "RoadName": "NTU",
@@ -254,7 +278,7 @@
           },
           {
             "StopSequence": 11,
-            "BusStopCode": "NTU-WEE-CHO-YAW-PLAZA",
+            "BusStopCode": "27251",
             "NtuStopName": "Wee Cho Yaw Plaza",
             "Description": "Wee Cho Yaw Plaza",
             "RoadName": "NTU",
@@ -263,7 +287,7 @@
           },
           {
             "StopSequence": 12,
-            "BusStopCode": "NTU-HALL-4",
+            "BusStopCode": "27261",
             "NtuStopName": "Hall 4",
             "Description": "Hall 4",
             "RoadName": "NTU",
@@ -293,12 +317,18 @@
     "Color": "#007C48",
     "OperatingHours": "",
     "LoopDesc": "",
+    "Schedule": {
+      "Mon-Fri": {
+        "first": "07:30",
+        "last": "23:00"
+      }
+    },
     "Directions": {
       "1": {
         "Direction": 1,
-        "OriginCode": "NTU-PIONEER-STN-EXIT-B",
+        "OriginCode": "22529",
         "OriginDesc": "Pioneer Stn Exit B",
-        "DestinationCode": "NTU-PIONEER-STN-EXIT-B",
+        "DestinationCode": "22529",
         "DestinationDesc": "Pioneer Stn Exit B",
         "OperatingHours": "",
         "Frequency": "",
@@ -306,7 +336,7 @@
         "Stops": [
           {
             "StopSequence": 1,
-            "BusStopCode": "NTU-PIONEER-STN-EXIT-B",
+            "BusStopCode": "22529",
             "NtuStopName": "Pioneer Stn Exit B",
             "Description": "Pioneer Stn Exit B",
             "RoadName": "NTU",
@@ -315,7 +345,7 @@
           },
           {
             "StopSequence": 2,
-            "BusStopCode": "NTU-HALL-1",
+            "BusStopCode": "27281",
             "NtuStopName": "Hall 1",
             "Description": "Hall 1",
             "RoadName": "NTU",
@@ -324,7 +354,7 @@
           },
           {
             "StopSequence": 3,
-            "BusStopCode": "NTU-HALL-2",
+            "BusStopCode": "27311",
             "NtuStopName": "Hall 2",
             "Description": "Hall 2",
             "RoadName": "NTU",
@@ -390,12 +420,13 @@
     "Color": "#3B3838",
     "OperatingHours": "",
     "LoopDesc": "",
+    "Schedule": {},
     "Directions": {
       "1": {
         "Direction": 1,
-        "OriginCode": "NTU-HALL-11-BLK-55",
+        "OriginCode": "27011",
         "OriginDesc": "Hall 11 Blk 55",
-        "DestinationCode": "NTU-HALL-11-BLK-55",
+        "DestinationCode": "27011",
         "DestinationDesc": "Hall 11 Blk 55",
         "OperatingHours": "",
         "Frequency": "",
@@ -403,7 +434,7 @@
         "Stops": [
           {
             "StopSequence": 1,
-            "BusStopCode": "NTU-HALL-11-BLK-55",
+            "BusStopCode": "27011",
             "NtuStopName": "Hall 11 Blk 55",
             "Description": "Hall 11 Blk 55",
             "RoadName": "NTU",
@@ -412,7 +443,7 @@
           },
           {
             "StopSequence": 2,
-            "BusStopCode": "NTU-NY-CRES-HALLS",
+            "BusStopCode": "27071",
             "NtuStopName": "NY Cres Halls",
             "Description": "NY Cres Halls",
             "RoadName": "NTU",
@@ -421,7 +452,7 @@
           },
           {
             "StopSequence": 3,
-            "BusStopCode": "NTU-HALL-15",
+            "BusStopCode": "27021",
             "NtuStopName": "Hall 15",
             "Description": "Hall 15",
             "RoadName": "NTU",
@@ -430,7 +461,7 @@
           },
           {
             "StopSequence": 4,
-            "BusStopCode": "NTU-HALL-12",
+            "BusStopCode": "27031",
             "NtuStopName": "Hall 12",
             "Description": "Hall 12",
             "RoadName": "NTU",
@@ -439,7 +470,7 @@
           },
           {
             "StopSequence": 5,
-            "BusStopCode": "NTU-HALL-8-BLK-41",
+            "BusStopCode": "27069",
             "NtuStopName": "Hall 8 Blk 41",
             "Description": "Hall 8 Blk 41",
             "RoadName": "NTU",
@@ -496,12 +527,26 @@
     "Color": "#D71440",
     "OperatingHours": "",
     "LoopDesc": "",
+    "Schedule": {
+      "Mon-Fri": {
+        "first": "07:30",
+        "last": "23:00"
+      },
+      "Sat": {
+        "first": "08:00",
+        "last": "23:00"
+      },
+      "Sun": {
+        "first": "08:00",
+        "last": "23:00"
+      }
+    },
     "Directions": {
       "1": {
         "Direction": 1,
-        "OriginCode": "NTU-HALL-11-BLK-55",
+        "OriginCode": "27011",
         "OriginDesc": "Hall 11 Blk 55",
-        "DestinationCode": "NTU-HALL-11-BLK-55",
+        "DestinationCode": "27011",
         "DestinationDesc": "Hall 11 Blk 55",
         "OperatingHours": "",
         "Frequency": "",
@@ -509,7 +554,7 @@
         "Stops": [
           {
             "StopSequence": 1,
-            "BusStopCode": "NTU-HALL-11-BLK-55",
+            "BusStopCode": "27011",
             "NtuStopName": "Hall 11 Blk 55",
             "Description": "Hall 11 Blk 55",
             "RoadName": "NTU",
@@ -518,7 +563,7 @@
           },
           {
             "StopSequence": 2,
-            "BusStopCode": "NTU-NANYANG-CRESCENT-HALLS",
+            "BusStopCode": "27071",
             "NtuStopName": "Nanyang Crescent Halls",
             "Description": "Nanyang Crescent Halls",
             "RoadName": "NTU",
@@ -527,7 +572,7 @@
           },
           {
             "StopSequence": 3,
-            "BusStopCode": "NTU-HALL-12",
+            "BusStopCode": "27031",
             "NtuStopName": "Hall 12",
             "Description": "Hall 12",
             "RoadName": "NTU",
@@ -536,7 +581,7 @@
           },
           {
             "StopSequence": 4,
-            "BusStopCode": "NTU-LEE-WEE-NAM-LIB",
+            "BusStopCode": "27211",
             "NtuStopName": "Lee Wee Nam Lib",
             "Description": "Lee Wee Nam Lib",
             "RoadName": "NTU",
@@ -554,7 +599,7 @@
           },
           {
             "StopSequence": 6,
-            "BusStopCode": "NTU-WKWSCI",
+            "BusStopCode": "27231",
             "NtuStopName": "WKWSCI",
             "Description": "WKWSCI",
             "RoadName": "NTU",
@@ -563,7 +608,7 @@
           },
           {
             "StopSequence": 7,
-            "BusStopCode": "NTU-SPMS",
+            "BusStopCode": "27241",
             "NtuStopName": "SPMS",
             "Description": "SPMS",
             "RoadName": "NTU",
@@ -572,7 +617,7 @@
           },
           {
             "StopSequence": 8,
-            "BusStopCode": "NTU-WEE-CHO-YAW-PLAZA",
+            "BusStopCode": "27251",
             "NtuStopName": "Wee Cho Yaw Plaza",
             "Description": "Wee Cho Yaw Plaza",
             "RoadName": "NTU",
@@ -581,7 +626,7 @@
           },
           {
             "StopSequence": 9,
-            "BusStopCode": "NTU-HALL-4",
+            "BusStopCode": "27261",
             "NtuStopName": "Hall 4",
             "Description": "Hall 4",
             "RoadName": "NTU",
@@ -590,7 +635,7 @@
           },
           {
             "StopSequence": 10,
-            "BusStopCode": "NTU-HALL-1",
+            "BusStopCode": "27281",
             "NtuStopName": "Hall 1",
             "Description": "Hall 1",
             "RoadName": "NTU",
@@ -599,7 +644,7 @@
           },
           {
             "StopSequence": 11,
-            "BusStopCode": "NTU-HALL-2",
+            "BusStopCode": "27311",
             "NtuStopName": "Hall 2",
             "Description": "Hall 2",
             "RoadName": "NTU",
@@ -608,7 +653,7 @@
           },
           {
             "StopSequence": 12,
-            "BusStopCode": "NTU-HALL-8-9",
+            "BusStopCode": "27209",
             "NtuStopName": "Hall 8 & 9",
             "Description": "Hall 8 & 9",
             "RoadName": "NTU",
@@ -617,7 +662,7 @@
           },
           {
             "StopSequence": 13,
-            "BusStopCode": "NTU-HALL-11",
+            "BusStopCode": "27199",
             "NtuStopName": "Hall 11",
             "Description": "Hall 11",
             "RoadName": "NTU",
