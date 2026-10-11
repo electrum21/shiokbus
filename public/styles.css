@@ -4047,4 +4047,6 @@ body.light .rs-svc-col.op-ntu {
 .ntu-live-bus { transition: transform 16s linear, opacity .3s; }   /* a touch over NTU_LIVE_POLL_MS (15s) */
 .ntu-zooming .ntu-live-bus { transition: none; }
 .ntu-live-bus.stale { opacity: .45; }
-.ntu-live-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #fff; box-sizing: border-box; }
+.ntu-bus-inner { line-height: 0; position: relative; width: 46px; height: 46px; }
+.ntu-bus-arrow { position: absolute; top: 0; left: 0; transition: transform 4s linear; pointer-events: none; }
+.ntu-zooming .ntu-bus-arrow { transition: none; }

@@ -272,12 +272,62 @@ function _ntuLiveStatus() {
   document.querySelectorAll('.ntu-live-bus').forEach(e => e.classList.toggle('stale', stale));
 }
 
-function _ntuBusIcon(color, crowd) {
+// White circle with front-facing bus icon; coloured ring = crowd level (green/orange/red).
+// A separate arrow div orbits the circle to show direction of travel.
+const NTU_CROWD_RING = { SEA: '#43C463', SDA: '#FF8C00', LSD: '#E53935' };
+
+function _ntuBusIcon(color, crowd, heading) {
+  const ring = NTU_CROWD_RING[crowd] || '#888';
   return L.divIcon({
     className: 'ntu-live-bus',
-    html: `<div class="ntu-live-dot" style="background:${color};box-shadow:0 0 0 3px ${NTU_LOAD_COLOR[crowd] || 'var(--muted)'}"></div>`,
-    iconSize: [18, 18], iconAnchor: [9, 9],
+    html: `<div class="ntu-bus-inner">
+      ${_ntuBusSvg(color, ring)}
+      <div class="ntu-bus-arrow" style="transform:rotate(${heading ?? 0}deg)">
+        <svg width="46" height="46" viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="23,1 18,11 28,11" fill="${ring}" stroke="white" stroke-width="1.2" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>`,
+    iconSize: [46, 46], iconAnchor: [23, 23],
   });
+}
+
+// Front-facing bus inside a white disc, 46×46 canvas (5px padding for arrow clearance).
+function _ntuBusSvg(color, ring) {
+  return `<svg width="46" height="46" viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0">
+    <circle cx="23" cy="23" r="16.5" fill="white" stroke="${ring}" stroke-width="2.8"/>
+    <rect x="15" y="14" width="16" height="4"   rx="2"    fill="${color}"/>
+    <rect x="14" y="17" width="18" height="14"  rx="2.5"  fill="${color}"/>
+    <rect x="16" y="18" width="14" height="7"   rx="1.5"  fill="rgba(255,255,255,0.55)"/>
+    <rect x="15" y="27" width="4"  height="3"   rx="1"    fill="rgba(255,220,50,0.9)"/>
+    <rect x="27" y="27" width="4"  height="3"   rx="1"    fill="rgba(255,220,50,0.9)"/>
+    <rect x="20" y="28" width="6"  height="1.5" rx="0.75" fill="rgba(0,0,0,0.18)"/>
+    <rect x="14" y="30" width="5"  height="3.5" rx="1.5"  fill="rgba(0,0,0,0.45)"/>
+    <rect x="27" y="30" width="5"  height="3.5" rx="1.5"  fill="rgba(0,0,0,0.45)"/>
+  </svg>`;
+}
+
+function _ntuBearing(from, to) {
+  const dLng = (to.lng - from.lng) * Math.PI / 180;
+  const lat1 = from.lat * Math.PI / 180, lat2 = to.lat * Math.PI / 180;
+  const y = Math.sin(dLng) * Math.cos(lat2);
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+
+// Find nearest polyline segment and return its compass bearing.
+function _ntuSnapBearing(path, lat, lng) {
+  if (!path || path.length < 2) return null;
+  let bestDist = Infinity, bestI = 0;
+  for (let i = 0; i < path.length - 1; i++) {
+    const [a0, a1] = path[i], [b0, b1] = path[i + 1];
+    const dy = b0 - a0, dx = b1 - a1, len2 = dy * dy + dx * dx;
+    const t = len2 > 0 ? Math.max(0, Math.min(1, ((lat - a0) * dy + (lng - a1) * dx) / len2)) : 0;
+    const d = (a0 + t * dy - lat) ** 2 + (a1 + t * dx - lng) ** 2;
+    if (d < bestDist) { bestDist = d; bestI = i; }
+  }
+  const [a0, a1] = path[bestI], [b0, b1] = path[bestI + 1];
+  return _ntuBearing({ lat: a0, lng: a1 }, { lat: b0, lng: b1 });
 }
 
 function _ntuBusTip(route, crowd) { return `NTU ${route.svc.NtuRoute}${NTU_CROWD_LABEL[crowd] ? ' · ' + NTU_CROWD_LABEL[crowd] : ''}`; }
@@ -296,19 +346,30 @@ function _ntuLiveSync(live, route, buses) {
     usedB.add(p.bi); usedM.add(p.mi);
     const m = old[p.mi], b = buses[p.bi];
     m.setLatLng([b.lat, b.lng]);
+    const newHeading = _ntuSnapBearing(route.path, b.lat, b.lng) ?? b.heading ?? m._heading ?? 0;
+    if (newHeading !== m._heading) {
+      m._heading = newHeading;
+      const arrow = m.getElement()?.querySelector('.ntu-bus-arrow');
+      if (arrow) arrow.style.transform = `rotate(${newHeading}deg)`;
+    }
     if (m._crowd !== b.crowd) {
       m._crowd = b.crowd;
-      const dot = m.getElement()?.firstChild;
-      if (dot) dot.style.boxShadow = `0 0 0 3px ${NTU_LOAD_COLOR[b.crowd] || 'var(--muted)'}`;
+      const ring = NTU_CROWD_RING[b.crowd] || '#888';
+      const el = m.getElement();
+      el?.querySelector('svg circle')?.setAttribute('stroke', ring);
+      el?.querySelector('.ntu-bus-arrow polygon')?.setAttribute('fill', ring);
+      el?.querySelector('.ntu-bus-arrow polygon')?.setAttribute('stroke', 'white');
       m.setTooltipContent(_ntuBusTip(route, b.crowd));
     }
     next.push(m);
   }
   buses.forEach((b, bi) => {
     if (usedB.has(bi)) return;
-    const m = L.marker([b.lat, b.lng], { icon: _ntuBusIcon(route.color, b.crowd), zIndexOffset: 1000 })
-      .bindTooltip(_ntuBusTip(route, b.crowd), { direction: 'top', offset: [0, -8] }).addTo(live.layer);
+    const h = _ntuSnapBearing(route.path, b.lat, b.lng) ?? b.heading ?? 0;
+    const m = L.marker([b.lat, b.lng], { icon: _ntuBusIcon(route.color, b.crowd, h), zIndexOffset: 1000 })
+      .bindTooltip(_ntuBusTip(route, b.crowd), { direction: 'top', offset: [0, -23] }).addTo(live.layer);
     m._crowd = b.crowd;
+    m._heading = h;
     next.push(m);
   });
   old.forEach((m, mi) => { if (!usedM.has(mi)) live.layer.removeLayer(m); });
@@ -380,16 +441,20 @@ function ntuLiveOpen(serviceNo) {
   pts.forEach(s => L.circleMarker([s.Latitude, s.Longitude], { radius: 4, color: '#fff', weight: 1.5, fillColor: color, fillOpacity: 1 })
     .bindTooltip(s.Description || s.NtuStopName).addTo(map));
   all.push(...line);
-  const routes = [{ svc, color, markers: [] }];
+  const routes = [{ svc, color, markers: [], path: null }];
+  routeLines[0].route = routes[0];
   if (all.length) map.fitBounds(all, { padding: [24, 24] }); else map.setView([1.3483, 103.6831], 15);
 
   const live = _ntuLive = { routes, layer: L.layerGroup().addTo(map), updatedAt: null, failed: false, busy: false };
   // Loop lines: follow the road path when we have one, else straight lines between stops (NTU shuttles are loops).
   ntuPaths().then(paths => {
     if (_ntuLive !== live) return; // modal closed meanwhile
-    routeLines.forEach(({ svc, color, line }) => {
+    routeLines.forEach(({ svc, color, line, route }) => {
       const pts = paths[svc.NtuRoute] || (line.length > 1 ? [...line, line[0]] : null);
-      if (pts) L.polyline(pts, { color, weight: 4, opacity: .65, lineJoin: 'round' }).addTo(map).bringToBack();
+      if (pts) {
+        if (route) route.path = pts;
+        L.polyline(pts, { color, weight: 4, opacity: .65, lineJoin: 'round' }).addTo(map).bringToBack();
+      }
     });
   });
   live.poll = setInterval(() => _ntuLivePoll(live), NTU_LIVE_POLL_MS);
