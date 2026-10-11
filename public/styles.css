@@ -4018,7 +4018,10 @@ body.light .legend-nosun-swatch {
   opacity: .9;
 }
 
-/* ── NUS campus shuttle operator colour ── */
-.rs-svc-col.op-nus { background: #EF7C00; color: #fff; }
-.bus-num-col.op-nus { background: #EF7C00; }
-.svc-drop-num.op-nus { background: #EF7C00 !important; color: #fff !important; }
+/* NTU campus shuttles (route colour is set inline from ntu-shuttle.json) */
+.rs-svc-col.op-ntu,
+.bus-num-col.op-ntu,
+.svc-drop-num.op-ntu {
+  background: #B5121B;
+  color: #fff;
+}
