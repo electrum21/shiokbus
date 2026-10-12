@@ -705,14 +705,6 @@ function _historyKey(item) {
   return item?.type === 'service' ? HISTORY_KEY_SERVICES : HISTORY_KEY_STOPS;
 }
 
-function loadCommuteHistory() {
-  // Returns combined history (services then stops) for backwards-compat callers
-  return [
-    ..._loadHistory(HISTORY_KEY_SERVICES),
-    ..._loadHistory(HISTORY_KEY_STOPS)
-  ];
-}
-
 function addCommuteHistory(item) {
   if (!item?.type || !item?.key) return;
   const key = _historyKey(item);
@@ -2148,23 +2140,6 @@ async function fetchAllStops() {
   setNearMeSub(`${ALL_STOPS.length.toLocaleString()} stops loaded`);
   return ALL_STOPS;
 }
-
-// ── FETCH ALL BUS SERVICES (paginated, cached) ──
-// Hardcoded double-loop destination → label map
-// Key: "ServiceNo:DestinationCode", Value: short label shown under bus icon
-const DOUBLE_LOOP_LABELS = {
-  '291:75121': 'St 81',   // Tampines St 81 loop
-  '291:76199': 'St 91',   // Tampines St 91 loop
-  '293:76051': 'St 71',   // Tampines St 71 loop
-  '293:76199': 'St 91',   // Tampines St 91 loop
-  '358:77199': 'Dr 10',   // Pasir Ris Dr 10 loop
-  '358:78101': 'Dr 4',    // Pasir Ris Dr 4 loop
-  '359:77199': 'St 71',   // Pasir Ris St 71 loop
-  '359:77171': 'St 72',   // Pasir Ris St 72 loop
-  '812:59072': 'Ave 4',   // Yishun Ave 4 loop
-  '812:59073': 'Ave 5',   // Yishun Ave 5 loop
-};
-const DOUBLE_LOOP_SERVICES = new Set(['291','293','358','359','812']);
 
 // ── LOOP SERVICE DESTINATION LABELS ──
 // For loop services (same origin + destination), the bus pill shows:
@@ -4070,8 +4045,8 @@ function viewStopOnMap(code) {
     return;
   }
 
-  if (typeof ntuLiveStop === 'function') ntuLiveStop(); // shared modal: reset the live-bus title/status
-  if (typeof nusLiveStop === 'function') nusLiveStop();
+  ntuLiveStop(); // shared modal: reset the live-bus title/status
+  nusLiveStop();
   document.getElementById('stop-map-modal').style.display = 'flex';
 
   if (window._stopMap) {
@@ -4099,8 +4074,8 @@ function viewStopOnMap(code) {
 }
 
 function closeStopMapModal() {
-  if (typeof ntuLiveStop === 'function') ntuLiveStop(); // stop polling
-  if (typeof nusLiveStop === 'function') nusLiveStop();
+  ntuLiveStop(); // stop polling
+  nusLiveStop();
   document.getElementById('stop-map-modal').style.display = 'none';
   if (window._stopMap) {
     window._stopMap.remove();
