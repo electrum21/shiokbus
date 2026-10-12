@@ -2957,6 +2957,7 @@ function render(code, data) {
       <div style="min-width:0;flex:1">
         <div style="display:flex;align-items:center;gap:8px">
           <div class="stop-title" id="stop-title-${code}" style="flex:1;min-width:0">${stopLabel(name, true)}</div>
+          <button class="view-btn" title="View on map" onclick="viewStopOnMap('${code}')" style="font-size:18px;color:var(--muted)"><i class="fa-solid fa-location-dot"></i></button>
           <button class="fav-btn" data-key="stop_${code}" title="Favourite this stop" onclick="addStopFav('${code}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')\" style="font-size:20px;color:${(window._favs||{})['stop_'+code]?'var(--yellow)':'var(--muted)'}\">${(window._favs||{})['stop_'+code]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
         </div>
         ${road ? `<div class="stop-road-block">(${road})</div>` : ''}
