@@ -1,0 +1,1064 @@
+{
+ "NUSA1": {
+  "ServiceNo": "NUS A1",
+  "Operator": "NUS",
+  "Category": "CAMPUS",
+  "Fare": "Free",
+  "_isNus": true,
+  "_isLoop": true,
+  "NusRoute": "A1",
+  "Color": "#D32F2F",
+  "OperatingHours": "",
+  "LoopDesc": "",
+  "Schedule": {},
+  "Directions": {
+   "1": {
+    "Direction": 1,
+    "OriginCode": "NUS-KRB",
+    "OriginDesc": "Kent Ridge Bus Terminal",
+    "DestinationCode": "NUS-KRB",
+    "DestinationDesc": "Kent Ridge Bus Terminal",
+    "OperatingHours": "",
+    "Frequency": "",
+    "DepartureTimes": [],
+    "Stops": [
+     {
+      "StopSequence": 1,
+      "BusStopCode": "NUS-KRB",
+      "NusStopName": "KRB",
+      "Description": "Kent Ridge Bus Terminal",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.294068,
+      "Longitude": 103.769836
+     },
+     {
+      "StopSequence": 2,
+      "BusStopCode": "NUS-LT13",
+      "NusStopName": "LT13",
+      "Description": "LT 13",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.294552,
+      "Longitude": 103.770635
+     },
+     {
+      "StopSequence": 3,
+      "BusStopCode": "NUS-AS5",
+      "NusStopName": "AS5",
+      "Description": "AS 5",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.293619,
+      "Longitude": 103.771475
+     },
+     {
+      "StopSequence": 4,
+      "BusStopCode": "NUS-BIZ2",
+      "NusStopName": "BIZ2",
+      "Description": "BIZ 2",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.293223,
+      "Longitude": 103.775068
+     },
+     {
+      "StopSequence": 5,
+      "BusStopCode": "NUS-TCOMS-OPP",
+      "NusStopName": "TCOMS-OPP",
+      "Description": "Opp TCOMS",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.293789,
+      "Longitude": 103.776715
+     },
+     {
+      "StopSequence": 6,
+      "BusStopCode": "NUS-PGP",
+      "NusStopName": "PGP",
+      "Description": "Prince George's Park",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.291765,
+      "Longitude": 103.780419
+     },
+     {
+      "StopSequence": 7,
+      "BusStopCode": "NUS-KR-MRT",
+      "NusStopName": "KR-MRT",
+      "Description": "Kent Ridge MRT",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.294748,
+      "Longitude": 103.784331
+     },
+     {
+      "StopSequence": 8,
+      "BusStopCode": "NUS-LT27",
+      "NusStopName": "LT27",
+      "Description": "LT 27",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297266,
+      "Longitude": 103.780943
+     },
+     {
+      "StopSequence": 9,
+      "BusStopCode": "NUS-UHALL",
+      "NusStopName": "UHALL",
+      "Description": "University Hall",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297127,
+      "Longitude": 103.778822
+     },
+     {
+      "StopSequence": 10,
+      "BusStopCode": "NUS-UHC-OPP",
+      "NusStopName": "UHC-OPP",
+      "Description": "Opp University Health Centre",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.298695,
+      "Longitude": 103.775616
+     },
+     {
+      "StopSequence": 11,
+      "BusStopCode": "NUS-YIH",
+      "NusStopName": "YIH",
+      "Description": "Yusof Ishak House",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.298885,
+      "Longitude": 103.774377
+     },
+     {
+      "StopSequence": 12,
+      "BusStopCode": "NUS-CLB",
+      "NusStopName": "CLB",
+      "Description": "Central Library",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.296544,
+      "Longitude": 103.772569
+     }
+    ]
+   }
+  }
+ },
+ "NUSA2": {
+  "ServiceNo": "NUS A2",
+  "Operator": "NUS",
+  "Category": "CAMPUS",
+  "Fare": "Free",
+  "_isNus": true,
+  "_isLoop": true,
+  "NusRoute": "A2",
+  "Color": "#F9A825",
+  "OperatingHours": "",
+  "LoopDesc": "",
+  "Schedule": {},
+  "Directions": {
+   "1": {
+    "Direction": 1,
+    "OriginCode": "NUS-KRB",
+    "OriginDesc": "Kent Ridge Bus Terminal",
+    "DestinationCode": "NUS-KRB",
+    "DestinationDesc": "Kent Ridge Bus Terminal",
+    "OperatingHours": "",
+    "Frequency": "",
+    "DepartureTimes": [],
+    "Stops": [
+     {
+      "StopSequence": 1,
+      "BusStopCode": "NUS-KRB",
+      "NusStopName": "KRB",
+      "Description": "Kent Ridge Bus Terminal",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.294068,
+      "Longitude": 103.769836
+     },
+     {
+      "StopSequence": 2,
+      "BusStopCode": "NUS-IT",
+      "NusStopName": "IT",
+      "Description": "Information Technology",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297204,
+      "Longitude": 103.772688
+     },
+     {
+      "StopSequence": 3,
+      "BusStopCode": "NUS-YIH-OPP",
+      "NusStopName": "YIH-OPP",
+      "Description": "Opp Yusof Ishak House",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.298904,
+      "Longitude": 103.774118
+     },
+     {
+      "StopSequence": 4,
+      "BusStopCode": "NUS-MUSEUM",
+      "NusStopName": "MUSEUM",
+      "Description": "Museum",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.301081,
+      "Longitude": 103.77369
+     },
+     {
+      "StopSequence": 5,
+      "BusStopCode": "NUS-UHC",
+      "NusStopName": "UHC",
+      "Description": "University Health Centre",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.29891,
+      "Longitude": 103.776103
+     },
+     {
+      "StopSequence": 6,
+      "BusStopCode": "NUS-UHALL-OPP",
+      "NusStopName": "UHALL-OPP",
+      "Description": "Opp University Hall",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297518,
+      "Longitude": 103.77813
+     },
+     {
+      "StopSequence": 7,
+      "BusStopCode": "NUS-S17",
+      "NusStopName": "S17",
+      "Description": "S 17",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297519,
+      "Longitude": 103.78073
+     },
+     {
+      "StopSequence": 8,
+      "BusStopCode": "NUS-KR-MRT-OPP",
+      "NusStopName": "KR-MRT-OPP",
+      "Description": "Opp Kent Ridge MRT",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.294923,
+      "Longitude": 103.784603
+     },
+     {
+      "StopSequence": 9,
+      "BusStopCode": "NUS-PGPR",
+      "NusStopName": "PGPR",
+      "Description": "Prince George's Park Foyer",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.290969,
+      "Longitude": 103.78109
+     },
+     {
+      "StopSequence": 10,
+      "BusStopCode": "NUS-TCOMS",
+      "NusStopName": "TCOMS",
+      "Description": "TCOMS",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.293654,
+      "Longitude": 103.776898
+     },
+     {
+      "StopSequence": 11,
+      "BusStopCode": "NUS-HSSML-OPP",
+      "NusStopName": "HSSML-OPP",
+      "Description": "Opp Hon Sui Sen Memorial Library",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.292798,
+      "Longitude": 103.774978
+     },
+     {
+      "StopSequence": 12,
+      "BusStopCode": "NUS-NUSS-OPP",
+      "NusStopName": "NUSS-OPP",
+      "Description": "Opp NUSS",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.293208,
+      "Longitude": 103.772618
+     },
+     {
+      "StopSequence": 13,
+      "BusStopCode": "NUS-LT13-OPP",
+      "NusStopName": "LT13-OPP",
+      "Description": "Ventus",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.29534,
+      "Longitude": 103.770617
+     }
+    ]
+   }
+  }
+ },
+ "NUSD1": {
+  "ServiceNo": "NUS D1",
+  "Operator": "NUS",
+  "Category": "CAMPUS",
+  "Fare": "Free",
+  "_isNus": true,
+  "_isLoop": true,
+  "NusRoute": "D1",
+  "Color": "#EF6C00",
+  "OperatingHours": "",
+  "LoopDesc": "",
+  "Schedule": {},
+  "Directions": {
+   "1": {
+    "Direction": 1,
+    "OriginCode": "NUS-COM3",
+    "OriginDesc": "COM 3",
+    "DestinationCode": "NUS-COM3",
+    "DestinationDesc": "COM 3",
+    "OperatingHours": "",
+    "Frequency": "",
+    "DepartureTimes": [],
+    "Stops": [
+     {
+      "StopSequence": 1,
+      "BusStopCode": "NUS-COM3",
+      "NusStopName": "COM3",
+      "Description": "COM 3",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.294431,
+      "Longitude": 103.775217
+     },
+     {
+      "StopSequence": 2,
+      "BusStopCode": "NUS-HSSML-OPP",
+      "NusStopName": "HSSML-OPP",
+      "Description": "Opp Hon Sui Sen Memorial Library",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.292798,
+      "Longitude": 103.774978
+     },
+     {
+      "StopSequence": 3,
+      "BusStopCode": "NUS-NUSS-OPP",
+      "NusStopName": "NUSS-OPP",
+      "Description": "Opp NUSS",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.293208,
+      "Longitude": 103.772618
+     },
+     {
+      "StopSequence": 4,
+      "BusStopCode": "NUS-LT13-OPP",
+      "NusStopName": "LT13-OPP",
+      "Description": "Ventus",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.29534,
+      "Longitude": 103.770617
+     },
+     {
+      "StopSequence": 5,
+      "BusStopCode": "NUS-IT",
+      "NusStopName": "IT",
+      "Description": "Information Technology",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297204,
+      "Longitude": 103.772688
+     },
+     {
+      "StopSequence": 6,
+      "BusStopCode": "NUS-YIH-OPP",
+      "NusStopName": "YIH-OPP",
+      "Description": "Opp Yusof Ishak House",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.298904,
+      "Longitude": 103.774118
+     },
+     {
+      "StopSequence": 7,
+      "BusStopCode": "NUS-MUSEUM",
+      "NusStopName": "MUSEUM",
+      "Description": "Museum",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.301081,
+      "Longitude": 103.77369
+     },
+     {
+      "StopSequence": 8,
+      "BusStopCode": "NUS-UTOWN",
+      "NusStopName": "UTOWN",
+      "Description": "University Town",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.303876,
+      "Longitude": 103.774621
+     },
+     {
+      "StopSequence": 9,
+      "BusStopCode": "NUS-YIH",
+      "NusStopName": "YIH",
+      "Description": "Yusof Ishak House",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.298885,
+      "Longitude": 103.774377
+     },
+     {
+      "StopSequence": 10,
+      "BusStopCode": "NUS-CLB",
+      "NusStopName": "CLB",
+      "Description": "Central Library",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.296544,
+      "Longitude": 103.772569
+     },
+     {
+      "StopSequence": 11,
+      "BusStopCode": "NUS-LT13",
+      "NusStopName": "LT13",
+      "Description": "LT 13",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.294552,
+      "Longitude": 103.770635
+     },
+     {
+      "StopSequence": 12,
+      "BusStopCode": "NUS-AS5",
+      "NusStopName": "AS5",
+      "Description": "AS 5",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.293619,
+      "Longitude": 103.771475
+     },
+     {
+      "StopSequence": 13,
+      "BusStopCode": "NUS-BIZ2",
+      "NusStopName": "BIZ2",
+      "Description": "BIZ 2",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.293223,
+      "Longitude": 103.775068
+     }
+    ]
+   }
+  }
+ },
+ "NUSD2": {
+  "ServiceNo": "NUS D2",
+  "Operator": "NUS",
+  "Category": "CAMPUS",
+  "Fare": "Free",
+  "_isNus": true,
+  "_isLoop": true,
+  "NusRoute": "D2",
+  "Color": "#7B1FA2",
+  "OperatingHours": "",
+  "LoopDesc": "",
+  "Schedule": {},
+  "Directions": {
+   "1": {
+    "Direction": 1,
+    "OriginCode": "NUS-COM3",
+    "OriginDesc": "COM 3",
+    "DestinationCode": "NUS-COM3",
+    "DestinationDesc": "COM 3",
+    "OperatingHours": "",
+    "Frequency": "",
+    "DepartureTimes": [],
+    "Stops": [
+     {
+      "StopSequence": 1,
+      "BusStopCode": "NUS-COM3",
+      "NusStopName": "COM3",
+      "Description": "COM 3",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.294431,
+      "Longitude": 103.775217
+     },
+     {
+      "StopSequence": 2,
+      "BusStopCode": "NUS-TCOMS-OPP",
+      "NusStopName": "TCOMS-OPP",
+      "Description": "Opp TCOMS",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.293789,
+      "Longitude": 103.776715
+     },
+     {
+      "StopSequence": 3,
+      "BusStopCode": "NUS-PGP",
+      "NusStopName": "PGP",
+      "Description": "Prince George's Park",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.291765,
+      "Longitude": 103.780419
+     },
+     {
+      "StopSequence": 4,
+      "BusStopCode": "NUS-KR-MRT",
+      "NusStopName": "KR-MRT",
+      "Description": "Kent Ridge MRT",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.294748,
+      "Longitude": 103.784331
+     },
+     {
+      "StopSequence": 5,
+      "BusStopCode": "NUS-LT27",
+      "NusStopName": "LT27",
+      "Description": "LT 27",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297266,
+      "Longitude": 103.780943
+     },
+     {
+      "StopSequence": 6,
+      "BusStopCode": "NUS-UHALL",
+      "NusStopName": "UHALL",
+      "Description": "University Hall",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297127,
+      "Longitude": 103.778822
+     },
+     {
+      "StopSequence": 7,
+      "BusStopCode": "NUS-UHC-OPP",
+      "NusStopName": "UHC-OPP",
+      "Description": "Opp University Health Centre",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.298695,
+      "Longitude": 103.775616
+     },
+     {
+      "StopSequence": 8,
+      "BusStopCode": "NUS-MUSEUM",
+      "NusStopName": "MUSEUM",
+      "Description": "Museum",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.301081,
+      "Longitude": 103.77369
+     },
+     {
+      "StopSequence": 9,
+      "BusStopCode": "NUS-UTOWN",
+      "NusStopName": "UTOWN",
+      "Description": "University Town",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.303876,
+      "Longitude": 103.774621
+     },
+     {
+      "StopSequence": 10,
+      "BusStopCode": "NUS-UHC",
+      "NusStopName": "UHC",
+      "Description": "University Health Centre",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.29891,
+      "Longitude": 103.776103
+     },
+     {
+      "StopSequence": 11,
+      "BusStopCode": "NUS-UHALL-OPP",
+      "NusStopName": "UHALL-OPP",
+      "Description": "Opp University Hall",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297518,
+      "Longitude": 103.77813
+     },
+     {
+      "StopSequence": 12,
+      "BusStopCode": "NUS-S17",
+      "NusStopName": "S17",
+      "Description": "S 17",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297519,
+      "Longitude": 103.78073
+     },
+     {
+      "StopSequence": 13,
+      "BusStopCode": "NUS-KR-MRT-OPP",
+      "NusStopName": "KR-MRT-OPP",
+      "Description": "Opp Kent Ridge MRT",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.294923,
+      "Longitude": 103.784603
+     },
+     {
+      "StopSequence": 14,
+      "BusStopCode": "NUS-PGPR",
+      "NusStopName": "PGPR",
+      "Description": "Prince George's Park Foyer",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.290969,
+      "Longitude": 103.78109
+     },
+     {
+      "StopSequence": 15,
+      "BusStopCode": "NUS-TCOMS",
+      "NusStopName": "TCOMS",
+      "Description": "TCOMS",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.293654,
+      "Longitude": 103.776898
+     }
+    ]
+   }
+  }
+ },
+ "NUSK": {
+  "ServiceNo": "NUS K",
+  "Operator": "NUS",
+  "Category": "CAMPUS",
+  "Fare": "Free",
+  "_isNus": true,
+  "_isLoop": true,
+  "NusRoute": "K",
+  "Color": "#1976D2",
+  "OperatingHours": "",
+  "LoopDesc": "",
+  "Schedule": {},
+  "Directions": {
+   "1": {
+    "Direction": 1,
+    "OriginCode": "NUS-PGP",
+    "OriginDesc": "Prince George's Park",
+    "DestinationCode": "NUS-PGPR",
+    "DestinationDesc": "Prince George's Park Foyer",
+    "OperatingHours": "",
+    "Frequency": "",
+    "DepartureTimes": [],
+    "Stops": [
+     {
+      "StopSequence": 1,
+      "BusStopCode": "NUS-PGP",
+      "NusStopName": "PGP",
+      "Description": "Prince George's Park",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.291765,
+      "Longitude": 103.780419
+     },
+     {
+      "StopSequence": 2,
+      "BusStopCode": "NUS-KR-MRT",
+      "NusStopName": "KR-MRT",
+      "Description": "Kent Ridge MRT",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.294748,
+      "Longitude": 103.784331
+     },
+     {
+      "StopSequence": 3,
+      "BusStopCode": "NUS-LT27",
+      "NusStopName": "LT27",
+      "Description": "LT 27",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297266,
+      "Longitude": 103.780943
+     },
+     {
+      "StopSequence": 4,
+      "BusStopCode": "NUS-UHALL",
+      "NusStopName": "UHALL",
+      "Description": "University Hall",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297127,
+      "Longitude": 103.778822
+     },
+     {
+      "StopSequence": 5,
+      "BusStopCode": "NUS-UHC-OPP",
+      "NusStopName": "UHC-OPP",
+      "Description": "Opp University Health Centre",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.298695,
+      "Longitude": 103.775616
+     },
+     {
+      "StopSequence": 6,
+      "BusStopCode": "NUS-YIH",
+      "NusStopName": "YIH",
+      "Description": "Yusof Ishak House",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.298885,
+      "Longitude": 103.774377
+     },
+     {
+      "StopSequence": 7,
+      "BusStopCode": "NUS-CLB",
+      "NusStopName": "CLB",
+      "Description": "Central Library",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.296544,
+      "Longitude": 103.772569
+     },
+     {
+      "StopSequence": 8,
+      "BusStopCode": "NUS-SDE3-OPP",
+      "NusStopName": "SDE3-OPP",
+      "Description": "Opp SDE 3",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297799,
+      "Longitude": 103.769603
+     },
+     {
+      "StopSequence": 9,
+      "BusStopCode": "NUS-JP-SCH",
+      "NusStopName": "JP-SCH",
+      "Description": "The Japanese Primary School",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.30077,
+      "Longitude": 103.769904
+     },
+     {
+      "StopSequence": 10,
+      "BusStopCode": "NUS-KV",
+      "NusStopName": "KV",
+      "Description": "Kent Vale",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.301899,
+      "Longitude": 103.769455
+     },
+     {
+      "StopSequence": 11,
+      "BusStopCode": "NUS-MUSEUM",
+      "NusStopName": "MUSEUM",
+      "Description": "Museum",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.301081,
+      "Longitude": 103.77369
+     },
+     {
+      "StopSequence": 12,
+      "BusStopCode": "NUS-UHC",
+      "NusStopName": "UHC",
+      "Description": "University Health Centre",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.29891,
+      "Longitude": 103.776103
+     },
+     {
+      "StopSequence": 13,
+      "BusStopCode": "NUS-UHALL-OPP",
+      "NusStopName": "UHALL-OPP",
+      "Description": "Opp University Hall",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297518,
+      "Longitude": 103.77813
+     },
+     {
+      "StopSequence": 14,
+      "BusStopCode": "NUS-S17",
+      "NusStopName": "S17",
+      "Description": "S 17",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297519,
+      "Longitude": 103.78073
+     },
+     {
+      "StopSequence": 15,
+      "BusStopCode": "NUS-KR-MRT-OPP",
+      "NusStopName": "KR-MRT-OPP",
+      "Description": "Opp Kent Ridge MRT",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.294923,
+      "Longitude": 103.784603
+     },
+     {
+      "StopSequence": 16,
+      "BusStopCode": "NUS-PGPR",
+      "NusStopName": "PGPR",
+      "Description": "Prince George's Park Foyer",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.290969,
+      "Longitude": 103.78109
+     }
+    ]
+   }
+  }
+ },
+ "NUSP": {
+  "ServiceNo": "NUS P",
+  "Operator": "NUS",
+  "Category": "CAMPUS",
+  "Fare": "Free",
+  "_isNus": true,
+  "_isLoop": true,
+  "NusRoute": "P",
+  "Color": "#388E3C",
+  "OperatingHours": "",
+  "LoopDesc": "",
+  "Schedule": {},
+  "Directions": {
+   "1": {
+    "Direction": 1,
+    "OriginCode": "NUS-KV",
+    "OriginDesc": "Kent Vale",
+    "DestinationCode": "NUS-KV",
+    "DestinationDesc": "Kent Vale",
+    "OperatingHours": "",
+    "Frequency": "",
+    "DepartureTimes": [],
+    "Stops": [
+     {
+      "StopSequence": 1,
+      "BusStopCode": "NUS-KV",
+      "NusStopName": "KV",
+      "Description": "Kent Vale",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.301899,
+      "Longitude": 103.769455
+     },
+     {
+      "StopSequence": 2,
+      "BusStopCode": "NUS-CG",
+      "NusStopName": "CG",
+      "Description": "College Green",
+      "RoadName": "Bukit Timah Campus",
+      "Latitude": 1.323337,
+      "Longitude": 103.816276
+     },
+     {
+      "StopSequence": 3,
+      "BusStopCode": "NUS-OTH",
+      "NusStopName": "OTH",
+      "Description": "Oei Tiong Ham Building",
+      "RoadName": "Bukit Timah Campus",
+      "Latitude": 1.319796,
+      "Longitude": 103.817774
+     },
+     {
+      "StopSequence": 4,
+      "BusStopCode": "NUS-BG-MRT",
+      "NusStopName": "BG-MRT",
+      "Description": "Botanic Gardens MRT (PUDO)",
+      "RoadName": "Bukit Timah Campus",
+      "Latitude": 1.322614,
+      "Longitude": 103.815914
+     },
+     {
+      "StopSequence": 5,
+      "BusStopCode": "NUS-KR-MRT",
+      "NusStopName": "KR-MRT",
+      "Description": "Kent Ridge MRT",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.294748,
+      "Longitude": 103.784331
+     },
+     {
+      "StopSequence": 6,
+      "BusStopCode": "NUS-UHC-OPP",
+      "NusStopName": "UHC-OPP",
+      "Description": "Opp University Health Centre",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.298695,
+      "Longitude": 103.775616
+     },
+     {
+      "StopSequence": 7,
+      "BusStopCode": "NUS-UTOWN",
+      "NusStopName": "UTOWN",
+      "Description": "University Town",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.303876,
+      "Longitude": 103.774621
+     }
+    ]
+   }
+  }
+ },
+ "NUSR1": {
+  "ServiceNo": "NUS R1",
+  "Operator": "NUS",
+  "Category": "CAMPUS",
+  "Fare": "Free",
+  "_isNus": true,
+  "_isLoop": false,
+  "NusRoute": "R1",
+  "Color": "#00838F",
+  "OperatingHours": "",
+  "LoopDesc": "",
+  "Schedule": {},
+  "Directions": {
+   "1": {
+    "Direction": 1,
+    "OriginCode": "NUS-KV",
+    "OriginDesc": "Kent Vale",
+    "DestinationCode": "NUS-PGP",
+    "DestinationDesc": "Prince George's Park",
+    "OperatingHours": "",
+    "Frequency": "",
+    "DepartureTimes": [],
+    "Stops": [
+     {
+      "StopSequence": 1,
+      "BusStopCode": "NUS-KV",
+      "NusStopName": "KV",
+      "Description": "Kent Vale",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.301899,
+      "Longitude": 103.769455
+     },
+     {
+      "StopSequence": 2,
+      "BusStopCode": "NUS-MUSEUM",
+      "NusStopName": "MUSEUM",
+      "Description": "Museum",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.301081,
+      "Longitude": 103.77369
+     },
+     {
+      "StopSequence": 3,
+      "BusStopCode": "NUS-UTOWN",
+      "NusStopName": "UTOWN",
+      "Description": "University Town",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.303876,
+      "Longitude": 103.774621
+     },
+     {
+      "StopSequence": 4,
+      "BusStopCode": "NUS-YIH",
+      "NusStopName": "YIH",
+      "Description": "Yusof Ishak House",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.298885,
+      "Longitude": 103.774377
+     },
+     {
+      "StopSequence": 5,
+      "BusStopCode": "NUS-CLB",
+      "NusStopName": "CLB",
+      "Description": "Central Library",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.296544,
+      "Longitude": 103.772569
+     },
+     {
+      "StopSequence": 6,
+      "BusStopCode": "NUS-LT13",
+      "NusStopName": "LT13",
+      "Description": "LT 13",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.294552,
+      "Longitude": 103.770635
+     },
+     {
+      "StopSequence": 7,
+      "BusStopCode": "NUS-AS5",
+      "NusStopName": "AS5",
+      "Description": "AS 5",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.293619,
+      "Longitude": 103.771475
+     },
+     {
+      "StopSequence": 8,
+      "BusStopCode": "NUS-BIZ2",
+      "NusStopName": "BIZ2",
+      "Description": "BIZ 2",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.293223,
+      "Longitude": 103.775068
+     },
+     {
+      "StopSequence": 9,
+      "BusStopCode": "NUS-PGP",
+      "NusStopName": "PGP",
+      "Description": "Prince George's Park",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.291765,
+      "Longitude": 103.780419
+     }
+    ]
+   }
+  }
+ },
+ "NUSR2": {
+  "ServiceNo": "NUS R2",
+  "Operator": "NUS",
+  "Category": "CAMPUS",
+  "Fare": "Free",
+  "_isNus": true,
+  "_isLoop": false,
+  "NusRoute": "R2",
+  "Color": "#5D4037",
+  "OperatingHours": "",
+  "LoopDesc": "",
+  "Schedule": {},
+  "Directions": {
+   "1": {
+    "Direction": 1,
+    "OriginCode": "NUS-PGP",
+    "OriginDesc": "Prince George's Park",
+    "DestinationCode": "NUS-KV",
+    "DestinationDesc": "Kent Vale",
+    "OperatingHours": "",
+    "Frequency": "",
+    "DepartureTimes": [],
+    "Stops": [
+     {
+      "StopSequence": 1,
+      "BusStopCode": "NUS-PGP",
+      "NusStopName": "PGP",
+      "Description": "Prince George's Park",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.291765,
+      "Longitude": 103.780419
+     },
+     {
+      "StopSequence": 2,
+      "BusStopCode": "NUS-HSSML-OPP",
+      "NusStopName": "HSSML-OPP",
+      "Description": "Opp Hon Sui Sen Memorial Library",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.292798,
+      "Longitude": 103.774978
+     },
+     {
+      "StopSequence": 3,
+      "BusStopCode": "NUS-NUSS-OPP",
+      "NusStopName": "NUSS-OPP",
+      "Description": "Opp NUSS",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.293208,
+      "Longitude": 103.772618
+     },
+     {
+      "StopSequence": 4,
+      "BusStopCode": "NUS-LT13-OPP",
+      "NusStopName": "LT13-OPP",
+      "Description": "Ventus",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.29534,
+      "Longitude": 103.770617
+     },
+     {
+      "StopSequence": 5,
+      "BusStopCode": "NUS-IT",
+      "NusStopName": "IT",
+      "Description": "Information Technology",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.297204,
+      "Longitude": 103.772688
+     },
+     {
+      "StopSequence": 6,
+      "BusStopCode": "NUS-YIH-OPP",
+      "NusStopName": "YIH-OPP",
+      "Description": "Opp Yusof Ishak House",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.298904,
+      "Longitude": 103.774118
+     },
+     {
+      "StopSequence": 7,
+      "BusStopCode": "NUS-UTOWN",
+      "NusStopName": "UTOWN",
+      "Description": "University Town",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.303876,
+      "Longitude": 103.774621
+     },
+     {
+      "StopSequence": 8,
+      "BusStopCode": "NUS-RAFFLES",
+      "NusStopName": "RAFFLES",
+      "Description": "Raffles Hall",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.300946,
+      "Longitude": 103.772703
+     },
+     {
+      "StopSequence": 9,
+      "BusStopCode": "NUS-KV",
+      "NusStopName": "KV",
+      "Description": "Kent Vale",
+      "RoadName": "Kent Ridge Campus",
+      "Latitude": 1.301899,
+      "Longitude": 103.769455
+     }
+    ]
+   }
+  }
+ }
+}
