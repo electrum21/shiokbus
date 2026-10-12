@@ -23,6 +23,7 @@
  *   nusRowsHtml(code)                 route view: NUS arrival rows (HTML string)
  *   nusLoopLabel(info, fallbackOrig)  "first ↻ last" (loops) or "first → last" label
  *   nusLiveButton(serviceNo) / nusLiveOpen(serviceNo) / nusLiveStop()   route-view Live map
+ *                                     (stops are tappable: _nusStopPopup shows NUS + public arrivals)
  *
  * This file expects these globals from app.js (used at call time only): PROXY_URL, getProxyHeaders,
  * busTypeIcon, favSvcId, PRIVATE_SERVICES, plus goToService / addSvcFavSmart in onclick handlers.
@@ -425,6 +426,76 @@ async function _nusLivePoll(live) {
   } finally { live.busy = false; }
 }
 
+// ── Stop arrival popup ────────────────────────────────────────────────────────
+// Click a stop on the live map → popup with NUS arrivals for every NUS route calling there (one ETA
+// call per stop) plus public bus arrivals (LTA) when the stop is a real LTA stop. Same look as NTU's popup.
+const _NUS_OP_COLORS = { SBST: '#5B2D8E', SBS: '#5B2D8E', SMRT: '#C0392B', TTS: '#1A6B2A', GAS: '#9A7000' };
+
+async function _nusStopPopup(map, stop) {
+  const desc = stop.Description || stop.NusStopName;
+  const code = stop.BusStopCode;
+
+  const loading = `<div class="ntu-popup-inner"><div class="ntu-popup-title">${desc}</div><div class="ntu-popup-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading…</div></div>`;
+  const popup = L.popup({ maxWidth: 280, className: 'ntu-stop-popup' })
+    .setLatLng([stop.Latitude, stop.Longitude])
+    .setContent(loading)
+    .openOn(map);
+
+  const entries = nusEntriesAtStop(code);
+  const hasPublic = !isNusCode(code);
+
+  const [res, busRes, ltaData] = await Promise.all([
+    entries.length ? fetchNusEta(entries[0].stop.NusStopName) : Promise.resolve(null),
+    Promise.all(entries.map(e => fetchNusBuses(e.svc.NusRoute))),
+    hasPublic ? fetchLTA(code).catch(() => null) : Promise.resolve(null),
+  ]);
+
+  if (!map.hasLayer(popup)) return; // closed or replaced meanwhile
+
+  const row = (badge, bg, fg, eta1, lc1, eta2, lc2) => `<div class="ntu-popup-row">
+      <div class="ntu-popup-badge" style="background:${bg};color:${fg}">${badge}</div>
+      <div class="ntu-popup-etas">
+        <div class="ntu-popup-eta-wrap">
+          <span class="ntu-popup-eta1">${eta1}</span>
+          <div class="ntu-popup-crowd-bar" style="background:${lc1}"></div>
+        </div>
+        ${eta2 ? `<div class="ntu-popup-eta-wrap">
+          <span class="ntu-popup-eta2">${eta2}</span>
+          <div class="ntu-popup-crowd-bar" style="background:${lc2}"></div>
+        </div>` : ''}
+      </div>
+    </div>`;
+
+  const nusRows = entries.map(({ svc, stop: eStop }, i) => {
+    const mins = nusMinsFor(res, svc.NusRoute);
+    const has = mins && mins.length;
+    if (res && !res.error && !has) {
+      // No buses for this route: only show a row when the schedule explains why (not running / ended).
+      const note = nusStatus(svc);
+      return note ? row(`NUS ${svc.NusRoute}`, svc.Color || '#003D7C', svc.TextColor || '#fff', note, 'transparent', null, null) : '';
+    }
+    const [c1, c2] = nusCrowdForStop(svc, eStop.NusStopName, busRes[i].buses);
+    const eta1 = has ? _nusMins(mins[0]) : '—';
+    const eta2 = has && mins.length > 1 ? _nusMins(mins[1]) : null;
+    return row(`NUS ${svc.NusRoute}`, svc.Color || '#003D7C', svc.TextColor || '#fff',
+      eta1, NUS_CROWD_RING[c1] || '#888', eta2, NUS_CROWD_RING[c2] || '#888');
+  }).join('');
+
+  const _ltaMins = iso => { const m = Math.round((new Date(iso) - Date.now()) / 60000); return m <= 0 ? 'Arr' : m + ' min'; };
+  const publicRows = (ltaData?.Services || []).map(s => {
+    const nb = s.NextBus, nb2 = s.NextBus2;
+    if (!nb?.EstimatedArrival) return '';
+    const eta2 = nb2?.EstimatedArrival ? _ltaMins(nb2.EstimatedArrival) : null;
+    const bg = _NUS_OP_COLORS[(s.Operator || '').toUpperCase()] || '#3a3f52';
+    return row(s.ServiceNo, bg, '#fff', _ltaMins(nb.EstimatedArrival), NUS_CROWD_RING[nb.Load] || '#888',
+      eta2, nb2?.Load ? (NUS_CROWD_RING[nb2.Load] || '#888') : '#888');
+  }).join('');
+
+  const errNote = res?.error ? '<div class="ntu-popup-loading" style="color:#FF9999;margin-top:4px">NUS ETAs unavailable right now.</div>' : '';
+  const allRows = nusRows + publicRows;
+  popup.setContent(`<div class="ntu-popup-inner"><div class="ntu-popup-title">${desc}</div>${allRows.trim() ? allRows : (res?.error ? '' : '<div class="ntu-popup-loading">No arrivals right now.</div>')}${errNote}</div>`);
+}
+
 function nusLiveOpen(serviceNo) {
   const svc = nusServiceByNo(serviceNo);
   if (!svc || typeof L === 'undefined') return;
@@ -447,8 +518,9 @@ function nusLiveOpen(serviceNo) {
   const pts = (svc.Directions['1'].Stops || []).filter(s => s.Latitude != null && s.Longitude != null);
   const line = pts.map(s => [s.Latitude, s.Longitude]);
   pts.forEach(s => {
-    L.circleMarker([s.Latitude, s.Longitude], { radius: 6, color: '#fff', weight: 1.5, fillColor: color, fillOpacity: 1 })
+    const m = L.circleMarker([s.Latitude, s.Longitude], { radius: 6, color: '#fff', weight: 1.5, fillColor: color, fillOpacity: 1, interactive: true })
       .bindTooltip(s.Description || s.NusStopName).addTo(map);
+    m.on('click', () => _nusStopPopup(map, s));
   });
   if (line.length) map.fitBounds(line, { padding: [24, 24] }); else map.setView([1.2966, 103.7764], 15);
 

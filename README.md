@@ -32,7 +32,8 @@ Coverage beyond LTA's public network — fully integrated alongside public buses
 | :--- | :--- | :--- |
 | **PBS** (Private Bus Services) | Scheduled timetable | 550, 555, 560, 565, 593, 722, 728, 736, 740, 742, 753, 762, 767, 776, LCS2 and more |
 | **Sentosa Island Buses** | Frequency-based | Bus A (Beach Station loop), Bus B (Sentosa Cove loop), Bus D (on-demand Fri/Sat/Sun evenings) |
-| **NTU Campus Rider** | Live (ETAs + bus positions) | Blue, Brown, Green, Grey, Red
+| **NTU Campus Rider** | Live (ETAs + bus positions) | Blue, Brown, Green, Grey, Red |
+| **NUS Internal Shuttles** | Live (ETAs + bus positions) | A1, A2, D1, D2, K, P, R1, R2 |
 
 Scheduled services show synthesised arrival times computed from timetable data. Frequency-based services (Sentosa buses) compute upcoming arrivals from headway and per-stop travel offsets, including buses already mid-route. 
 
@@ -41,10 +42,22 @@ The five NTU campus loops (Blue, Brown, Green, Grey, Red) sit alongside public b
 
 - **Live ETAs** — next two buses per route at every stop, on stop cards and inside expanded stops in the route view
 - **Crowd levels** — each ETA carries the same seats / standing / limited icon and colours as public buses
-- **Live map** — a **Live** button on each NTU route opens a map with the loop drawn along the road, one marker per active bus (colour ring = crowd level, arrow = direction of travel), refreshed every 15 s while the map is open
+- **Live map** — a **Live** button on each NTU route opens a map with the loop drawn along the road, one marker per active bus (colour ring = crowd level), refreshed every 15 s while the map is open
+- **Tap a stop for arrivals** — every stop on the live map opens a popup with the next two buses for each NTU route calling there, plus public bus arrivals when the stop is a real LTA stop
 - **Timetable awareness** — first/last bus from NTU's term timetable; when there is no ETA the card says why ("First bus 07:30", "Service ended · last bus 23:00", "No service today") instead of showing a blank. Green runs on weekdays only and Brown covers weekends and public holidays
 - **Loop-aware planning** — NTU routes show as `first ↻ last`, and in *Where to sit?* you can board anywhere and alight at any other stop on the loop, including stops before the board stop (the bus simply keeps circling)
 - **NTU styling** — pills use the route colour with an NTU-orange ring; operator shown as *NTU (ComfortDelGro)*, category as *Campus Rider*
+
+### NUS Internal Shuttles
+The eight NUS campus routes (A1, A2, D1, D2, K, P, R1, R2) are integrated the same way as NTU's, so they appear in search, stop view, route view and favourites next to public buses.
+
+- **Live ETAs** — up to three upcoming buses per route at every stop, on stop cards and inside expanded stops in the route view
+- **Crowd levels** — each ETA carries the same seats / standing / limited icon and colours as public buses
+- **Live map** — a **Live** button on each NUS route opens a map with the route drawn along the road and one marker per active bus (colour ring = crowd level, arrow = heading, tooltip shows passengers / capacity), refreshed every 15 s while the map is open
+- **Tap a stop for arrivals** — every stop on the live map opens a popup with arrivals for all NUS routes calling at that stop, plus public bus arrivals at stops shared with LTA
+- **Timetable awareness** — first/last bus from NUS's published timetable; when there is no ETA the card says why ("First bus 07:15", "Service ended · last bus 23:00", "No service today"). K does not run on Sundays, and P, R1 and R2 are weekdays only
+- **Loops and point-to-point routes** — A1, A2, D1, D2, K and P are loops (`first ↻ last`, with loop-mode planning in *Where to sit?*); R1 and R2 are one-way routes (`first → last`) and are planned like ordinary linear routes
+- **NUS styling** — pills use each route's official colour with a matching text colour (dark text on the yellow A2 and grey P)
 
 ### Sun Seat Recommendation
 The unique proposition of this project. Two modes:
@@ -109,7 +122,8 @@ Full Singapore MRT/LRT network map overlay with pinch-to-zoom and scroll-to-zoom
 | Database | Firestore (per-user favourites & order) |
 | Hosting | Firebase Hosting |
 | Public bus data | LTA DataMall API |
-| NTU shuttle data | NTU Omnibus (unofficial, undocumented — see [caveats](#caveats)) |
+| NTU shuttle data | NTU Omnibus (unofficial, undocumented — see [NTU caveats](#caveats)) |
+| NUS shuttle data | NUS shuttle ETA and bus-tracking feeds (unofficial — see [NUS caveats](#caveats-1)) |
 | Journey planning | OneMap Routing API |
 | Rain forecast | data.gov.sg 2-hour forecast API |
 | Road geometry | OSRM public routing API |
@@ -147,6 +161,11 @@ Browser (index.html served from Firebase Hosting)
     │       └── live ETAs + bus positions ► Cloudflare Worker ──► NTU Omnibus (unofficial)
     │               (stop/route allowlist, 30 s edge cache, anonymous session handled in-worker)
     │
+    ├── NUS campus shuttles
+    │       ├── routes, stops, timetable ─► ./assets/nus-shuttle.json, nus-paths.json
+    │       └── live ETAs + bus positions ► Cloudflare Worker ──► NUS shuttle feeds (unofficial)
+    │               (one ETA call per stop returns every route calling there)
+    │
     └── Auth + Favourites ──────────────► Firebase Auth + Firestore
 ```
 
@@ -170,6 +189,8 @@ Browser (index.html served from Firebase Hosting)
 | Alerts | `TrainServiceAlerts` | Live pass-through to LTA DataMall train alerts |
 | NTU ETAs | `NtuShuttle` | Next two ETAs for one NTU stop and route (`BusStopCode` = NTU stop name, `RouteCode` = Blue/Brown/Green/Grey/Red); only allowlisted pairs reach NTU; cached 30 s |
 | NTU buses | `NtuBuses` | Active buses on an NTU route (`RouteCode`) with position and crowd level; polled by the live map and crowd icons |
+| NUS ETAs | `NusShuttle` | Live ETAs for one NUS stop (`BusStopName` = NUS stop name, e.g. `KRB`); the response lists every NUS route calling there with up to three ETAs in seconds |
+| NUS buses | `NusBuses` | Active buses on an NUS route (`RouteCode` = A1/A2/D1/D2/K/P/R1/R2) with position, heading, crowd level and load; polled by the live map and crowd icons |
 
 ### R2 data sync (cron Worker)
 Runs nightly across four staggered cron triggers (02:00–02:45 SGT). Each trigger fetches up to 30 pages (500 records each) and stores progress in R2, allowing the full LTA dataset to be accumulated across multiple runs without hitting Worker CPU limits.
@@ -190,80 +211,50 @@ Two arrival synthesis modes:
 
 ---
 
-## NTU integration
+## Campus Shuttle Integration
 
-NTU's shuttles are not in LTA DataMall, so they are integrated as their own source and made to look like any other service in the app.
+Campus shuttles are not in LTA DataMall, so NTU and NUS are each integrated as their own source and made to look like any other service in the app.
 
-### How it fits together
+- Routes, stops, colours and timetables are generated into a static JSON file (`ntu-shuttle.json`, `nus-shuttle.json`) and merged into `ALL_SERVICES` at startup
+- All campus-specific logic lives in one script (`ntu.js`, `nus.js`), loaded before `app.js`; services are treated through flags (`_isNtu`, `_isNus`)
+- Live ETAs and bus positions go through the Cloudflare Worker, never straight from the browser
+- A stop shared with public buses keeps its real LTA code and gets campus cards appended; campus-only stops get a synthetic code (`NTU-…`, `NUS-<n>`) and skip LTA. Live lookups use the campus **stop name**, never the code
+- The **Live** button opens a shared map modal; tapping a stop opens a popup with campus arrivals, plus public bus arrivals at stops shared with LTA
+- Crowd uses the same levels as public buses (`SEA`, `SDA`, `LSD`) and never blocks an ETA
 
-```
- build time (your machine)                       run time
- ───────────────────────────                     ──────────────────────────────────────────
- NTU pickup-point responses ─┐                   index.html loads scripts/ntu.js, then app.js
- ntu-stop-coords.csv ────────┼─► build_ntu_assets ─► assets/ntu-shuttle.json ─┐
- (route + stop lists)        │        │                                       ├─► merged into
-                             │        └─► NTU_PAIRS allowlist in the Worker   │   PRIVATE_SERVICES
- road geometry ──────────────┴─► build_ntu_paths ──► assets/ntu-paths.json ────┘   → ALL_SERVICES
+| | NTU | NUS |
+| :--- | :--- | :--- |
+| Routes | Blue, Brown, Green, Grey, Red (all loops) | A1, A2, D1, D2, K, P (loops), R1, R2 (one-way) |
+| Client script | `scripts/ntu.js` | `scripts/nus.js` |
+| ETA lookup | One call per stop and route | One call per stop, covers every route there |
+| Worker endpoints | `NtuShuttle`, `NtuBuses` | `NusShuttle`, `NusBuses` |
+| Bus markers | No vehicle id, matched by distance | Per-bus id, with heading arrows |
 
- Browser ─► Worker ─► NTU Omnibus
-            ├─ ?endpoint=NtuShuttle  (ETAs: cached 30 s per stop+route, at the edge)
-            └─ ?endpoint=NtuBuses    (bus positions + crowd)
-```
+### NTU
 
-### Static data
-- **`assets/ntu-shuttle.json`** — one entry per route in the same shape as the other private services (`ServiceNo` e.g. `NTU Blue`, `Operator: NTU`, `Directions['1'].Stops` with coordinates), plus `NtuRoute`, `Color`, and `Schedule` (first/last bus for Mon–Fri, Sat, Sun)
-- **`assets/ntu-paths.json`** — one encoded road polyline per route, used to draw the loop on the live map. Optional: without it the map draws straight lines between stops
-- **Stop codes** — a stop NTU shares with public buses (e.g. Pioneer Stn Exit B, Hall 4) keeps its real LTA code, so it appears in the normal stop view with NTU cards appended. NTU-only stops get a synthetic `NTU-…` code and no LTA data is requested for them
-- **ETA lookups use the NTU stop name, never the code** — that is what NTU's service expects
+- **Data** — `assets/ntu-shuttle.json` (routes, stops, first/last bus) and optional `assets/ntu-paths.json` (road polylines for the live map; falls back to straight lines). Generated from NTU's own pickup-point responses so the app data and the Worker's `NTU_PAIRS` allowlist cannot drift apart. See [`scripts/ntu/README.md`](scripts/ntu/README.md)
+- **Client** — `ntu.js` provides the stop cards, route-view rows, loop labels, timetable status, live map and stop popup. `app.js` calls into it by name and switches the Board/Alight planner into loop mode
+- **Worker** — `NtuShuttle` only accepts allowlisted `(stop, route)` pairs, caches 30 s, and performs the same anonymous session handshake as NTU's own app. If NTU's app version changes it returns 503 until `NTU_MODULE_VERSION` and `NTU_API_VERSION` are updated (copy them from the `ActionGetETAAndNextETA_FMS` request in DevTools)
+- **Requests** — ETAs cached 20 s per stop and route, bus positions 10 s; the live map polls every 15 s only while open and visible, and greys out markers after 90 s without fresh data
+- **Crowd** — estimated: each active bus is snapped to its nearest stop on the loop and ranked by stops to go, so it is approximate where the loop doubles back
 
-### Client code (`scripts/ntu.js`)
-Everything NTU-specific that is not a styling flag lives here. It is loaded before `app.js` and only defines functions; `app.js` calls into it from a handful of places:
+#### Caveats
+- The NTU endpoint is **undocumented and unofficial**, and ShiokBus is not affiliated with or endorsed by NTU or ComfortDelGro
+- Please do not shorten the cache times or remove the allowlist
+- Grey has no term timetable data, so it shows no first/last bus times
 
-| Function | Used for |
-| :--- | :--- |
-| `loadNtuServices()` | Fetch `ntu-shuttle.json` (returns `{}` on failure so the rest of the app still works) |
-| `ntuResetIndex()` / `ntuIndexStop()` | Build the stop → NTU services index while private services are injected |
-| `hasNtu(code)` / `isNtuCode(code)` | "NTU serves this stop" / "NTU-only stop, nothing to ask LTA" |
-| `renderNtuStopCards()` | Stop view: one card per NTU route, appended after the public buses |
-| `ntuRowsHtml()` | Route view: NTU arrival rows inside an expanded stop |
-| `ntuLoopLabel()` | `first ↻ last` label |
-| `ntuRouteTimes()` / `ntuStatus()` | First/last bus fields for the route view, and the "why no ETA" message |
-| `ntuLiveOpen()` | Live bus map |
+### NUS
 
-`app.js` handles the rest by flag: `_isNtu` services skip LTA arrival logic, `_isScheduled` is false for NTU (its times are live, so the "estimated from schedule" warning is not shown), and `planCircular` switches the Board/Alight planner into loop mode.
+- **Data** — `assets/nus-shuttle.json` (routes, stops, colours, first/last bus) and optional `assets/nus-paths.json` (road polylines; falls back to straight lines, closed for loops). Generated by `build_nus_assets.py`. Each stop has an `NusStopName` (the lookup key, e.g. `KRB`) and a display `Description`
+- **Client** — `nus.js` provides the same pieces as `ntu.js`. Loops show `first ↻ last` and R1/R2 show `first → last` and are planned as ordinary linear routes
+- **Worker** — `NusShuttle` returns every NUS route at a stop with up to three ETAs in seconds; `NusBuses` returns the active buses on a route (position, heading, crowd, passengers / capacity)
+- **Requests** — ETAs cached 20 s per stop, so a stop served by A1 + D1 + R1 costs one request. Minutes are computed at render time from the feed's own timestamp (falling back to the response time if that looks wrong), so cached responses never show stale times. Positions are cached 10 s and polled every 15 s while the live map is open
+- **Stop popup** — lists every NUS route calling at the stop (not just the one being viewed), with the next two ETAs and crowd bars, then public bus arrivals at stops with a real LTA code
+- **Crowd** — estimated the same way as NTU, except that on R1/R2 a bus that has already passed the stop is dropped
 
-### Worker side (`NtuShuttle`)
-1. The request must be an exact `(stop, route)` pair from the `NTU_PAIRS` allowlist; anything else is rejected with 400 before NTU is contacted
-2. The Worker checks a 30 s per-pair cache (Cloudflare edge cache); on a miss it calls NTU's ETA service
-3. NTU's service rejects callers without a session ("Invalid Login"), so the Worker does the same handshake a browser does: one bare request to obtain NTU's anonymous cookies and CSRF token, then the real call with them. The session is kept per isolate for 10 minutes and refreshed once if NTU rejects it
-4. The request carries an honest `User-Agent` identifying ShiokBus, and the caller's own traffic is bounded by the cache (about 2 upstream calls per minute per stop at most)
-5. Responses are normalised to `{ ETA, NextETA, fetchedAt }` with minutes as numbers (`"Arr"` becomes `0`, idle buses become `null`)
-6. Failures are cached briefly (20 s) so a broken upstream is not hammered. If NTU reports its app version has changed, the Worker returns 503 until the version variables are updated
-
-### Client-side request handling
-- ETAs are cached 20 s per stop+route, and concurrent requests for the same pair share one in-flight promise
-- Failed lookups are never cached on the client, so the next tap retries
-- Bus positions use a 10 s client cache, and the live map polls every 15 s only while it is open and the tab is visible. Markers are matched to the previous poll by nearest distance so they glide rather than jump, and are greyed out as "stale" after 90 s without fresh data
-- A route with no arrivals (e.g. Green at weekends) hides its row in the route view, but an error always shows, so failures are never silent
-
-### Crowd levels
-Crowd uses the same three levels as public buses (`SEA`, `SDA`, `LSD`) and the same bus icon and colours. NTU's ETA call does not say which bus an ETA belongs to, so the crowd shown for a stop is **estimated**: each active bus is snapped to its nearest stop on the loop, ranked by how many stops it is from the target, and the first two take the two ETA slots. This is approximate where a loop doubles back. Crowd data is optional: if the bus feed is unavailable, ETAs still render with a neutral icon.
-
-### Data pipeline and maintenance
-Route and stop data is generated, not hand-edited, from NTU's own pickup-point responses so that the app data and the Worker allowlist cannot drift apart. See [`scripts/ntu/README.md`](scripts/ntu/README.md) for the commands. The short version:
-
-1. Save fresh pickup responses for each route
-2. Check the draft against them and fill coordinates
-3. Run the build, which rewrites `ntu-shuttle.json` and the `NTU_PAIRS` block in the Worker
-4. Review the diff and `wrangler deploy`
-
-When live ETAs stop working with a 503 "app version changed", NTU has published a new build. Copy `moduleVersion` and `apiVersion` from the `ActionGetETAAndNextETA_FMS` request (DevTools → Network → Payload) into the `NTU_MODULE_VERSION` and `NTU_API_VERSION` Worker variables.
-
-### Caveats
-- The NTU endpoint is **undocumented and unofficial**. It can change or disappear without notice, and ShiokBus is not affiliated with or endorsed by NTU or ComfortDelGro
-- The traffic is deliberately small and cached. Please do not shorten the cache times or remove the allowlist
-- The Grey route has no term timetable data, so it shows no first/last bus times
-- Crowd levels are estimates (see above)
+#### Caveats
+- The NUS feeds are **unofficial and undocumented**, and ShiokBus is not affiliated with or endorsed by NUS
+- K has no Sunday service, and P, R1 and R2 are weekdays only, so they show "No service today" outside those days
 
 ---
 
@@ -271,13 +262,13 @@ When live ETAs stop working with a 503 "app version changed", NTU has published 
 
 ### General
 
-**No build step.** Vanilla HTML, CSS and JavaScript served as static files keeps the project easy to run and change: a local HTTP server is all that is needed. The cost is large hand-maintained files, which is why newer, self-contained features (NTU) go in their own script.
+**No build step.** Vanilla HTML, CSS and JavaScript served as static files keeps the project easy to run and change: a local HTTP server is all that is needed. The cost is large hand-maintained files, which is why newer, self-contained features (NTU, NUS) go in their own script.
 
 **The Worker is a thin, strict proxy.** API keys stay server-side. The Worker never takes a hostname or URL from the client; service numbers, stop codes, NTU stop/route pairs and static file names are validated or allowlisted before anything is fetched.
 
 **Cache at every layer.** Slow-changing data comes from R2 (synced nightly) and is cached in the Worker for hours. Live data is cached for seconds at the edge and again in the browser. This keeps the app fast and the upstream APIs lightly loaded.
 
-**One service model.** Private and NTU services are merged into the same `ALL_SERVICES` map as LTA services, so search, route view, favourites and the sun planner work on them without special screens. Source-specific behaviour hangs off flags (`_isPrivate`, `_isScheduled`, `_isNtu`) rather than separate code paths.
+**One service model.** Private, NTU and NUS services are merged into the same `ALL_SERVICES` map as LTA services, so search, route view, favourites and the sun planner work on them without special screens. Source-specific behaviour hangs off flags (`_isPrivate`, `_isScheduled`, `_isNtu`, `_isNus`) rather than separate code paths.
 
 **Sun maths runs in the browser.** The seat recommendation needs only the time, the route geometry and the sun's position, so no server round-trip is needed and nothing about the user's trip leaves the device.
 
@@ -298,6 +289,18 @@ When live ETAs stop working with a 503 "app version changed", NTU has published 
 **Say when a number is an estimate.** The crowd level for NTU is inferred from bus positions, so the code and these docs describe it as approximate, and it is never allowed to block the ETA.
 
 **Do not guess times.** Where NTU gives no live ETA the app does not fall back to a made-up schedule estimate; it shows the timetable status instead.
+
+### NUS-specific
+
+**One request per stop, not per route.** NUS's ETA feed answers per stop and lists every route there, so the client asks once and slices the answer per route. A busy stop costs the same as a quiet one, and the stop popup and stop cards share the same cached response.
+
+**Seconds in, minutes out, computed late.** The feed returns seconds from its own timestamp. Minutes are computed at render time from that base rather than stored, so a cached response never shows stale times, and a skewed device clock is ignored in favour of the arrival time of the response.
+
+**Not every route is a loop.** R1 and R2 are one-way, so the code checks `_isLoop` rather than assuming circular routes: loop routes wrap around for crowd ranking, labels (`↻` vs `→`) and planning, while R1 and R2 drop buses that have already passed the stop.
+
+**Same look as NTU, by reuse.** The live map, stop popup and bus markers reuse the shared modal and popup styles, and only the data layer differs, so a fix to one campus's popup applies to both.
+
+**Same rules as NTU for estimates and missing data.** Crowd on an ETA is labelled as approximate and never blocks the ETA, and a route with no live ETA shows its timetable status instead of a guessed time.
 
 ---
 
@@ -337,6 +340,8 @@ shiokbus/
 │   │   ├── sentosa-services.json   # Sentosa bus service data
 │   │   ├── ntu-shuttle.json        # NTU routes, stops, timetable (generated)
 │   │   ├── ntu-paths.json          # NTU road-following route polylines (generated)
+│   │   ├── nus-shuttle.json        # NUS routes, stops, timetable (generated)
+│   │   ├── nus-paths.json          # NUS road-following route polylines
 │   │   ├── loop-midpoints.json     # Loop service via-stop overrides
 │   │   ├── loop-desc-clear.json    # Services to suppress loop labels for
 │   │   ├── dual-loops.json         # Dual-loop service metadata (291, 293, 358, 359, 812)
@@ -345,12 +350,14 @@ shiokbus/
 │   │   └── shiokbus-logo-*.png
 │   └── scripts/
 │       ├── app.js              # Main application logic (~5000 lines)
-│       ├── ntu.js              # NTU shuttle integration (ETAs, crowd, live map)
+│       ├── ntu.js              # NTU shuttle integration (ETAs, crowd, live map, stop popup)
+│       ├── nus.js              # NUS shuttle integration (ETAs, crowd, live map, stop popup)
 │       ├── firebase.js         # Firebase auth + Firestore (ES module)
 │       └── leaflet.js          # Leaflet (self-hosted)
 ├── worker/                     # Cloudflare Worker (proxy + cron R2 sync)  *
-└── scripts/                    # Data tooling: LTA fetch, NTU asset build   *
-    └── ntu/                    #   NTU build scripts and data (see its README)
+└── scripts/                    # Data tooling: LTA fetch, NTU and NUS asset builds   *
+    ├── ntu/                    #   NTU build scripts and data (see its README)
+    └── nus/                    #   NUS asset build script (build_nus_assets.py)
 ```
 
 \* Listed in `.gitignore`, so these folders are not tracked in this repository.
@@ -413,6 +420,7 @@ Four triggers are required — see the R2 data sync table above.
 | PBS timetables | City Bus, MyBus, Diamond Coach, Ren Quan operator PDFs (hand-curated) |
 | Sentosa bus schedules | [Sentosa](https://www.sentosa.com.sg/en/getting-around/) |
 | NTU shuttle routes, stops, timetable, live ETAs and bus positions | NTU Omnibus (unofficial; not affiliated with or endorsed by NTU) |
+| NUS shuttle routes, stops, timetable, live ETAs and bus positions | NUS's published timetable and unofficial shuttle ETA / bus-tracking feeds (not affiliated with or endorsed by NUS) |
 
 ---
 
