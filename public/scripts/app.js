@@ -1396,7 +1396,7 @@ function renderRoute(rd, allStops) {
         ${opLabel ? `<span style="color:var(--muted);font-size:11px;flex-shrink:0">${opLabel}</span>` : ''}
         <div style="flex:1"></div>
         <button onclick="toggleJourneyDetails()" id="journey-details-btn" style="padding:4px 10px;border:1.5px solid var(--card-border);border-radius:8px;background:none;color:var(--muted);font-family:'LTAIdentity',sans-serif;font-weight:600;font-size:11px;cursor:pointer;letter-spacing:.5px;transition:all .2s;white-space:nowrap;flex-shrink:0"><i class="fa-solid fa-circle-info"></i> Where to sit? ›</button>
-        <button id="svc-fav-btn-${rd.svc}" onclick="addSvcFavFromRoute('${rd.svc}')" style="background:none;border:1.5px solid var(--card-border);border-radius:8px;padding:4px 10px;font-size:18px;cursor:pointer;line-height:1;transition:all .2s;flex-shrink:0;color:${(window._favs||{})['svc_'+rd.svc]?'var(--yellow)':'var(--muted)'}" title="Favourite this service">${(window._favs||{})['svc_'+rd.svc]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
+        <button id="svc-fav-btn-${rd.svc}" onclick="addSvcFavFromRoute('${rd.svc}')" style="background:none;border:1.5px solid var(--card-border);border-radius:8px;padding:4px 10px;font-size:18px;cursor:pointer;line-height:1;transition:all .2s;flex-shrink:0;color:${(window._favs||{})['svc_'+favSvcId(rd.svc)]?'var(--yellow)':'var(--muted)'}" title="Favourite this service">${(window._favs||{})['svc_'+favSvcId(rd.svc)]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
       </div>
     </div>
     <div id="journey-details-here"></div>
@@ -2910,7 +2910,7 @@ function buildPrivateStopCard(privateSvc, dir, arrivals, stopCode, cardIndex) {
       </div>
       <div class="card-right">
         <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch">
-          <button class="sun-toggle-btn fav-btn" data-key="svc_${svcNo}" onclick="event.stopPropagation();addSvcFavSmart('${svcNo}')" style="background:none;justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+svcNo]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+svcNo]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
+          <button class="sun-toggle-btn fav-btn" data-key="svc_${favSvcId(svcNo)}" onclick="event.stopPropagation();addSvcFavSmart('${svcNo}')" style="background:none;justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+favSvcId(svcNo)]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+favSvcId(svcNo)]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
         </div>
       </div>
     </div>
@@ -3055,7 +3055,7 @@ function render(code, data) {
         </div>
         <div class="card-right">
           <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch">
-            <button class="sun-toggle-btn fav-btn" data-key="svc_${s.ServiceNo}" onclick="event.stopPropagation();addSvcFavSmart('${s.ServiceNo}')" style="justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+s.ServiceNo]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+s.ServiceNo]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
+            <button class="sun-toggle-btn fav-btn" data-key="svc_${favSvcId(s.ServiceNo)}" onclick="event.stopPropagation();addSvcFavSmart('${s.ServiceNo}')" style="justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+favSvcId(s.ServiceNo)]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+favSvcId(s.ServiceNo)]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
             <div class="sun-toggle-btn" style="color:var(--cyan);background:none;border-color:transparent;justify-content:center" onclick="toggleStopTiming(${i},'${s.ServiceNo}','${code}')"><i class="fa-regular fa-clock"></i></div>
           </div>
         </div>
@@ -3694,7 +3694,9 @@ function renderFavourites() {
   if (!svcGrid || !stopGrid) return;
   const favs = window._favs || {};
 
-  const services = applyFavOrder(Object.keys(favs).filter(k => favs[k].type === 'service'), 'service');
+  // Older saves may be spelled differently (e.g. "NTU Blue" vs "NTU BLUE"); hide the stale copy when the canonical one exists
+  const services = applyFavOrder(Object.keys(favs).filter(k => favs[k].type === 'service' &&
+    !(favSvcId(favs[k].id) !== favs[k].id && favs['svc_' + favSvcId(favs[k].id)])), 'service');
   const stops = applyFavOrder(Object.keys(favs).filter(k => favs[k].type === 'stop'), 'stop');
   const plans = applyFavOrder(Object.keys(favs).filter(k => favs[k].type === 'plan'), 'plan');
 
@@ -3703,7 +3705,7 @@ function renderFavourites() {
     const icon = f.type === 'stop' ? '<i class="fa-solid fa-sign-hanging"></i>' : f.type === 'plan' ? '<i class="fa-solid fa-map-location-dot"></i>' : '<i class="fa-solid fa-bus"></i>';
     let sub = f.sub || '';
     if (f.type === 'service' && ALL_SERVICES) {
-      const svc = f.id;
+      const svc = favSvcId(f.id);
       const svcNorm = normalizeServiceNo(svc);
       const info1 = ALL_SERVICES[svcNorm + '-1'] || null;
       const info2 = ALL_SERVICES[svcNorm + '-2'] || null;
@@ -3948,7 +3950,7 @@ function updateFavButtons() {
   });
   document.querySelectorAll('[id^="svc-fav-btn-"]').forEach(btn => {
     const svc = btn.id.replace('svc-fav-btn-', '');
-    const isFav = !!(window._favs && window._favs['svc_' + svc]);
+    const isFav = !!(window._favs && window._favs['svc_' + favSvcId(svc)]);
     btn.innerHTML = isFav ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
     btn.style.setProperty('color', isFav ? 'var(--yellow)' : 'var(--muted)', 'important');
   });
@@ -3957,6 +3959,7 @@ function updateFavButtons() {
 // ── FAV HELPER ──
 function addSvcFavSmart(svc) {
   // Use ALL_SERVICES to determine route type, ALL_STOPS for stop names
+  svc = favSvcId(svc);
   const svcNorm = normalizeServiceNo(svc);
   const info1 = ALL_SERVICES && (ALL_SERVICES[svcNorm + '-1'] || null);
   const info2 = ALL_SERVICES && (ALL_SERVICES[svcNorm + '-2'] || null);
@@ -3997,7 +4000,15 @@ function addSvcFavFromRoute(svc) {
   addSvcFav(svc, sub);
 }
 
+// One canonical spelling for a service in favourites. Matches what the service search produces
+// (uppercase, trailing E lowercase), so "NTU Blue" from the stop view and "NTU BLUE" from the
+// service view are the same favourite. Public bus numbers are unchanged by this.
+function favSvcId(svc) {
+  return String(svc).trim().toUpperCase().replace(/^(\d+)E$/, '$1e');
+}
+
 function addSvcFav(svc, sub) {
+  svc = favSvcId(svc);
   const key = 'svc_' + svc;
   if (window._favs && window._favs[key]) {
     promptRemoveFav(key);

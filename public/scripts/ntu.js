@@ -204,7 +204,7 @@ async function renderNtuStopCards(code, publicCount) {
           ${first !== null ? `<div class="bus-type-tag">${busTypeIcon('SD', false, lc1)}</div>` : (status ? `<div class="bus-type-tag" style="color:var(--muted);font-size:11px">${status}</div>` : '')}
         </div>
         <div class="card-right">
-          <button class="sun-toggle-btn fav-btn" data-key="svc_${svc.ServiceNo}" onclick="event.stopPropagation();addSvcFavSmart('${svc.ServiceNo}')" style="background:none;justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+svc.ServiceNo]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+svc.ServiceNo]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
+          <button class="sun-toggle-btn fav-btn" data-key="svc_${favSvcId(svc.ServiceNo)}" onclick="event.stopPropagation();addSvcFavSmart('${svc.ServiceNo}')" style="background:none;justify-content:center;font-size:16px;color:${(window._favs||{})['svc_'+favSvcId(svc.ServiceNo)]?'var(--yellow)':'var(--muted)'}">${(window._favs||{})['svc_'+favSvcId(svc.ServiceNo)]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
         </div>
       </div>
     </div>`;
