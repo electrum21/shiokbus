@@ -26,9 +26,9 @@
     "Directions": {
       "1": {
         "Direction": 1,
-        "OriginCode": "NTU-OPP-HALL-11",
+        "OriginCode": "NTU-7",
         "OriginDesc": "Opp Hall 11",
-        "DestinationCode": "NTU-OPP-HALL-11",
+        "DestinationCode": "NTU-7",
         "DestinationDesc": "Opp Hall 11",
         "OperatingHours": "",
         "Frequency": "",
@@ -36,82 +36,82 @@
         "Stops": [
           {
             "StopSequence": 1,
-            "BusStopCode": "NTU-OPP-HALL-11",
+            "BusStopCode": "NTU-7",
             "NtuStopName": "Opp Hall 11",
             "Description": "Opp Hall 11",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Avenue",
             "Latitude": 1.3547,
             "Longitude": 103.6872
           },
           {
             "StopSequence": 2,
-            "BusStopCode": "NTU-NANYANG-HEIGHTS",
+            "BusStopCode": "NTU-3",
             "NtuStopName": "Nanyang Heights",
             "Description": "Nanyang Heights",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Avenue",
             "Latitude": 1.350878,
             "Longitude": 103.685805
           },
           {
             "StopSequence": 3,
-            "BusStopCode": "NTU-HALL-6",
+            "BusStopCode": "NTU-2",
             "NtuStopName": "Hall 6",
             "Description": "Hall 6",
-            "RoadName": "NTU",
+            "RoadName": "Lien Ying Chow Drive",
             "Latitude": 1.34733,
             "Longitude": 103.68662
           },
           {
             "StopSequence": 4,
-            "BusStopCode": "NTU-OPP-HALL-4",
+            "BusStopCode": "NTU-11",
             "NtuStopName": "Opp Hall 4",
             "Description": "Opp Hall 4",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Drive",
             "Latitude": 1.34363,
             "Longitude": 103.68695
           },
           {
             "StopSequence": 5,
-            "BusStopCode": "NTU-OPP-YUNNAN-GDN",
+            "BusStopCode": "NTU-16",
             "NtuStopName": "Opp Yunnan Gdn",
             "Description": "Opp Yunnan Gdn",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Drive",
             "Latitude": 1.34164,
             "Longitude": 103.68449
           },
           {
             "StopSequence": 6,
-            "BusStopCode": "NTU-OPP-SPMS",
+            "BusStopCode": "NTU-14",
             "NtuStopName": "Opp SPMS",
             "Description": "Opp SPMS",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Link",
             "Latitude": 1.34179,
             "Longitude": 103.68121
           },
           {
             "StopSequence": 7,
-            "BusStopCode": "NTU-OPP-S2",
+            "BusStopCode": "NTU-13",
             "NtuStopName": "Opp S2",
             "Description": "Opp S2",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Link",
             "Latitude": 1.341305,
             "Longitude": 103.680038
           },
           {
             "StopSequence": 8,
-            "BusStopCode": "NTU-OPP-WKWSCI",
+            "BusStopCode": "NTU-15",
             "NtuStopName": "Opp WKWSCI",
             "Description": "Opp WKWSCI",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Drive",
             "Latitude": 1.34186,
             "Longitude": 103.67908
           },
           {
             "StopSequence": 9,
-            "BusStopCode": "NTU-OPP-CEE",
+            "BusStopCode": "NTU-5",
             "NtuStopName": "Opp CEE",
             "Description": "Opp CEE",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Drive",
             "Latitude": 1.34586,
             "Longitude": 103.67839
           },
@@ -126,28 +126,28 @@
           },
           {
             "StopSequence": 11,
-            "BusStopCode": "NTU-OPP-HALL-16",
+            "BusStopCode": "NTU-9",
             "NtuStopName": "Opp Hall 16",
             "Description": "Opp Hall 16",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Walk",
             "Latitude": 1.35052,
             "Longitude": 103.680387
           },
           {
             "StopSequence": 12,
-            "BusStopCode": "NTU-OPP-HALL-14",
+            "BusStopCode": "NTU-8",
             "NtuStopName": "Opp Hall 14",
             "Description": "Opp Hall 14",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Crescent",
             "Latitude": 1.353195,
             "Longitude": 103.681573
           },
           {
             "StopSequence": 13,
-            "BusStopCode": "NTU-OPP-NY-CRES-HALLS",
+            "BusStopCode": "NTU-12",
             "NtuStopName": "Opp NY Cres Halls",
             "Description": "Opp NY Cres Halls",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Crescent",
             "Latitude": 1.35496,
             "Longitude": 103.68401
           }
@@ -215,28 +215,28 @@
           },
           {
             "StopSequence": 4,
-            "BusStopCode": "NTU-UNI-HEALTH-SERVICE",
+            "BusStopCode": "NTU-21",
             "NtuStopName": "Uni Health Service",
             "Description": "Uni Health Service",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Avenue",
             "Latitude": 1.34571,
             "Longitude": 103.68298
           },
           {
             "StopSequence": 5,
-            "BusStopCode": "NTU-TCT-LT",
+            "BusStopCode": "NTU-19",
             "NtuStopName": "TCT-LT",
             "Description": "TCT-LT",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Avenue",
             "Latitude": 1.34498,
             "Longitude": 103.68157
           },
           {
             "StopSequence": 6,
-            "BusStopCode": "NTU-SCH-OF-ADM",
+            "BusStopCode": "NTU-17",
             "NtuStopName": "Sch of ADM",
             "Description": "Sch of ADM",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Drive",
             "Latitude": 1.350143821,
             "Longitude": 103.684388982
           },
@@ -251,10 +251,10 @@
           },
           {
             "StopSequence": 8,
-            "BusStopCode": "NTU-SCH-OF-BIOLOGICAL-SCIENCES",
+            "BusStopCode": "NTU-18",
             "NtuStopName": "Sch of Biological Sciences",
             "Description": "Sch of Biological Sciences",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Drive",
             "Latitude": 1.344549,
             "Longitude": 103.678686
           },
@@ -296,10 +296,10 @@
           },
           {
             "StopSequence": 13,
-            "BusStopCode": "NTU-HALL-5",
+            "BusStopCode": "NTU-1",
             "NtuStopName": "Hall 5",
             "Description": "Hall 5",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Drive",
             "Latitude": 1.34417,
             "Longitude": 103.68754
           }
@@ -363,46 +363,46 @@
           },
           {
             "StopSequence": 4,
-            "BusStopCode": "NTU-UNI-HEALTH-SERVICE",
+            "BusStopCode": "NTU-21",
             "NtuStopName": "Uni Health Service",
             "Description": "Uni Health Service",
-            "RoadName": "NTU",
+            "RoadName": "NanyangAvenue",
             "Latitude": 1.34571,
             "Longitude": 103.68298
           },
           {
             "StopSequence": 5,
-            "BusStopCode": "NTU-TCT-LT",
+            "BusStopCode": "NTU-19",
             "NtuStopName": "TCT-LT",
             "Description": "TCT-LT",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Avenue",
             "Latitude": 1.34498,
             "Longitude": 103.68157
           },
           {
             "StopSequence": 6,
-            "BusStopCode": "NTU-OPP-HALL-2",
+            "BusStopCode": "NTU-10",
             "NtuStopName": "Opp Hall 2",
             "Description": "Opp Hall 2",
-            "RoadName": "NTU",
+            "RoadName": "Lien Ying Chow Drive",
             "Latitude": 1.34904,
             "Longitude": 103.68554
           },
           {
             "StopSequence": 7,
-            "BusStopCode": "NTU-HALL-6",
+            "BusStopCode": "NTU-2",
             "NtuStopName": "Hall 6",
             "Description": "Hall 6",
-            "RoadName": "NTU",
+            "RoadName": "Lien Ying Chow Drive",
             "Latitude": 1.34733,
             "Longitude": 103.68662
           },
           {
             "StopSequence": 8,
-            "BusStopCode": "NTU-OPP-HALL-1",
+            "BusStopCode": "NTU-6",
             "NtuStopName": "Opp Hall 1",
             "Description": "Opp Hall 1",
-            "RoadName": "NTU",
+            "RoadName": "Lien Ying Chow Drive",
             "Latitude": 1.345819,
             "Longitude": 103.68771
           }
@@ -479,37 +479,37 @@
           },
           {
             "StopSequence": 6,
-            "BusStopCode": "NTU-OPP-HALL-2",
+            "BusStopCode": "NTU-10",
             "NtuStopName": "Opp Hall 2",
             "Description": "Opp Hall 2",
-            "RoadName": "NTU",
+            "RoadName": "Lien Ying Chow Drive",
             "Latitude": 1.34904,
             "Longitude": 103.68554
           },
           {
             "StopSequence": 7,
-            "BusStopCode": "NTU-HALL-6",
+            "BusStopCode": "NTU-2",
             "NtuStopName": "Hall 6",
             "Description": "Hall 6",
-            "RoadName": "NTU",
+            "RoadName": "Lien Ying Chow Drive",
             "Latitude": 1.34733,
             "Longitude": 103.68662
           },
           {
             "StopSequence": 8,
-            "BusStopCode": "NTU-THE-WAVE",
+            "BusStopCode": "NTU-20",
             "NtuStopName": "The Wave",
             "Description": "The Wave",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Crescent",
             "Latitude": 1.348852,
             "Longitude": 103.68966
           },
           {
             "StopSequence": 9,
-            "BusStopCode": "NTU-NANYANG-MEADOWS",
+            "BusStopCode": "NTU-4",
             "NtuStopName": "Nanyang Meadows",
             "Description": "Nanyang Meadows",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Crescent",
             "Latitude": 1.353098,
             "Longitude": 103.689338
           }
@@ -590,10 +590,10 @@
           },
           {
             "StopSequence": 5,
-            "BusStopCode": "NTU-SCH-OF-BIOLOGICAL-SCIENCES",
+            "BusStopCode": "NTU-18",
             "NtuStopName": "Sch of Biological Sciences",
             "Description": "Sch of Biological Sciences",
-            "RoadName": "NTU",
+            "RoadName": "Nanyang Drive",
             "Latitude": 1.344549,
             "Longitude": 103.678686
           },

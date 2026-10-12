@@ -273,21 +273,13 @@ function _ntuLiveStatus() {
 }
 
 // White circle with front-facing bus icon; coloured ring = crowd level (green/orange/red).
-// A separate arrow div orbits the circle to show direction of travel.
 const NTU_CROWD_RING = { SEA: '#43C463', SDA: '#FF8C00', LSD: '#E53935' };
 
-function _ntuBusIcon(color, crowd, heading) {
+function _ntuBusIcon(color, crowd) {
   const ring = NTU_CROWD_RING[crowd] || '#888';
   return L.divIcon({
     className: 'ntu-live-bus',
-    html: `<div class="ntu-bus-inner">
-      ${_ntuBusSvg(color, ring)}
-      <div class="ntu-bus-arrow" style="transform:rotate(${heading ?? 0}deg)">
-        <svg width="46" height="46" viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
-          <polygon points="23,1 18,11 28,11" fill="${ring}" stroke="white" stroke-width="1.2" stroke-linejoin="round"/>
-        </svg>
-      </div>
-    </div>`,
+    html: `<div class="ntu-bus-inner">${_ntuBusSvg(color, ring)}</div>`,
     iconSize: [46, 46], iconAnchor: [23, 23],
   });
 }
@@ -307,30 +299,11 @@ function _ntuBusSvg(color, ring) {
   </svg>`;
 }
 
-function _ntuBearing(from, to) {
-  const dLng = (to.lng - from.lng) * Math.PI / 180;
-  const lat1 = from.lat * Math.PI / 180, lat2 = to.lat * Math.PI / 180;
-  const y = Math.sin(dLng) * Math.cos(lat2);
-  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
-  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+function _ntuBusTip(route, crowd) {
+  const bg = route.svc.Color || '#B5121B';
+  const label = NTU_CROWD_LABEL[crowd] ? ` · ${NTU_CROWD_LABEL[crowd]}` : '';
+  return `<span style="background:${bg};color:#fff;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700">NTU ${route.svc.NtuRoute}</span>${label}`;
 }
-
-// Find nearest polyline segment and return its compass bearing.
-function _ntuSnapBearing(path, lat, lng) {
-  if (!path || path.length < 2) return null;
-  let bestDist = Infinity, bestI = 0;
-  for (let i = 0; i < path.length - 1; i++) {
-    const [a0, a1] = path[i], [b0, b1] = path[i + 1];
-    const dy = b0 - a0, dx = b1 - a1, len2 = dy * dy + dx * dx;
-    const t = len2 > 0 ? Math.max(0, Math.min(1, ((lat - a0) * dy + (lng - a1) * dx) / len2)) : 0;
-    const d = (a0 + t * dy - lat) ** 2 + (a1 + t * dx - lng) ** 2;
-    if (d < bestDist) { bestDist = d; bestI = i; }
-  }
-  const [a0, a1] = path[bestI], [b0, b1] = path[bestI + 1];
-  return _ntuBearing({ lat: a0, lng: a1 }, { lat: b0, lng: b1 });
-}
-
-function _ntuBusTip(route, crowd) { return `NTU ${route.svc.NtuRoute}${NTU_CROWD_LABEL[crowd] ? ' · ' + NTU_CROWD_LABEL[crowd] : ''}`; }
 
 // Reconcile one route's markers with a fresh list of positions.
 function _ntuLiveSync(live, route, buses) {
@@ -346,30 +319,20 @@ function _ntuLiveSync(live, route, buses) {
     usedB.add(p.bi); usedM.add(p.mi);
     const m = old[p.mi], b = buses[p.bi];
     m.setLatLng([b.lat, b.lng]);
-    const newHeading = _ntuSnapBearing(route.path, b.lat, b.lng) ?? b.heading ?? m._heading ?? 0;
-    if (newHeading !== m._heading) {
-      m._heading = newHeading;
-      const arrow = m.getElement()?.querySelector('.ntu-bus-arrow');
-      if (arrow) arrow.style.transform = `rotate(${newHeading}deg)`;
-    }
     if (m._crowd !== b.crowd) {
       m._crowd = b.crowd;
       const ring = NTU_CROWD_RING[b.crowd] || '#888';
       const el = m.getElement();
       el?.querySelector('svg circle')?.setAttribute('stroke', ring);
-      el?.querySelector('.ntu-bus-arrow polygon')?.setAttribute('fill', ring);
-      el?.querySelector('.ntu-bus-arrow polygon')?.setAttribute('stroke', 'white');
       m.setTooltipContent(_ntuBusTip(route, b.crowd));
     }
     next.push(m);
   }
   buses.forEach((b, bi) => {
     if (usedB.has(bi)) return;
-    const h = _ntuSnapBearing(route.path, b.lat, b.lng) ?? b.heading ?? 0;
-    const m = L.marker([b.lat, b.lng], { icon: _ntuBusIcon(route.color, b.crowd, h), zIndexOffset: 1000 })
+    const m = L.marker([b.lat, b.lng], { icon: _ntuBusIcon(route.color, b.crowd), zIndexOffset: 1000 })
       .bindTooltip(_ntuBusTip(route, b.crowd), { direction: 'top', offset: [0, -23] }).addTo(live.layer);
     m._crowd = b.crowd;
-    m._heading = h;
     next.push(m);
   });
   old.forEach((m, mi) => { if (!usedM.has(mi)) live.layer.removeLayer(m); });
@@ -417,29 +380,108 @@ function _ntuDecodePolyline(str) {   // Google encoded polyline, precision 5
   return pts;
 }
 
+// ── Stop arrival popup ────────────────────────────────────────────────────────
+async function _ntuStopPopup(map, stop) {
+  const desc = stop.Description || stop.NtuStopName;
+  const code = stop.BusStopCode;
+
+  const loading = `<div class="ntu-popup-inner"><div class="ntu-popup-title">${desc}</div><div class="ntu-popup-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading…</div></div>`;
+  const popup = L.popup({ maxWidth: 280, className: 'ntu-stop-popup' })
+    .setLatLng([stop.Latitude, stop.Longitude])
+    .setContent(loading)
+    .openOn(map);
+
+  const entries = ntuEntriesAtStop(code);
+  const hasPublic = !isNtuCode(code);
+
+  const [results, busRes, ltaData] = await Promise.all([
+    Promise.all(entries.map(e => fetchNtuEta(e.stop.NtuStopName, e.svc.NtuRoute))),
+    Promise.all(entries.map(e => fetchNtuBuses(e.svc.NtuRoute))),
+    hasPublic ? fetchLTA(code).catch(() => null) : Promise.resolve(null),
+  ]);
+
+  if (!map.hasLayer(popup)) return;
+
+  const ntuRows = entries.map(({ svc, stop: eStop }, i) => {
+    const r = results[i];
+    if (!r.error && r.ETA == null && r.NextETA == null) return '';
+    const status = !r.error && r.ETA == null ? ntuStatus(svc) : null;
+    const [crowd1, crowd2] = ntuCrowdForStop(svc, eStop.NtuStopName, busRes[i].buses);
+    const lc1 = NTU_CROWD_RING[crowd1] || '#888';
+    const lc2 = NTU_CROWD_RING[crowd2] || '#888';
+    const eta1 = r.error ? '—' : (_ntuMins(r.ETA) ?? '—');
+    const eta2 = r.error ? null : _ntuMins(r.NextETA);
+    const bg = svc.Color || '#B5121B';
+    return `<div class="ntu-popup-row">
+      <div class="ntu-popup-badge" style="background:${bg}">NTU ${svc.NtuRoute}</div>
+      <div class="ntu-popup-etas">
+        <div class="ntu-popup-eta-wrap">
+          <span class="ntu-popup-eta1">${status || eta1}</span>
+          <div class="ntu-popup-crowd-bar" style="background:${status ? 'transparent' : lc1}"></div>
+        </div>
+        ${eta2 && !status ? `<div class="ntu-popup-eta-wrap">
+          <span class="ntu-popup-eta2">${eta2}</span>
+          <div class="ntu-popup-crowd-bar" style="background:${lc2}"></div>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  const _ltaMins = iso => { const m = Math.round((new Date(iso) - Date.now()) / 60000); return m <= 0 ? 'Arr' : m + ' min'; };
+  const publicRows = (ltaData?.Services || []).map(s => {
+    const nb = s.NextBus, nb2 = s.NextBus2;
+    if (!nb?.EstimatedArrival) return '';
+    const eta1 = _ltaMins(nb.EstimatedArrival);
+    const eta2 = nb2?.EstimatedArrival ? _ltaMins(nb2.EstimatedArrival) : null;
+    const lc1 = NTU_CROWD_RING[nb.Load] || '#888';
+    const lc2 = nb2?.Load ? (NTU_CROWD_RING[nb2.Load] || '#888') : '#888';
+    const opColors = { SBST: '#5B2D8E', SBS: '#5B2D8E', SMRT: '#C0392B', TTS: '#1A6B2A', GAS: '#9A7000' };
+    const opBg = opColors[(s.Operator||'').toUpperCase()] || '#3a3f52';
+    return `<div class="ntu-popup-row">
+      <div class="ntu-popup-badge" style="background:${opBg}">${s.ServiceNo}</div>
+      <div class="ntu-popup-etas">
+        <div class="ntu-popup-eta-wrap">
+          <span class="ntu-popup-eta1">${eta1}</span>
+          <div class="ntu-popup-crowd-bar" style="background:${lc1}"></div>
+        </div>
+        ${eta2 ? `<div class="ntu-popup-eta-wrap">
+          <span class="ntu-popup-eta2">${eta2}</span>
+          <div class="ntu-popup-crowd-bar" style="background:${lc2}"></div>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  const allRows = publicRows + ntuRows;
+  const empty = !allRows.trim();
+  popup.setContent(`<div class="ntu-popup-inner"><div class="ntu-popup-title">${desc}</div>${empty ? '<div class="ntu-popup-loading">No arrivals right now.</div>' : allRows}</div>`);
+}
+
 function ntuLiveOpen(serviceNo) {
   const svc = ntuServiceByNo(serviceNo);
   if (!svc || typeof L === 'undefined') return;
   ntuLiveStop();
   if (window._stopMap) { window._stopMap.remove(); window._stopMap = null; }
   document.getElementById('stop-map-modal').style.display = 'flex';
-  document.getElementById('stop-map-title').textContent = `NTU ${svc.NtuRoute} · Live`;
+  document.getElementById('stop-map-title').innerHTML =
+    `<span style="background:${svc.Color||'#B5121B'};color:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700;margin-right:6px">NTU ${svc.NtuRoute}</span>Live`;
 
   const isLight = document.body.classList.contains('light');
   const map = L.map('stop-map-container', { zoomControl: true, attributionControl: false });
   window._stopMap = map;
   L.tileLayer(`https://www.onemap.gov.sg/maps/tiles/${isLight ? 'Default' : 'Night'}/{z}/{x}/{y}.png`, { maxZoom: 19 }).addTo(map);
-  // markers glide between polls; switch that off while zooming so they don't lag behind the map
-  map.on('zoomstart', () => map.getContainer().classList.add('ntu-zooming'));
-  map.on('zoomend', () => map.getContainer().classList.remove('ntu-zooming'));
 
   const all = [], routeLines = [];
   const color = svc.Color || '#B5121B';
   const pts = (svc.Directions['1'].Stops || []).filter(s => s.Latitude != null && s.Longitude != null);
   const line = pts.map(s => [s.Latitude, s.Longitude]);
   routeLines.push({ svc, color, line });
-  pts.forEach(s => L.circleMarker([s.Latitude, s.Longitude], { radius: 4, color: '#fff', weight: 1.5, fillColor: color, fillOpacity: 1 })
-    .bindTooltip(s.Description || s.NtuStopName).addTo(map));
+  pts.forEach(s => {
+    const m = L.circleMarker([s.Latitude, s.Longitude], {
+      radius: 6, color: '#fff', weight: 1.5, fillColor: color, fillOpacity: 1, interactive: true,
+    }).bindTooltip(s.Description || s.NtuStopName).addTo(map);
+    m.on('click', () => _ntuStopPopup(map, s));
+  });
   all.push(...line);
   const routes = [{ svc, color, markers: [], path: null }];
   routeLines[0].route = routes[0];
