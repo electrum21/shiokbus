@@ -753,6 +753,7 @@ function serviceHistorySub(svc) {
     : (info1?.LoopDesc || '');
   const isPrivate = !!(info1?._isPrivate || info2?._isPrivate);
   if (info1?._isNtu) return ntuLoopLabel(info1, orig);
+  if (info1?._isNus) return nusLoopLabel(info1, orig);
   if (isPrivate) {
     const origDesc = info1?.OriginDesc || orig;
     const destDesc = info1?.DestinationDesc || dest;
@@ -897,6 +898,8 @@ function buildServiceRowInner(svc) {
   let route = '';
   if (info1?._isNtu) {
     route = ntuLoopLabel(info1, orig);
+  } else if (info1?._isNus) {
+    route = nusLoopLabel(info1, orig);
   } else if (isPrivate) {
     const origDesc = info1?.OriginDesc || orig;
     const destDesc = info1?.DestinationDesc || dest;
@@ -912,8 +915,10 @@ function buildServiceRowInner(svc) {
     else if (isLoop) route = loopDesc ? `${orig} ↻ via ${loopDesc}` : `${orig} ↻`;
     else route = `${orig} → ${dest}`;
   }
-  const ntuColor = (info1?._isNtu && info1.Color) || (info2?._isNtu && info2.Color) || '';
-  const pillStyle = ntuColor ? `style="background:${ntuColor}"` : '';
+  const ntuColor = (info1?._isNtu && info1.Color) || (info2?._isNtu && info2.Color)
+    || (info1?._isNus && info1.Color) || (info2?._isNus && info2.Color) || ''; // NTU / NUS route colour
+  const nusFg = (info1?._isNus && info1.TextColor) || (info2?._isNus && info2.TextColor) || '';
+  const pillStyle = ntuColor ? `style="background:${ntuColor}${nusFg ? `;color:${nusFg}` : ''}"` : '';
   const pbsBadge = isPrivate ? `<span style="font-size:9px;background:#1A2C5B20;color:#1A2C5B;border:1px solid #1A2C5B40;border-radius:4px;padding:1px 4px;margin-left:4px;font-weight:700;flex-shrink:0">Private</span>` : '';
   return { opCls, route, pbsBadge, pillStyle };
 }
@@ -1055,6 +1060,7 @@ function opClass(op, isPrivate) {
   if (u === 'SMRT') return 'op-smrt';
   if (u.includes('TONG TAR')) return 'op-tts';
   if (u === 'NTU') return 'op-ntu';
+  if (u === 'NUS') return 'op-nus';
   return isPrivate ? 'op-private' : 'op-smrt';
 }
 
@@ -1155,6 +1161,7 @@ async function fetchBusRoute(svc) {
             SAT_FirstBus: '-', SAT_LastBus: '-',
             SUN_FirstBus: '-', SUN_LastBus: '-',
             ...(pbsSvc._isNtu ? ntuRouteTimes(pbsSvc) : {}), // NTU first/last bus (ntu.js)
+            ...(pbsSvc._isNus ? nusRouteTimes(pbsSvc) : {}), // NUS first/last bus (nus.js)
             _pbsStop: stop,
           });
         }
@@ -1351,7 +1358,7 @@ function renderRoute(rd, allStops) {
   const pmPeak   = formatFreq(svcInfo?.PM_Peak_Freq);
   const pmOff    = formatFreq(svcInfo?.PM_Offpeak_Freq);
 
-  const opLabel = operator === 'SBST' ? 'SBS Transit' : operator === 'SMRT' ? 'SMRT Buses' : operator === 'TTS' ? 'Tower Transit' : operator === 'GAS' ? 'Go-Ahead' : operator === 'NTU' ? 'NTU (CDG)' : operator || '';
+  const opLabel = operator === 'SBST' ? 'SBS Transit' : operator === 'SMRT' ? 'SMRT Buses' : operator === 'TTS' ? 'Tower Transit' : operator === 'GAS' ? 'Go-Ahead' : operator === 'NTU' ? 'NTU (CDG)' : operator === 'NUS' ? 'NUS' : operator || '';
   const catColor = 'var(--white)';
   const catLabel = category === 'CITY_LINK' ? 'CITY DIRECT' : category === 'CAMPUS' ? 'CAMPUS RIDER' : category;
   function opToColor(op, isPrivate) {
@@ -1364,7 +1371,9 @@ function renderRoute(rd, allStops) {
     return isPrivate ? '#1A2C5B' : '#D7181C';
   }
   const isNtuSvc = !!svcInfo?._isNtu;
-  const opBg = (isNtuSvc && svcInfo.Color) ? svcInfo.Color : opToColor(operator, !!(rd.svcMap?.[svcNormKey + '-1']?._isPrivate || rd.svcMap?.[svcNormKey + '-2']?._isPrivate));
+  const isNusSvc = !!svcInfo?._isNus;
+  const isNusLoop = isNusSvc && svcInfo._isLoop !== false; // R1/R2 are point-to-point, the rest circle
+  const opBg = ((isNtuSvc || isNusSvc) && svcInfo.Color) ? svcInfo.Color : opToColor(operator, !!(rd.svcMap?.[svcNormKey + '-1']?._isPrivate || rd.svcMap?.[svcNormKey + '-2']?._isPrivate));
 
   const freqPills = [
     amPeak ? `<span class="svc-freq-pill"><span class="svc-freq-pill-label">AM</span>${amPeak}</span>` : '',
@@ -1375,7 +1384,7 @@ function renderRoute(rd, allStops) {
 
   // Compute sun seating recommendation for the whole route
   // NTU campus loops circle forever, so the closing leg (last stop back to the first) is part of the ride
-  const routeSunAnalysis = computeRouteSeating(isNtuSvc && dir.stops.length > 1 ? [...dir.stops, dir.stops[0]] : dir.stops, stopMap);
+  const routeSunAnalysis = computeRouteSeating((isNtuSvc || isNusLoop) && dir.stops.length > 1 ? [...dir.stops, dir.stops[0]] : dir.stops, stopMap);
   const routeSunPanel = buildRouteSeatingPanel(routeSunAnalysis);
 
   // Store for addSvcFavFromRoute
@@ -1385,9 +1394,9 @@ function renderRoute(rd, allStops) {
     <div class="route-sticky-header">
     <div class="route-hero" style="display:flex;flex-direction:column;gap:6px">
       <div style="display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;white-space:nowrap">
-        <div style="display:inline-flex;align-items:center;gap:6px;background:${opBg};color:#fff;padding:6px 16px;border-radius:12px;flex-shrink:0${isNtuSvc ? ';box-shadow:inset 0 0 0 2px var(--ntu-orange)' : ''}"><span class="stop-title" style="font-size:inherit">${formatSvcNo(rd.svc)}</span></div>
+        <div style="display:inline-flex;align-items:center;gap:6px;background:${opBg};color:${(isNusSvc && svcInfo.TextColor) || '#fff'};padding:6px 16px;border-radius:12px;flex-shrink:0${isNtuSvc ? ';box-shadow:inset 0 0 0 2px var(--ntu-orange)' : isNusSvc ? ';box-shadow:inset 0 0 0 2px var(--nus-orange)' : ''}"><span class="stop-title" style="font-size:inherit">${formatSvcNo(rd.svc)}</span></div>
         ${freqPills}
-        ${isNtuSvc ? ntuLiveButton(rd.svc) : ''}
+        ${isNtuSvc ? ntuLiveButton(rd.svc) : isNusSvc ? nusLiveButton(rd.svc) : ''}
         ${rd.svcMap?.[svcNormKey + '-1']?._isScheduled ? `<span style="margin-left:auto;font-size:9px;color:var(--muted);white-space:normal;text-align:right;line-height:1.3;max-width:200px;flex-shrink:0"><i class="fa-solid fa-triangle-exclamation"></i> Timings for this service are estimated based on schedules and may not be fully accurate.</span>` : ''}
       </div>
       <div style="display:flex;align-items:center;gap:8px">
@@ -1432,6 +1441,9 @@ function renderRoute(rd, allStops) {
     } else if (isNtuSvc) {
       // NTU campus shuttles are all loops: loop arrow instead of →
       label = '<div class="dir-btn-dest">' + dFirst + ' ↻ ' + dLast + '</div>';
+    } else if (isNusSvc) {
+      // NUS: loops (A1/A2/D1/D2/K/P) get ↻, point-to-point R1/R2 keep →
+      label = '<div class="dir-btn-dest">' + dFirst + (isNusLoop ? ' ↻ ' : ' → ') + dLast + '</div>';
     } else {
       const loopLine = (isLoop && loopDesc) ? '<div class="dir-btn-loop">via ' + loopDesc + '</div>' : '';
       label = isLoop
@@ -1518,7 +1530,7 @@ function renderRoute(rd, allStops) {
   planStops = dir.stops;
   planStopMap = stopMap;
   planSunAnalysis = routeSunAnalysis;
-  planCircular = isNtuSvc;
+  planCircular = isNtuSvc || isNusLoop;
   planBoardIdx = -1; planAlightIdx = -1;
 
   const tabsHtml = `
@@ -2039,7 +2051,7 @@ function renderUnifiedResults() {
   const box = document.getElementById('unifiedResults');
   box.innerHTML = unifiedMatches.map((s, i) => `
     <div class="sn-item${i===unifiedHighlight?' highlighted':''}" onclick="selectUnifiedStop(${i})">
-      <div class="sn-code">${s._isNtu ? 'NTU' : s.BusStopCode}</div>
+      <div class="sn-code">${s._isNtu ? 'NTU' : String(s.BusStopCode).startsWith('NUS-') ? 'NUS' : s.BusStopCode}</div>
       <div class="sn-info">
         <div class="sn-name">${stopLabel(s.Description, true)}</div>
         <div class="sn-road">${s.RoadName}</div>
@@ -2099,7 +2111,7 @@ function clearServiceSearch() {
 // also handles CORS. We pass an empty headers object — App Check was removed
 // since the worker's CORS origin check is sufficient for our threat model.
 async function fetchLTA(code) {
-  if (isNtuCode(code)) return { Services: [] };
+  if (isNtuCode(code) || isNusCode(code)) return { Services: [] };
   const url = PROXY_URL + '?endpoint=BusArrival&BusStopCode=' + code;
   let res;
   try { res = await fetch(url, { headers: await getProxyHeaders() }); } catch(e) {
@@ -2449,10 +2461,11 @@ function indexServices(raw) {
 async function fetchPBSServices() {
   if (PRIVATE_SERVICES) return PRIVATE_SERVICES;
   try {
-    const [resPBS, resSentosa, resNtu] = await Promise.all([
+    const [resPBS, resSentosa, resNtu, resNus] = await Promise.all([
       fetch('./assets/pbs-services.json'),
       fetch('./assets/sentosa-services.json').catch(() => null),
-      loadNtuServices()
+      loadNtuServices(),
+      loadNusServices()
     ]);
     if (!resPBS.ok) return null;
     PRIVATE_SERVICES = await resPBS.json();
@@ -2464,6 +2477,8 @@ async function fetchPBSServices() {
     }
     // NTU campus shuttles (ntu.js): routes/stops from ntu-shuttle.json, live ETAs via the Worker
     Object.assign(PRIVATE_SERVICES, resNtu);
+    // NUS internal shuttles (nus.js): routes/stops from nus-shuttle.json, live ETAs via the Worker
+    Object.assign(PRIVATE_SERVICES, resNus);
     if (ALL_SERVICES) injectPrivateIntoServices();
     if (ALL_STOPS) injectPrivateIntoStops();
     return PRIVATE_SERVICES;
@@ -2482,7 +2497,7 @@ async function fetchPBSServices() {
 // gets the generic "private" navy treatment.
 function injectPrivateIntoServices() {
   if (!PRIVATE_SERVICES || !ALL_SERVICES) return;
-  PRIVATE_STOP_INDEX = {}; ntuResetIndex(); // rebuild indexes on each injection
+  PRIVATE_STOP_INDEX = {}; ntuResetIndex(); nusResetIndex(); // rebuild indexes on each injection
   for (const [key, svc] of Object.entries(PRIVATE_SERVICES)) {
     for (const [dirKey, dir] of Object.entries(svc.Directions)) {
       const serviceKey = normalizeServiceNo(svc.ServiceNo.toUpperCase()) + '-' + dirKey;
@@ -2500,9 +2515,12 @@ function injectPrivateIntoServices() {
         Fare: svc.Fare,
         OperatingHours: dir.OperatingHours,
         _isPrivate: !['TTS','TONG TAR TRANSPORT'].includes((svc.Operator||'').toUpperCase()),
-        _isScheduled: !svc._isNtu, // NTU ETAs come live from the Worker, not from a timetable
+        _isScheduled: !svc._isNtu && !svc._isNus, // NTU/NUS ETAs come live from the Worker, not from a timetable
         _isNtu: !!svc._isNtu,
+        _isNus: !!svc._isNus,
+        _isLoop: svc._isLoop,
         Color: svc.Color || '',
+        TextColor: svc.TextColor || '',
       };
       // Index stops by BusStopCode for O(1) lookup in buildPBSArrivalRows
       for (const stop of dir.Stops) {
@@ -2514,6 +2532,10 @@ function injectPrivateIntoServices() {
         if (!stop.Direction) stop.Direction = parseInt(dirKey);
         if (stop.BusStopCode && svc._isNtu) {
           ntuIndexStop(svc, stop); // NTU has its own index (see ntu.js), kept out of buildPBSArrivalRows
+          continue;
+        }
+        if (stop.BusStopCode && svc._isNus) {
+          nusIndexStop(svc, stop); // NUS has its own index (see nus.js), kept out of buildPBSArrivalRows
           continue;
         }
         if (stop.BusStopCode) {
@@ -2548,10 +2570,11 @@ function injectPrivateIntoStops() {
           BusStopCode: code,
           RoadName: stop.RoadName || '',
           Description: stop.Description || '',
-          Latitude: stop.Latitude ?? (svc._isNtu ? null : 0),
-          Longitude: stop.Longitude ?? (svc._isNtu ? null : 0),
+          Latitude: stop.Latitude ?? ((svc._isNtu || svc._isNus) ? null : 0),
+          Longitude: stop.Longitude ?? ((svc._isNtu || svc._isNus) ? null : 0),
           _isPrivate: true,
           _isNtu: !!svc._isNtu,
+          _isNus: !!svc._isNus,
         });
       }
     }
@@ -2689,6 +2712,7 @@ function getPrivateServicesForStop(code) {
   const results = [];
   for (const [svcKey, privateSvc] of Object.entries(PRIVATE_SERVICES)) {
     if (privateSvc._isNtu) continue; // NTU is handled by renderNtuStopCards / ntuRowsHtml
+    if (privateSvc._isNus) continue; // NUS is handled by renderNusStopCards / nusRowsHtml
     if (!isServiceOperatingToday(privateSvc.ServiceNo)) continue;
     for (const [dirKey, dir] of Object.entries(privateSvc.Directions)) {
       const match = dir.Stops.find(s => s.BusStopCode && String(s.BusStopCode) === String(code));
@@ -2734,7 +2758,7 @@ function isServiceOperatingToday(serviceNo) {
       p.ServiceNo.toUpperCase().replace(/\s+/g, '') === svc
     )
   );
-  const isPBS = !!match && !match._isSentosa && !match._isNtu;
+  const isPBS = !!match && !match._isSentosa && !match._isNtu && !match._isNus;
   const isWeekdayOnly = WEEKDAY_ONLY_SERVICES.has(svc);
   if (isPBS || isWeekdayOnly) {
     if (isTodayWeekend() || isTodayPublicHoliday()) return false;
@@ -2943,7 +2967,7 @@ function render(code, data) {
   const name = stopInfo?.Description || 'Bus Stop ' + code;
   const road = stopInfo?.RoadName || '';
 
-  if (!svcs.length && !hasNtu(code)) {
+  if (!svcs.length && !hasNtu(code) && !hasNus(code)) {
     document.getElementById('results-stop').innerHTML =
       `<div class="error-card">No bus services found for stop ${code}.</div>`;
     return;
@@ -3088,6 +3112,7 @@ function render(code, data) {
 
   document.getElementById('results-stop').innerHTML = html;
   renderNtuStopCards(code, svcs.length);
+  renderNusStopCards(code, svcs.length);
 
   // Inject train alert warning button if this stop's MRT lines are disrupted
   // (only needed when MRT_LOOKUP is already populated; else loadMrtData().then() handles it)
@@ -3484,8 +3509,14 @@ async function loadArrivalsInRoute(code, stopSeq) {
     containers.forEach(c => c.innerHTML = h || '<div class="rs-arrivals-placeholder">No live data</div>');
     return;
   }
+  if (isNusCode(code)) { // NUS-only stop: no LTA data to fetch
+    const h = await nusRowsHtml(code);
+    containers.forEach(c => c.innerHTML = h || '<div class="rs-arrivals-placeholder">No live data</div>');
+    return;
+  }
   // Stop shared with NTU (real LTA code): fetch NTU ETAs in parallel and append below LTA/PBS rows
   const ntuP = hasNtu(code) ? ntuRowsHtml(code) : Promise.resolve('');
+  const nusP = hasNus(code) ? nusRowsHtml(code) : Promise.resolve(''); // NUS stops that are also public stops use the real LTA code, so their stop page shows both
 
   // Check if this stop belongs to a PBS route — if so, build static rows immediately
   const pbsHtml = buildPBSArrivalRows(code, stopSeq);
@@ -3576,11 +3607,11 @@ async function loadArrivalsInRoute(code, stopSeq) {
       </div>`;
     });
 
-    const combined = pbsHtml + liveHtml + await ntuP;
+    const combined = pbsHtml + liveHtml + await ntuP + await nusP;
     containers.forEach(c => c.innerHTML = combined || '<div class="rs-arrivals-placeholder">No live data</div>');
   } catch(e) {
     // If LTA fetch fails but we have PBS static data, still show it
-    const extra = pbsHtml + await ntuP;
+    const extra = pbsHtml + await ntuP + await nusP;
     if (extra) {
       containers.forEach(c => c.innerHTML = extra);
     } else {
@@ -4040,6 +4071,7 @@ function viewStopOnMap(code) {
   }
 
   if (typeof ntuLiveStop === 'function') ntuLiveStop(); // shared modal: reset the live-bus title/status
+  if (typeof nusLiveStop === 'function') nusLiveStop();
   document.getElementById('stop-map-modal').style.display = 'flex';
 
   if (window._stopMap) {
@@ -4068,6 +4100,7 @@ function viewStopOnMap(code) {
 
 function closeStopMapModal() {
   if (typeof ntuLiveStop === 'function') ntuLiveStop(); // stop polling
+  if (typeof nusLiveStop === 'function') nusLiveStop();
   document.getElementById('stop-map-modal').style.display = 'none';
   if (window._stopMap) {
     window._stopMap.remove();

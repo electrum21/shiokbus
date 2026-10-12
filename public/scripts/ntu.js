@@ -194,7 +194,7 @@ async function renderNtuStopCards(code, publicCount) {
         <div class="bus-num-col op-ntu" onclick="goToService('${svc.ServiceNo}', '${code}')" style="position:relative;${svc.Color ? `background:${svc.Color}` : ''}">
           <div class="bus-num-from">NTU</div>
           <div class="bus-num">${svc.NtuRoute}</div>
-          <div class="bus-num-to">Campus loop</div>
+          <div class="bus-num-to">Campus shuttle</div>
         </div>
         <div class="card-middle">
           <div class="arrival-row">
