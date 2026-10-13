@@ -748,7 +748,7 @@
      {
       "StopSequence": 9,
       "BusStopCode": "16151",
-      "NusStopName": "JP-SCH",
+      "NusStopName": "JP-SCH-16151",
       "Description": "The Japanese Primary School",
       "RoadName": "Kent Ridge Campus",
       "Latitude": 1.30077,
