@@ -10,11 +10,7 @@ A mobile-first Singapore bus app with real-time arrivals, full route exploration
 
 ## Video Demo
 
-
-
-https://github.com/user-attachments/assets/954eecaa-1309-4fc0-8b3e-4fb7d1a1c850
-
-
+<video src="https://github.com/electrum21/shiokbus/raw/main/ShiokBus-Demo.mp4" controls width="360"></video>
 
 ---
 
