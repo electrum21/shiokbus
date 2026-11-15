@@ -199,6 +199,7 @@ function ntuLiveOpen(serviceNo) {
   const svc = ntuServiceByNo(serviceNo);
   if (!svc || typeof L === 'undefined') return;
   ntuLiveStop();
+  _stopLiveStop();
   const { map, color, line } = campusLiveMapOpen(svc, {
     label: `NTU ${svc.NtuRoute}`, nameKey: 'NtuStopName', defaultColor: '#B5121B',
     defaultCentre: [1.3483, 103.6831], popupFn: _ntuStopPopup,

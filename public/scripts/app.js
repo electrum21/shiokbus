@@ -4,227 +4,228 @@ let _mrt = { zoom: 1, x: 0, y: 0 };
 let _mrtDragged = false;
 
 const MRT_PNG_COORDS = {
-  'NS1': [17.762, 54.382], // Jurong East
-  'NS2': [18.232, 48.279], // Bukit Batok
-  'NS3': [18.075, 43.584], // Bukit Gombak
-  'NS4': [17.71, 38.303], // Choa Chu Kang
-  'NS5': [17.606, 32.942], // Yew Tee
-  'NS7': [17.606, 27.778], // Kranji
-  'NS8': [20.579, 22.144], // Marsiling
-  'NS9': [27.465, 20.736], // Woodlands
-  'NS10': [32.003, 20.736], // Admiralty
-  'NS11': [36.072, 20.579], // Sembawang
-  'NS12': [39.984, 20.579], // Canberra
-  'NS13': [44.366, 21.831], // Yishun
-  'NS14': [46.87, 24.804], // Khatib
-  'NS15': [47.364, 27.924], // Yio Chu Kang
-  'NS16': [46.87, 31.064], // Ang Mo Kio
-  'NS17': [47.183, 34.507], // Bishan
-  'NS18': [47.496, 36.854], // Braddell
-  'NS19': [47.496, 39.671], // Toa Payoh
-  'NS20': [45.931, 43.271], // Novena
-  'NS21': [43.584, 45.775], // Newton
-  'NS22': [40.297, 50.313], // Orchard
-  'NS23': [42.645, 53.756], // Somerset
-  'NS24': [47.694, 57.908], // Dhoby Ghaut
-  'NS25': [53.599, 64.71], // City Hall
-  'NS26': [53.46, 67.628], // Raffles Place
-  'NS27': [53.599, 72.379], // Marina Bay
-  'NS28': [56.919, 74.547], // Marina South Pier
-  'EW1': [85.211, 34.507], // Pasir Ris
-  'EW2': [85.211, 37.167], // Tampines
-  'EW3': [85.211, 39.984], // Simei
-  'EW4': [84.272, 41.862], // Tanah Merah
-  'EW5': [78.013, 41.862], // Bedok
-  'EW6': [74.413, 44.21], // Kembangan
-  'EW7': [71.283, 47.027], // Eunos
-  'EW8': [68.437, 50.305], // Paya Lebar
-  'EW9': [64.896, 52.869], // Aljunied
-  'EW10': [63.187, 54.823], // Kallang
-  'EW11': [61.233, 57.265], // Lavender
-  'EW12': [59.035, 59.585], // Bugis
-  'EW13': [54.029, 64.713], // City Hall
-  'EW14': [53.785, 67.766], // Raffles Place
-  'EW15': [44.505, 69.109], // Tanjong Pagar
-  'EW16': [41.575, 64.713], // Outram Park
-  'EW17': [37.912, 62.637], // Tiong Bahru
-  'EW18': [35.592, 60.44], // Redhill
-  'EW19': [33.639, 58.242], // Queenstown
-  'EW20': [31.441, 56.41], // Commonwealth
-  'EW21': [28.51, 54.335], // Buona Vista
-  'EW22': [25.458, 54.457], // Dover
-  'EW23': [22.283, 54.335], // Clementi
-  'EW24': [18.132, 54.335], // Jurong East
-  'EW25': [14.225, 54.457], // Chinese Garden
-  'EW26': [10.317, 54.579], // Lakeside
-  'EW27': [7.753, 51.038], // Boon Lay
-  'EW28': [7.998, 48.107], // Pioneer
-  'EW29': [8.12, 46.032], // Joo Koon
-  'EW30': [8.12, 42.857], // Gul Circle
-  'EW31': [8.12, 40.415], // Tuas Crescent
-  'EW32': [7.875, 37.607], // Tuas West Road
-  'EW33': [7.998, 34.676], // Tuas Link
-  'CG1': [89.316, 45.421], // Expo
-  'CG2': [92.735, 45.299], // Changi Airport
-  'NE1': [39.988, 72.772], // HarbourFront
-  'NE3': [41.941, 64.591], // Outram Park
-  'NE4': [44.628, 62.271], // Chinatown
-  'NE5': [46.337, 60.562], // Clarke Quay
-  'NE6': [48.657, 57.875], // Dhoby Ghaut
-  'NE7': [50.855, 51.404], // Little India
-  'NE8': [50.855, 48.352], // Farrer Park
-  'NE9': [51.099, 45.665], // Boon Keng
-  'NE10': [52.686, 42.613], // Potong Pasir
-  'NE11': [55.25, 39.927], // Woodleigh
-  'NE12': [58.059, 36.874], // Serangoon
-  'NE13': [60.256, 34.432], // Kovan
-  'NE14': [61.844, 32.601], // Hougang
-  'NE15': [64.164, 30.525], // Buangkok
-  'NE16': [66.361, 28.571], // Sengkang
-  'NE17': [70.635, 24.054], // Punggol
-  'NE18': [72.466, 22.344], // Punggol Coast
-  'CC1': [46.825, 57.753], // Dhoby Ghaut
-  'CC2': [53.785, 60.44], // Bras Basah
-  'CC3': [58.181, 64.957], // Esplanade
-  'CC4': [64.774, 66.3], // Promenade
-  'CC5': [67.216, 63.004], // Nicoll Highway
-  'CC6': [68.437, 60.195], // Stadium
-  'CC7': [69.048, 57.021], // Mountbatten
-  'CC8': [68.926, 54.09], // Dakota
-  'CC9': [68.071, 50.427], // Paya Lebar
-  'CC10': [66.728, 45.91], // MacPherson
-  'CC11': [64.652, 42.369], // Tai Seng
-  'CC12': [61.966, 39.805], // Bartley
-  'CC13': [57.204, 36.874], // Serangoon
-  'CC14': [53.175, 35.165], // Lorong Chuan
-  'CC15': [46.947, 34.432], // Bishan
-  'CC16': [42.308, 35.531], // Marymount
-  'CC17': [38.4, 37.729], // Caldecott
-  'CC19': [32.784, 42.735], // Botanic Gardens
-  'CC20': [30.342, 46.642], // Farrer Road
-  'CC21': [28.388, 50.061], // Holland Village
-  'CC22': [29.121, 54.335], // Buona Vista
-  'CC23': [28.51, 57.143], // one-north
-  'CC24': [28.999, 60.073], // Kent Ridge
-  'CC25': [30.098, 63.248], // Haw Par Villa
-  'CC26': [31.685, 65.568], // Pasir Panjang
-  'CC27': [33.516, 67.888], // Labrador Park
-  'CC28': [35.592, 70.208], // Telok Blangah
-  'CC29': [39.255, 72.527], // HarbourFront
-  'CC30': [44.379, 73.817], // Keppel
-  'CC31': [47.781, 74.112], // Cantonment
-  'CC32': [51.331, 73.817], // Prince Edward Road
-  'CE1': [60.745, 70.085], // Bayfront
-  'CE2': [54.884, 72.283], // Marina Bay
-  'DT1': [25.214, 30.525], // Bukit Panjang
-  'DT2': [25.214, 32.967], // Cashew
-  'DT3': [25.214, 34.31], // Hillview
-  'DT4': [25.214, 36.142], // Hume
-  'DT5': [25.214, 37.363], // Beauty World
-  'DT6': [25.336, 38.95], // King Albert Park
-  'DT7': [25.336, 40.781], // Sixth Avenue
-  'DT8': [27.9, 42.735], // Tan Kah Kee
-  'DT9': [32.173, 42.857], // Botanic Gardens
-  'DT10': [38.523, 42.857], // Stevens
-  'DT11': [44.628, 45.91], // Newton
-  'DT12': [49.512, 51.526], // Little India
-  'DT13': [53.419, 54.457], // Rochor
-  'DT14': [58.181, 59.707], // Bugis
-  'DT15': [63.431, 66.422], // Promenade
-  'DT16': [59.646, 69.841], // Bayfront
-  'DT17': [56.471, 70.818], // Downtown
-  'DT18': [50.733, 67.643], // Telok Ayer
-  'DT19': [45.36, 62.027], // Chinatown
-  'DT20': [44.261, 58.852], // Fort Canning
-  'DT21': [55.128, 57.875], // Bencoolen
-  'DT22': [57.57, 55.556], // Jalan Besar
-  'DT23': [59.524, 52.625], // Bendemeer
-  'DT24': [61.844, 50.305], // Geylang Bahru
-  'DT25': [64.53, 47.985], // Mattar
-  'DT26': [65.873, 45.788], // MacPherson
-  'DT27': [68.926, 43.712], // Ubi
-  'DT28': [71.49, 41.026], // Kaki Bukit
-  'DT29': [72.955, 38.95], // Bedok North
-  'DT30': [77.839, 37.973], // Bedok Reservoir
-  'DT31': [81.868, 38.217], // Tampines West
-  'DT32': [86.508, 37.973], // Tampines
-  'DT33': [89.194, 40.171], // Tampines East
-  'DT34': [90.049, 42.125], // Upper Changi
-  'DT35': [89.805, 45.177], // Expo
-  'TE1': [24.603, 18.071], // Woodlands North
-  'TE2': [27.9, 21.001], // Woodlands
-  'TE3': [29.853, 22.833], // Woodlands South
-  'TE4': [31.441, 24.664], // Springleaf
-  'TE5': [33.394, 26.74], // Lentor
-  'TE6': [35.592, 28.571], // Mayflower
-  'TE7': [37.302, 30.891], // Bright Hill
-  'TE8': [38.156, 34.31], // Upper Thomson
-  'TE9': [39.133, 37.729], // Caldecott
-  'TE11': [39.011, 43.101], // Stevens
-  'TE12': [38.889, 45.788], // Napier
-  'TE13': [38.4, 48.352], // Orchard Boulevard
-  'TE14': [39.011, 50.549], // Orchard
-  'TE15': [38.645, 53.48], // Great World
-  'TE16': [38.767, 56.41], // Havelock
-  'TE17': [43.162, 64.957], // Outram Park
-  'TE18': [45.849, 66.667], // Maxwell
-  'TE19': [50.366, 71.306], // Shenton Way
-  'TE20': [55.739, 72.283], // Marina Bay
-  'TE22': [67.338, 69.841], // Gardens by the Bay
-  'TE23': [72.589, 65.079], // Tanjong Rhu
-  'TE24': [74.664, 63.004], // Katong Park
-  'TE25': [76.374, 61.416], // Tanjong Katong
-  'TE26': [78.327, 59.585], // Marine Parade
-  'TE27': [80.159, 57.631], // Marine Terrace
-  'TE28': [81.38, 55.8], // Siglap
-  'TE29': [83.455, 53.968], // Bayshore
-  'BP1': [19.109, 38.706], // Choa Chu Kang
-  'BP2': [19.475, 36.386], // South View
-  'BP3': [19.231, 34.432], // Keat Hong
-  'BP4': [19.231, 32.112], // Teck Whye
-  'BP5': [21.306, 29.792], // Phoenix
-  'BP6': [24.481, 29.915], // Bukit Panjang
-  'BP7': [25.58, 27.473], // Petir
-  'BP8': [26.068, 26.129], // Pending
-  'BP9': [26.19, 24.542], // Bangkit
-  'BP10': [24.603, 22.833], // Fajar
-  'BP11': [22.772, 24.542], // Segar
-  'BP12': [22.894, 26.007], // Jelapang
-  'BP13': [22.894, 27.473], // Senja
-  'STC': [65.385, 28.571], // Sengkang
-  'SE1': [70.024, 30.769], // Compassvale
-  'SE2': [71.245, 31.99], // Rumbia
-  'SE3': [71.734, 33.822], // Bakau
-  'SE4': [69.292, 33.822], // Kangkar
-  'SE5': [67.46, 32.479], // Ranggung
-  'SW1': [64.408, 25.153], // Cheng Lim
-  'SW2': [63.797, 24.298], // Farmway
-  'SW3': [62.576, 22.955], // Kupang
-  'SW4': [61.111, 22.833], // Thanggam
-  'SW5': [59.89, 23.932], // Fernvale
-  'SW6': [60.379, 25.031], // Layar
-  'SW7': [61.355, 26.007], // Tongkang
-  'SW8': [62.576, 27.106], // Renjong
-  'PTC': [71.612, 23.81], // Punggol
-  'PE1': [72.344, 26.374], // Cove
-  'PE2': [73.321, 27.839], // Meridian
-  'PE3': [74.42, 29.06], // Coral Edge
-  'PE4': [76.618, 29.06], // Riviera
-  'PE5': [77.106, 27.717], // Kadaloor
-  'PE6': [75.763, 26.374], // Oasis
-  'PE7': [74.298, 24.908], // Damai
-  'PW1': [69.658, 20.147], // Sam Kee
-  'PW3': [67.582, 18.315], // Punggol Point
-  'PW4': [65.507, 18.193], // Samudera
-  'PW5': [65.14, 19.78], // Nibong
-  'PW6': [66.117, 20.879], // Sumang
-  'PW7': [67.216, 21.856], // Soo Teck
+  'NS1': [20.870, 56.805], // Jurong East
+  'NS2': [20.841, 51.893], // Bukit Batok
+  'NS3': [20.841, 47.101], // Bukit Gombak
+  'NS4': [20.870, 42.219], // Choa Chu Kang
+  'NS5': [20.811, 36.272], // Yew Tee
+  'NS7': [20.870, 30.592], // Kranji
+  'NS8': [22.262, 25.917], // Marsiling
+  'NS9': [30.906, 24.112], // Woodlands
+  'NS10': [35.968, 24.142], // Admiralty
+  'NS11': [39.609, 23.935], // Sembawang
+  'NS12': [43.339, 24.142], // Canberra
+  'NS13': [46.773, 25.592], // Yishun
+  'NS14': [48.845, 28.639], // Khatib
+  'NS15': [48.431, 31.361], // Yio Chu Kang
+  'NS16': [48.401, 34.822], // Ang Mo Kio
+  'NS17': [48.845, 38.728], // Bishan
+  'NS18': [48.845, 40.651], // Braddell
+  'NS19': [48.401, 43.402], // Toa Payoh
+  'NS20': [47.217, 46.598], // Novena
+  'NS21': [44.938, 48.964], // Newton
+  'NS22': [41.741, 53.107], // Orchard
+  'NS23': [44.612, 56.065], // Somerset
+  'NS24': [49.408, 59.556], // Dhoby Ghaut
+  'NS25': [55.003, 66.124], // City Hall
+  'NS26': [54.737, 68.846], // Raffles Place
+  'NS27': [56.306, 72.988], // Marina Bay
+  'NS28': [57.904, 75.444], // Marina South Pier
+  'EW1': [83.126, 38.609], // Pasir Ris
+  'EW2': [83.629, 40.888], // Tampines
+  'EW3': [83.570, 43.609], // Simei
+  'EW4': [83.067, 45.266], // Tanah Merah
+  'EW5': [77.501, 45.266], // Bedok
+  'EW6': [73.298, 47.574], // Kembangan
+  'EW7': [70.219, 50.118], // Eunos
+  'EW8': [67.969, 52.988], // Paya Lebar
+  'EW9': [65.423, 55.385], // Aljunied
+  'EW10': [63.558, 57.278], // Kallang
+  'EW11': [61.575, 59.290], // Lavender
+  'EW12': [59.384, 61.509], // Bugis
+  'EW13': [55.003, 66.124], // City Hall
+  'EW14': [54.737, 68.846], // Raffles Place
+  'EW15': [46.684, 70.118], // Tanjong Pagar
+  'EW16': [43.991, 66.065], // Outram Park
+  'EW17': [40.409, 64.112], // Tiong Bahru
+  'EW18': [38.396, 62.071], // Redhill
+  'EW19': [36.353, 60.178], // Queenstown
+  'EW20': [34.695, 58.521], // Commonwealth
+  'EW21': [32.090, 56.716], // Buona Vista
+  'EW22': [28.360, 56.746], // Dover
+  'EW23': [25.192, 56.746], // Clementi
+  'EW24': [20.870, 56.805], // Jurong East
+  'EW25': [17.052, 56.746], // Chinese Garden
+  'EW26': [13.766, 56.568], // Lakeside
+  'EW27': [11.664, 55.059], // Boon Lay
+  'EW28': [9.858, 52.840], // Pioneer
+  'EW29': [9.710, 50.414], // Joo Koon
+  'EW30': [9.710, 47.988], // Gul Circle
+  'EW31': [9.710, 45.562], // Tuas Crescent
+  'EW32': [9.710, 43.166], // Tuas West Road
+  'EW33': [9.710, 40.769], // Tuas Link
+  'CG1': [87.685, 48.373], // Expo
+  'CG2': [91.978, 48.402], // Changi Airport
+  'NE1': [42.777, 73.402], // HarbourFront
+  'NE3': [43.991, 66.065], // Outram Park
+  'NE4': [46.536, 63.817], // Chinatown
+  'NE5': [48.017, 62.160], // Clarke Quay
+  'NE6': [49.408, 59.556], // Dhoby Ghaut
+  'NE7': [51.924, 53.935], // Little India
+  'NE8': [51.776, 51.154], // Farrer Park
+  'NE9': [51.806, 48.580], // Boon Keng
+  'NE10': [53.375, 45.888], // Potong Pasir
+  'NE11': [55.388, 43.373], // Woodleigh
+  'NE12': [58.141, 40.680], // Serangoon
+  'NE13': [60.687, 38.550], // Kovan
+  'NE14': [62.818, 36.746], // Hougang
+  'NE15': [64.713, 34.882], // Buangkok
+  'NE16': [66.637, 33.077], // Sengkang
+  'NE17': [70.337, 28.521], // Punggol
+  'NE18': [72.321, 26.893], // Punggol Coast
+  'CC1': [49.408, 59.556], // Dhoby Ghaut
+  'CC2': [55.181, 62.130], // Bras Basah
+  'CC3': [59.177, 66.154], // Esplanade
+  'CC4': [64.358, 67.544], // Promenade
+  'CC5': [66.578, 64.675], // Nicoll Highway
+  'CC6': [67.584, 62.012], // Stadium
+  'CC7': [68.206, 59.112], // Mountbatten
+  'CC8': [68.354, 56.391], // Dakota
+  'CC9': [67.969, 52.988], // Paya Lebar
+  'CC10': [66.607, 48.935], // MacPherson
+  'CC11': [64.683, 45.740], // Tai Seng
+  'CC12': [62.315, 43.254], // Bartley
+  'CC13': [58.141, 40.680], // Serangoon
+  'CC14': [54.263, 39.112], // Lorong Chuan
+  'CC15': [48.845, 38.728], // Bishan
+  'CC16': [44.257, 39.586], // Marymount
+  'CC17': [41.060, 41.213], // Caldecott
+  'CC19': [35.702, 46.183], // Botanic Gardens
+  'CC20': [33.541, 49.763], // Farrer Road
+  'CC21': [32.445, 53.195], // Holland Village
+  'CC22': [32.090, 56.716], // Buona Vista
+  'CC23': [32.179, 59.408], // one-north
+  'CC24': [32.771, 61.834], // Kent Ridge
+  'CC25': [33.570, 64.142], // Haw Par Villa
+  'CC26': [34.991, 66.805], // Pasir Panjang
+  'CC27': [36.767, 69.053], // Labrador Park
+  'CC28': [39.047, 71.065], // Telok Blangah
+  'CC29': [42.777, 73.402], // HarbourFront
+  'CC30': [46.270, 74.497], // Keppel
+  'CC31': [49.556, 74.970], // Cantonment
+  'CC32': [53.079, 74.675], // Prince Edward Road
+  'CE1': [60.983, 70.740], // Bayfront
+  'CE2': [56.306, 72.988], // Marina Bay
+  'DT1': [28.064, 32.041], // Bukit Panjang
+  'DT2': [30.343, 32.959], // Cashew
+  'DT3': [30.817, 35.148], // Hillview
+  'DT4': [30.847, 37.396], // Hume
+  'DT5': [30.817, 39.586], // Beauty World
+  'DT6': [30.847, 41.834], // King Albert Park
+  'DT7': [30.935, 44.024], // Sixth Avenue
+  'DT8': [31.972, 45.503], // Tan Kah Kee
+  'DT9': [35.702, 46.183], // Botanic Gardens
+  'DT10': [41.089, 46.154], // Stevens
+  'DT11': [44.938, 48.964], // Newton
+  'DT12': [51.924, 53.935], // Little India
+  'DT13': [54.440, 56.509], // Rochor
+  'DT14': [59.384, 61.509], // Bugis
+  'DT15': [64.358, 67.544], // Promenade
+  'DT16': [60.983, 70.740], // Bayfront
+  'DT17': [57.282, 71.657], // Downtown
+  'DT18': [52.102, 68.935], // Telok Ayer
+  'DT19': [46.536, 63.817], // Chinatown
+  'DT20': [46.329, 60.769], // Fort Canning
+  'DT21': [55.950, 59.941], // Bencoolen
+  'DT22': [58.082, 57.751], // Jalan Besar
+  'DT23': [60.924, 54.911], // Bendemeer
+  'DT24': [62.966, 52.899], // Geylang Bahru
+  'DT25': [64.861, 50.947], // Mattar
+  'DT26': [66.607, 48.935], // MacPherson
+  'DT27': [69.035, 46.746], // Ubi
+  'DT28': [71.018, 44.763], // Kaki Bukit
+  'DT29': [73.002, 42.899], // Bedok North
+  'DT30': [76.288, 41.686], // Bedok Reservoir
+  'DT31': [79.722, 41.657], // Tampines West
+  'DT32': [83.629, 40.888], // Tampines
+  'DT33': [87.655, 43.609], // Tampines East
+  'DT34': [87.626, 45.621], // Upper Changi
+  'DT35': [87.685, 48.373], // Expo
+  'TE1': [28.301, 21.331], // Woodlands North
+  'TE2': [30.906, 24.112], // Woodlands
+  'TE3': [32.623, 25.947], // Woodlands South
+  'TE4': [34.577, 27.959], // Springleaf
+  'TE5': [36.590, 30.059], // Lentor
+  'TE6': [38.484, 32.071], // Mayflower
+  'TE7': [40.557, 34.615], // Bright Hill
+  'TE8': [40.971, 37.751], // Upper Thomson
+  'TE9': [41.060, 41.213], // Caldecott
+  'TE11': [41.089, 46.154], // Stevens
+  'TE12': [41.030, 48.728], // Napier
+  'TE13': [41.030, 50.917], // Orchard Boulevard
+  'TE14': [41.741, 53.107], // Orchard
+  'TE15': [41.030, 55.799], // Great World
+  'TE16': [41.089, 58.432], // Havelock
+  'TE17': [43.991, 66.065], // Outram Park
+  'TE18': [47.573, 67.781], // Maxwell
+  'TE19': [51.895, 71.982], // Shenton Way
+  'TE20': [56.306, 72.988], // Marina Bay
+  'TE22': [67.288, 70.799], // Gardens by the Bay
+  'TE23': [71.285, 66.923], // Tanjong Rhu
+  'TE24': [73.150, 65.059], // Katong Park
+  'TE25': [74.985, 63.195], // Tanjong Katong
+  'TE26': [76.850, 61.331], // Marine Parade
+  'TE27': [78.715, 59.497], // Marine Terrace
+  'TE28': [80.551, 57.633], // Siglap
+  'TE29': [82.208, 56.006], // Bayshore
+  'BP1': [20.870, 42.219], // Choa Chu Kang
+  'BP2': [26.495, 40.799], // South View
+  'BP3': [26.495, 38.373], // Keat Hong
+  'BP4': [26.495, 35.976], // Teck Whye
+  'BP5': [26.495, 33.580], // Phoenix
+  'BP6': [28.064, 32.041], // Bukit Panjang
+  'BP7': [27.620, 29.320], // Petir
+  'BP8': [28.271, 28.166], // Pending
+  'BP9': [27.886, 26.953], // Bangkit
+  'BP10': [26.495, 26.213], // Fajar
+  'BP11': [24.926, 26.953], // Segar
+  'BP12': [24.689, 28.166], // Jelapang
+  'BP13': [25.400, 29.320], // Senja
+  'STC': [66.637, 33.077], // Sengkang
+  'SE1': [70.219, 35.178], // Compassvale
+  'SE2': [71.226, 36.183], // Rumbia
+  'SE3': [71.403, 38.018], // Bakau
+  'SE4': [69.331, 37.811], // Kangkar
+  'SE5': [68.265, 36.775], // Ranggung
+  'SW1': [64.979, 29.970], // Cheng Lim
+  'SW2': [64.062, 28.964], // Farmway
+  'SW3': [63.055, 28.018], // Kupang
+  'SW4': [61.693, 27.781], // Thanggam
+  'SW5': [60.805, 28.639], // Fernvale
+  'SW6': [61.279, 29.793], // Layar
+  'SW7': [62.226, 30.740], // Tongkang
+  'SW8': [63.144, 31.627], // Renjong
+  'PTC': [70.337, 28.521], // Punggol
+  'PE1': [72.054, 31.154], // Cove
+  'PE2': [72.943, 32.456], // Meridian
+  'PE3': [74.067, 33.609], // Coral Edge
+  'PE4': [75.903, 33.521], // Riviera
+  'PE5': [75.962, 31.864], // Kadaloor
+  'PE6': [74.956, 30.858], // Oasis
+  'PE7': [73.801, 29.852], // Damai
+  'PW1': [69.420, 25.592], // Sam Kee
+  'PW2': [68.591, 24.586], // Teck Lee
+  'PW3': [67.614, 23.580], // Punggol Point
+  'PW4': [65.749, 23.580], // Samudera
+  'PW5': [65.631, 25.207], // Nibong
+  'PW6': [66.489, 26.065], // Sumang
+  'PW7': [67.614, 26.953], // Soo Teck
 };
 
 // Stations that share the same physical location (deduplicate hotspots)
 const MRT_PNG_DEDUPE = {
   'EW24': 'NS1', 'TE2': 'NS9', 'CC15': 'NS17',
-  'DT11': 'NS21', 'TE11': 'NS21', 'TE14': 'NS22',
+  'DT11': 'NS21', 'TE14': 'NS22',
   'NE6': 'NS24', 'CC1': 'NS24',
   'EW13': 'NS25', 'EW14': 'NS26', 'CE2': 'NS27', 'TE20': 'NS27',
   'DT35': 'CG1', 'EW8': 'CC9', 'DT26': 'CC10',
@@ -240,66 +241,72 @@ const MRT_PNG_DEDUPE = {
   'STC': 'NE16', 'PTC': 'NE17',
 };
 
+const MRT_HIT_RADIUS_PX = 18;
+
+function _mrtStationName(code) {
+  return (typeof MRT_CODE_LOOKUP !== 'undefined' && MRT_CODE_LOOKUP[code]?.name) || code;
+}
+
 function _buildMrtHotspots() {
   const container = document.getElementById('mrt-hotspots');
   if (!container || container.dataset.built) return;
   container.dataset.built = '1';
   container.style.pointerEvents = 'auto';
 
-  // Build name lookup
-  const nameMap = {};
-  if (typeof MRT_CODE_LOOKUP !== 'undefined') {
-    Object.entries(MRT_CODE_LOOKUP).forEach(([code, info]) => { nameMap[code] = info.name; });
+  const stations = [];
+  for (const [code, [px, py]] of Object.entries(MRT_PNG_COORDS)) {
+    if (MRT_PNG_DEDUPE[code]) continue;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mrt-hotspot';
+    btn.style.cssText = `position:absolute;left:${px}%;top:${py}%;width:2.4%;height:2.4%;transform:translate(-50%,-50%);border-radius:50%;background:transparent;border:none;cursor:pointer;padding:0;pointer-events:none;-webkit-tap-highlight-color:rgba(0,0,0,0);z-index:10`;
+    btn.setAttribute('data-stn', code);
+    btn.setAttribute('aria-label', _mrtStationName(code));
+    btn.addEventListener('click', () => { if (!_mrtDragged) _mrtStationTap(_mrtStationName(code)); });
+    btn.addEventListener('focus', () => setActive(st));
+    btn.addEventListener('blur', () => setActive(null));
+    const st = { code, x: px / 100, y: py / 100, btn };
+    stations.push(st);
+    container.appendChild(btn);
   }
 
-  // Group codes by canonical station (for tooltip showing all codes)
-  const placed = new Set();
+  let active = null;
+  function setActive(st) {
+    if (active === st) return;
+    if (active) { active.btn.style.background = 'transparent'; active.btn.style.boxShadow = 'none'; }
+    active = st;
+    if (st) {
+      st.btn.style.background = 'rgba(255,255,255,0.18)';
+      st.btn.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.5)';
+      const name = _mrtStationName(st.code);
+      container.title = name;
+      st.btn.setAttribute('aria-label', name);
+      container.style.cursor = 'pointer';
+    } else {
+      container.title = '';
+      container.style.cursor = '';
+    }
+  }
 
-  Object.entries(MRT_PNG_COORDS).forEach(([code, [px, py]]) => {
-    // Skip if this is a duplicate location
-    if (MRT_PNG_DEDUPE[code]) return;
-    if (placed.has(code)) return;
-    placed.add(code);
+  function nearest(clientX, clientY) {
+    const r = container.getBoundingClientRect();
+    if (!r.width || !r.height) return null;
+    const x = clientX - r.left, y = clientY - r.top;
+    let best = null, bestD = Infinity;
+    for (const st of stations) {
+      const dx = st.x * r.width - x, dy = st.y * r.height - y, d = dx * dx + dy * dy;
+      if (d < bestD) { bestD = d; best = st; }
+    }
+    const radius = Math.max(MRT_HIT_RADIUS_PX, 0.012 * r.width);
+    return bestD <= radius * radius ? best : null;
+  }
 
-    const name = nameMap[code] || code;
-
-    const btn = document.createElement('button');
-    btn.style.cssText = `
-      position:absolute;
-      left:${px}%;
-      top:${py}%;
-      transform:translate(-50%,-50%);
-      width:22px;
-      height:22px;
-      border-radius:50%;
-      background:transparent;
-      border:none;
-      cursor:pointer;
-      padding:0;
-      -webkit-tap-highlight-color:rgba(0,0,0,0);
-      z-index:10;
-    `;
-    btn.title = name;
-    btn.setAttribute('aria-label', name);
-    btn.setAttribute('data-stn', code);
-
-    // Invisible but shows ripple on tap
-    btn.addEventListener('click', (e) => {
-      if (_mrtDragged) return;
-      _mrtStationTap(name);
-    });
-
-    // Visual feedback: brief highlight ring on hover/touch
-    btn.addEventListener('mouseenter', () => {
-      btn.style.background = 'rgba(255,255,255,0.18)';
-      btn.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.5)';
-    });
-    btn.addEventListener('mouseleave', () => {
-      btn.style.background = 'transparent';
-      btn.style.boxShadow = 'none';
-    });
-
-    container.appendChild(btn);
+  container.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') setActive(nearest(e.clientX, e.clientY)); });
+  container.addEventListener('pointerleave', () => setActive(null));
+  container.addEventListener('click', e => {
+    if (_mrtDragged || e.detail === 0) return;
+    const st = nearest(e.clientX, e.clientY);
+    if (st) _mrtStationTap(_mrtStationName(st.code));
   });
 }
 
@@ -416,7 +423,21 @@ function closeMrtMap() {
   document.getElementById('mrt-map-btn').style.color = '';
 }
 
+function _mrtFitHotspots() {
+  const img = document.getElementById('mrt-map-img');
+  const hs = document.getElementById('mrt-hotspots');
+  if (!img || !hs) return;
+  const cw = img.clientWidth, ch = img.clientHeight, nw = img.naturalWidth, nh = img.naturalHeight;
+  if (!cw || !ch || !nw || !nh) return;
+  const s = Math.min(cw / nw, ch / nh), w = nw * s, h = nh * s;
+  hs.style.left = `${(cw - w) / 2}px`;
+  hs.style.top = `${(ch - h) / 2}px`;
+  hs.style.width = `${w}px`;
+  hs.style.height = `${h}px`;
+}
+
 function _mrtApply() {
+  _mrtFitHotspots();
   const inner = document.getElementById('mrt-map-inner');
   const wrap = document.getElementById('mrt-map-zoom-wrap');
   if (!inner || !wrap) return;
@@ -433,6 +454,13 @@ function _mrtApply() {
   function init() {
     const wrap = document.getElementById('mrt-map-zoom-wrap');
     if (!wrap) return;
+
+    const img = document.getElementById('mrt-map-img');
+    if (img) {
+      if (img.complete) _mrtFitHotspots();
+      else img.addEventListener('load', _mrtFitHotspots, { once: true });
+    }
+    window.addEventListener('resize', () => { if (_mrtOpen) _mrtApply(); });
 
     let lastDist = 0;
     let dragStartX = 0, dragStartY = 0, panStartX = 0, panStartY = 0;
@@ -527,6 +555,30 @@ async function getProxyHeaders() {
 }
 let SUN_AZ = 180, SUN_ALT = 45;
 let ALL_STOPS = null;
+let _stopIdx = null, _stopIdxSrc = null, _stopIdxLen = 0;
+function stopByCode(code) {
+  if (!ALL_STOPS || code == null) return undefined;
+  if (_stopIdxSrc !== ALL_STOPS || _stopIdxLen !== ALL_STOPS.length) {
+    _stopIdx = new Map();
+    for (const st of ALL_STOPS) if (!_stopIdx.has(st.BusStopCode)) _stopIdx.set(st.BusStopCode, st);
+    _stopIdxSrc = ALL_STOPS; _stopIdxLen = ALL_STOPS.length;
+  }
+  return _stopIdx.get(code);
+}
+const _stopHay = new WeakMap();
+function stopHaystack(st) {
+  let h = _stopHay.get(st);
+  if (h === undefined) {
+    h = (st.Description + ' ' + st.RoadName + ' ' + String(st.BusStopCode ?? '')).toLowerCase();
+    _stopHay.set(st, h);
+  }
+  return h;
+}
+function takeMatches(arr, pred, limit) {
+  const out = [];
+  for (let i = 0; i < arr.length && out.length < limit; i++) if (pred(arr[i])) out.push(arr[i]);
+  return out;
+}
 let ALL_SERVICES = null; // cache of BusServices keyed by "ServiceNo-Direction"
 let PRIVATE_SERVICES = null;
 let PRIVATE_STOP_INDEX = {}; // BusStopCode → [stopEntry, ...]
@@ -561,7 +613,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const titleEl = document.querySelector('[id^="stop-title-"]');
     if (titleEl) {
       const code = titleEl.id.replace('stop-title-', '');
-      const stopInfo = ALL_STOPS?.find(s => s.BusStopCode === code);
+      const stopInfo = stopByCode(code);
       const name = stopInfo?.Description || '';
       if (name) {
         titleEl.innerHTML = stopLabel(name, true);
@@ -618,13 +670,17 @@ window.addEventListener('DOMContentLoaded', () => {
   switchTab(defaultTab);
   fetchRainForecast();
   setInterval(fetchRainForecast, 5 * 60 * 1000);
-  calcSun(); setInterval(calcSun, 60000);
+  calcSun(); window._sunInterval = setInterval(calcSun, 60000);
 });
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     clearInterval(window._sunInterval);
-  } else {
+    window._sunInterval = null;
+  } else if (!window._sunInterval) {
+    calcSun();
+    if (Date.now() - _rainFetchedAt > 5 * 60 * 1000) fetchRainForecast();
+    if (trainAlertsPollTimer && Date.now() - _trainAlertsFetchedAt > 2 * 60 * 1000) fetchTrainAlerts();
     window._sunInterval = setInterval(calcSun, 60000);
   }
 });
@@ -765,7 +821,7 @@ function serviceHistorySub(svc) {
 }
 
 function rememberStopHistory(code) {
-  const stop = ALL_STOPS?.find(s => s.BusStopCode === code);
+  const stop = stopByCode(code);
   addCommuteHistory({
     type: 'stop',
     key: 'stop_' + code,
@@ -1010,9 +1066,9 @@ async function doSearch() {
     render(code, data);
     rememberStopHistory(code);
     updateFavButtons();
-    if (!ALL_STOPS?.find(s => s.BusStopCode === code)) {
+    if (!stopByCode(code)) {
       fetchAllStops().then(() => {
-        const desc = ALL_STOPS?.find(s => s.BusStopCode === code)?.Description;
+        const desc = stopByCode(code)?.Description;
         if (desc) {
           const el = document.getElementById('stop-title-' + code);
           if (el) el.textContent = desc;
@@ -1322,10 +1378,20 @@ function formatFreq(freq) {
   return freq + ' min';
 }
 
+let _padMapSrc = null, _padMapLen = 0, _padMap = {};
+function paddedStopMap(allStops) {
+  if (!allStops) return {};
+  if (allStops !== _padMapSrc || allStops.length !== _padMapLen) {
+    const m = {};
+    for (const st of allStops) m[padCode(st.BusStopCode)] = st;
+    _padMap = m; _padMapSrc = allStops; _padMapLen = allStops.length;
+  }
+  return _padMap;
+}
+
 function renderRoute(rd, allStops) {
   const dir = rd.directions[rd.currentDir];
-  const stopMap = {};
-  if (allStops) allStops.forEach(s => stopMap[padCode(s.BusStopCode)] = s);
+  const stopMap = paddedStopMap(allStops);
 
   const firstStop = dir.stops[0];
   const lastStop = dir.stops[dir.stops.length - 1];
@@ -1499,7 +1565,7 @@ function renderRoute(rd, allStops) {
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-              <button class="view-btn" title="View bus stop location on map" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();viewStopOnMap('${s.BusStopCode}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')" style="font-size:16px;color:var(--muted)">${(window._favs||{})['stop_'+s.BusStopCode]?'<i class="fa-solid fa-location-dot"></i>':'<i class="fa-solid fa-location-dot"></i>'}</button>
+              <button class="view-btn" title="View bus stop location on map" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();viewStopOnMap('${s.BusStopCode}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}','${rd.svc.replace(/'/g,'')}')" style="font-size:16px;color:var(--muted)">${(window._favs||{})['stop_'+s.BusStopCode]?'<i class="fa-solid fa-location-dot"></i>':'<i class="fa-solid fa-location-dot"></i>'}</button>
               <button class="fav-btn" title="Add bus stop to favourites" data-key="stop_${s.BusStopCode}" onclick="event.stopPropagation();addStopFav('${s.BusStopCode}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')" style="font-size:16px;color:var(--muted)">${(window._favs||{})['stop_'+s.BusStopCode]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
               <div class="rs-chevron">›</div>
             </div>
@@ -2016,15 +2082,13 @@ function runUnifiedSearch() {
 
   const q = raw.toLowerCase();
   const words = q.split(/\s+/);
-  unifiedMatches = ALL_STOPS.filter(s => {
-    if (isCode) return s.BusStopCode.startsWith(raw);
-    const haystack = (s.Description + ' ' + s.RoadName + ' ' + String(s.BusStopCode ?? '')).toLowerCase();
-    return words.every(w => haystack.includes(w));
-  }).slice(0, 10);
+  unifiedMatches = isCode
+    ? takeMatches(ALL_STOPS, s => s.BusStopCode.startsWith(raw), 10)
+    : takeMatches(ALL_STOPS, s => { const h = stopHaystack(s); return words.every(w => h.includes(w)); }, 10);
 
   if (!unifiedMatches.length) {
     box.className = 'stop-name-results open';
-    box.innerHTML = `<div class="sn-empty">No stops found for "<strong>${raw}</strong>"</div>`;
+    box.innerHTML = `<div class="sn-empty">No stops found for "<strong>${escapeHtml(raw)}</strong>"</div>`;
     unifiedHighlight = -1;
     return;
   }
@@ -2938,7 +3002,7 @@ function dualLoopVisitLabel(serviceNo, visitNumber) {
 function render(code, data) {
   window._lastRenderCode = code;
   const svcs = data.Services || [];
-  const stopInfo = ALL_STOPS?.find(s=>s.BusStopCode===code);
+  const stopInfo = stopByCode(code);
   const name = stopInfo?.Description || 'Bus Stop ' + code;
   const road = stopInfo?.RoadName || '';
 
@@ -2960,7 +3024,7 @@ function render(code, data) {
           <button class="fav-btn" data-key="stop_${code}" title="Favourite this stop" onclick="addStopFav('${code}','${name.replace(/'/g,'')}','${(road||'').replace(/'/g,'')}')\" style="font-size:20px;color:${(window._favs||{})['stop_'+code]?'var(--yellow)':'var(--muted)'}\">${(window._favs||{})['stop_'+code]?'<i class="fa-solid fa-star"></i>':'<i class="fa-regular fa-star"></i>'}</button>
         </div>
         ${road ? `<div class="stop-road-block">(${road})</div>` : ''}
-        ${(() => { const si = ALL_STOPS?.find(s=>s.BusStopCode===code); const lat = parseFloat(si?.Latitude), lng = parseFloat(si?.Longitude); const fc = getRainForCoords(lat, lng); return rainBadgeHtml(fc); })()}
+        ${(() => { const si = stopByCode(code); const lat = parseFloat(si?.Latitude), lng = parseFloat(si?.Longitude); const fc = getRainForCoords(lat, lng); return rainBadgeHtml(fc); })()}
       </div>
     </div>
     <div class="refresh-row">
@@ -3717,7 +3781,7 @@ function renderFavourites() {
       const info1 = ALL_SERVICES[svcNorm + '-1'] || null;
       const info2 = ALL_SERVICES[svcNorm + '-2'] || null;
       if (info1) {
-        const sn = c => ALL_STOPS?.find(s => s.BusStopCode === c)?.Description || c || '';
+        const sn = c => stopByCode(c)?.Description || c || '';
         const orig = sn(info1.OriginCode), dest = sn(info1.DestinationCode);
         const loopD = info1.LoopDesc || '';
         const isLoop = info1 && !info2 && (info1.OriginCode === info1.DestinationCode || !!info1.LoopDesc);
@@ -3973,7 +4037,7 @@ function addSvcFavSmart(svc) {
 
   if (!info1) { addSvcFav(svc, ''); return; }
 
-  const stopName = c => ALL_STOPS?.find(s => s.BusStopCode === c)?.Description || c || '';
+  const stopName = c => stopByCode(c)?.Description || c || '';
   const orig = stopName(info1.OriginCode);
   const dest = stopName(info1.DestinationCode);
   const loopD = info1.LoopDesc || '';
@@ -4032,7 +4096,7 @@ function addStopFav(code, name, road) {
   }
 }
 
-function viewStopOnMap(code) {
+function viewStopOnMap(code, _name, _road, svcFilter) {
   const stop = (ALL_STOPS || []).find(s => s.BusStopCode === code);
   if (!stop) return;
 
@@ -4047,6 +4111,7 @@ function viewStopOnMap(code) {
 
   ntuLiveStop(); // shared modal: reset the live-bus title/status
   nusLiveStop();
+  _stopLiveStop();
   document.getElementById('stop-map-modal').style.display = 'flex';
 
   if (window._stopMap) {
@@ -4071,17 +4136,99 @@ function viewStopOnMap(code) {
     .addTo(window._stopMap)
     .bindPopup(`<strong>${name}</strong><br>${road}`)
     .openPopup();
+
+  // Normal (public) stops also show where the next bus currently is, using the Latitude/Longitude
+  // LTA already includes in BusArrival (NTU/NUS codes have no such feed). When opened from a specific
+  // service's route view, only that service's bus is shown; from a plain stop search, all of them are.
+  if (!isNtuCode(code) && !isNusCode(code)) _stopLiveStart(code, svcFilter);
 }
 
 function closeStopMapModal() {
   ntuLiveStop(); // stop polling
   nusLiveStop();
+  _stopLiveStop();
   document.getElementById('stop-map-modal').style.display = 'none';
   if (window._stopMap) {
     window._stopMap.remove();
     window._stopMap = null;
   }
 }
+
+// ── Live bus positions at a public stop (reuses the shared live-map status line / stale handling from
+// campus.js, but keys markers by ServiceNo since each service's BusArrival entry already names its own
+// bus — unlike NTU/NUS's anonymous per-route feed, which has to match buses between polls by distance). ──
+let _stopLive = null; // { code, svcFilter, layer, markers: Map<ServiceNo, marker>, poll, tick, updatedAt, failed, busy }
+
+function _stopLiveColor(operator) { return CAMPUS_OP_COLORS[(operator || '').toUpperCase()] || '#3a3f52'; }
+
+// Loose match so "61" / "061" / "61e" / "61E" from a route view all line up with BusArrival's ServiceNo.
+const _svcNoKey = s => String(s || '').toUpperCase().replace(/^0+(?=\d)/, '');
+
+function _stopBusTip(svcNo, operator, mins, crowd) {
+  const bg = _stopLiveColor(operator);
+  const crowdLabel = CAMPUS_CROWD_LABEL[crowd] ? ` · ${CAMPUS_CROWD_LABEL[crowd]}` : '';
+  return `<span style="background:${bg};color:#fff;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700">${svcNo}</span> · ${mins}${crowdLabel}`;
+}
+
+async function _stopLivePoll(live) {
+  if (_stopLive !== live || document.hidden || live.busy) return;
+  live.busy = true;
+  try {
+    const data = await fetchLTA(live.code);
+    if (_stopLive !== live) return;
+    live.failed = false;
+    const seen = new Set();
+    const wanted = live.svcFilter ? _svcNoKey(live.svcFilter) : null;
+    (data.Services || []).forEach(s => {
+      if (wanted && _svcNoKey(s.ServiceNo) !== wanted) return;
+      const nb = s.NextBus;
+      const lat = parseFloat(nb?.Latitude), lng = parseFloat(nb?.Longitude);
+      if (!nb || !Number.isFinite(lat) || !Number.isFinite(lng) || (!lat && !lng)) return;
+      seen.add(s.ServiceNo);
+      const mins = nb.EstimatedArrival ? campusMins(Math.round((new Date(nb.EstimatedArrival) - Date.now()) / 60000)) : '—';
+      const tip = _stopBusTip(s.ServiceNo, s.Operator, mins, nb.Load);
+      const existing = live.markers.get(s.ServiceNo);
+      if (existing) {
+        campusBusUpdate(existing, { lat, lng, crowd: nb.Load });
+        existing.setTooltipContent(tip);
+      } else {
+        live.markers.set(s.ServiceNo, campusBusMarker(live.layer, { lat, lng, crowd: nb.Load }, _stopLiveColor(s.Operator), tip));
+      }
+    });
+    for (const [svcNo, m] of live.markers) {
+      if (!seen.has(svcNo)) { live.layer.removeLayer(m); live.markers.delete(svcNo); }
+    }
+    live.updatedAt = Date.now();
+  } catch (e) {
+    if (_stopLive === live) live.failed = true;
+  } finally {
+    live.busy = false;
+    if (_stopLive === live) campusLiveStatus(live, live.markers.size);
+  }
+}
+
+function _stopLiveStart(code, svcFilter) {
+  const live = _stopLive = {
+    code, svcFilter, layer: L.layerGroup().addTo(window._stopMap), markers: new Map(),
+    updatedAt: null, failed: false, busy: false,
+  };
+  live.poll = setInterval(() => _stopLivePoll(live), CAMPUS_LIVE_POLL_MS);
+  live.tick = setInterval(() => { if (_stopLive === live) campusLiveStatus(live, live.markers.size); }, 1000);
+  campusLiveStatus(live, 0);
+  _stopLivePoll(live);
+}
+
+function _stopLiveStop() {
+  if (_stopLive) {
+    clearInterval(_stopLive.poll);
+    clearInterval(_stopLive.tick);
+    if (window._stopMap && window._stopMap.hasLayer(_stopLive.layer)) window._stopMap.removeLayer(_stopLive.layer);
+  }
+  _stopLive = null;
+}
+
+// Coming back to the tab: refresh straight away instead of waiting for the next tick.
+document.addEventListener('visibilitychange', () => { if (!document.hidden && _stopLive) _stopLivePoll(_stopLive); });
 
 // ── REMOVE FAV MODAL ──
 let _pendingRemoveKey = null;
@@ -4118,7 +4265,7 @@ async function confirmRemoveFav() {
 function stopName(stopCode) {
   if (!stopCode || !ALL_STOPS) return null;
   const padded = String(stopCode).padStart(5, '0');
-  return ALL_STOPS.find(st => st.BusStopCode === padded || st.BusStopCode === String(stopCode))?.Description || null;
+  return (stopByCode(padded) || stopByCode(String(stopCode)))?.Description || null;
 }
 // ── MRT STATION PILLS ──
 let MRT_LOOKUP = {};
@@ -4316,12 +4463,11 @@ function onPlanInput(which) {
   const isCode = /^\d+$/.test(val);
   let matches;
   if (isCode) {
-    matches = ALL_STOPS.filter(s => s.BusStopCode.startsWith(val)).slice(0, 8);
+    matches = takeMatches(ALL_STOPS, s => s.BusStopCode.startsWith(val), 8);
   } else {
     const q = val.toLowerCase();
-    matches = ALL_STOPS.filter(s =>
-      s.Description?.toLowerCase().includes(q) || s.RoadName?.toLowerCase().includes(q)
-    ).slice(0, 8);
+    matches = takeMatches(ALL_STOPS, s =>
+      s.Description?.toLowerCase().includes(q) || s.RoadName?.toLowerCase().includes(q), 8);
   }
   if (!matches.length) { document.getElementById(resultsId).style.display = 'none'; return; }
   document.getElementById(resultsId).innerHTML = matches.map((s, i) =>
@@ -4372,8 +4518,8 @@ function clearPlanInput(which) {
 async function doPlanSearch() {
   if (!planFromCode || !planToCode) { toast('<i class="fa-solid fa-triangle-exclamation"></i> Please select both a From and To stop'); return; }
   if (planFromCode === planToCode) { toast('<i class="fa-solid fa-triangle-exclamation"></i> From and To stops are the same'); return; }
-  const fromStop = ALL_STOPS?.find(s => s.BusStopCode === planFromCode);
-  const toStop = ALL_STOPS?.find(s => s.BusStopCode === planToCode);
+  const fromStop = stopByCode(planFromCode);
+  const toStop = stopByCode(planToCode);
   if (!fromStop || !toStop) { toast('<i class="fa-solid fa-triangle-exclamation"></i> Stop coordinates not found. Try again shortly.'); return; }
   const resultsEl = document.getElementById('plan-results');
   resultsEl.innerHTML = `<div class="loading-state"><div class="bus-loader"><i class="fa-solid fa-bus"></i></div><div class="loading-txt">Finding routes…</div></div>`;
@@ -4403,12 +4549,18 @@ function getTimeStr() {
 }
 
 // ── TRAIN SERVICE ALERTS ──
+let _trainAlertsSig = null, _trainAlertsFetchedAt = 0;
 async function fetchTrainAlerts() {
+  if (document.hidden) return;
   try {
     const res = await fetch(`${PROXY_URL}?endpoint=TrainServiceAlerts`, { headers: await getProxyHeaders() });
     if (!res.ok) return;
     const data = await res.json();
+    _trainAlertsFetchedAt = Date.now();
     const alerts = (data.value || []).filter(a => a.Status === 2);
+    const sig = JSON.stringify(alerts);
+    if (sig === _trainAlertsSig) return;
+    _trainAlertsSig = sig;
     TRAIN_ALERTS = alerts;
     updateTrainAlertBanner();
     updateAllInlineAlerts();
@@ -4980,16 +5132,19 @@ function updateMapTiles() {
 
 // ── RAIN FORECAST ──
 let _rainData = {};
+let _rainHas = false, _rainFetchedAt = 0;
 
 async function fetchRainForecast() {
+  if (document.hidden) return;
   try {
     const res = await fetch('https://api.data.gov.sg/v1/environment/2-hour-weather-forecast');
     const data = await res.json();
-    _rainData = {};
+    const next = {};
     const forecasts = data.items?.[0]?.forecasts || [];
-    forecasts.forEach(f => {
-      _rainData[f.area.toLowerCase()] = f.forecast;
-    });
+    for (const f of forecasts) next[f.area.toLowerCase()] = f.forecast;
+    _rainData = next;
+    _rainHas = forecasts.length > 0;
+    _rainFetchedAt = Date.now();
   } catch(e) {}
 }
 
@@ -4997,64 +5152,61 @@ async function fetchRainForecast() {
 // nearest NEA forecast area. The forecast areas are polygons stored as bounding
 // boxes; we just check which one the stop falls inside. Falls back to the
 // closest centroid if no polygon matches (e.g. offshore stops like Sentosa).
+const RAIN_AREAS = [
+  { area: 'ang mo kio',        lat: 1.3691, lng: 103.8454 },
+  { area: 'bedok',             lat: 1.3236, lng: 103.9273 },
+  { area: 'bishan',            lat: 1.3526, lng: 103.8352 },
+  { area: 'boon lay',          lat: 1.3388, lng: 103.7066 },
+  { area: 'bukit batok',       lat: 1.3590, lng: 103.7637 },
+  { area: 'bukit merah',       lat: 1.2819, lng: 103.8239 },
+  { area: 'bukit panjang',     lat: 1.3774, lng: 103.7719 },
+  { area: 'bukit timah',       lat: 1.3294, lng: 103.8021 },
+  { area: 'central water catchment', lat: 1.4050, lng: 103.8116 },
+  { area: 'changi',            lat: 1.3644, lng: 103.9915 },
+  { area: 'choa chu kang',     lat: 1.3840, lng: 103.7470 },
+  { area: 'clementi',          lat: 1.3162, lng: 103.7649 },
+  { area: 'city',              lat: 1.2897, lng: 103.8501 },
+  { area: 'geylang',           lat: 1.3201, lng: 103.8918 },
+  { area: 'hougang',           lat: 1.3612, lng: 103.8863 },
+  { area: 'jurong east',       lat: 1.3329, lng: 103.7436 },
+  { area: 'jurong island',     lat: 1.2650, lng: 103.7100 },
+  { area: 'jurong west',       lat: 1.3404, lng: 103.7090 },
+  { area: 'kallang',           lat: 1.3100, lng: 103.8714 },
+  { area: 'lim chu kang',      lat: 1.4362, lng: 103.7179 },
+  { area: 'mandai',            lat: 1.4197, lng: 103.8198 },
+  { area: 'marine parade',     lat: 1.3020, lng: 103.9070 },
+  { area: 'novena',            lat: 1.3204, lng: 103.8438 },
+  { area: 'pasir ris',         lat: 1.3721, lng: 103.9474 },
+  { area: 'paya lebar',        lat: 1.3180, lng: 103.8930 },
+  { area: 'pioneer',           lat: 1.3157, lng: 103.6969 },
+  { area: 'pulau tekong',      lat: 1.4046, lng: 104.0530 },
+  { area: 'pulau ubin',        lat: 1.4050, lng: 103.9600 },
+  { area: 'punggol',           lat: 1.3984, lng: 103.9072 },
+  { area: 'queenstown',        lat: 1.2942, lng: 103.7861 },
+  { area: 'seletar',           lat: 1.4044, lng: 103.8696 },
+  { area: 'sembawang',         lat: 1.4491, lng: 103.8185 },
+  { area: 'sengkang',          lat: 1.3868, lng: 103.8914 },
+  { area: 'sentosa',           lat: 1.2494, lng: 103.8303 },
+  { area: 'serangoon',         lat: 1.3554, lng: 103.8679 },
+  { area: 'southern islands',  lat: 1.2056, lng: 103.8420 },
+  { area: 'sungei kadut',      lat: 1.4138, lng: 103.7584 },
+  { area: 'tampines',          lat: 1.3496, lng: 103.9568 },
+  { area: 'tanglin',           lat: 1.3063, lng: 103.8132 },
+  { area: 'tengah',            lat: 1.3740, lng: 103.7237 },
+  { area: 'toa payoh',         lat: 1.3343, lng: 103.8563 },
+  { area: 'tuas',              lat: 1.2966, lng: 103.6357 },
+  { area: 'western islands',   lat: 1.2050, lng: 103.7400 },
+  { area: 'western water catchment', lat: 1.4050, lng: 103.6900 },
+  { area: 'woodlands',         lat: 1.4382, lng: 103.7890 },
+  { area: 'yishun',            lat: 1.4304, lng: 103.8354 },
+];
 function getRainForCoords(lat, lng) {
-  if (!lat || !lng || !Object.keys(_rainData).length) return null;
-  // Map coordinates to NEA planning area using rough bounding boxes
-  // Key areas mapped by lat/lng centroids — expand as needed
-  const areas = [
-    { area: 'ang mo kio',        lat: 1.3691, lng: 103.8454 },
-    { area: 'bedok',             lat: 1.3236, lng: 103.9273 },
-    { area: 'bishan',            lat: 1.3526, lng: 103.8352 },
-    { area: 'boon lay',          lat: 1.3388, lng: 103.7066 },
-    { area: 'bukit batok',       lat: 1.3590, lng: 103.7637 },
-    { area: 'bukit merah',       lat: 1.2819, lng: 103.8239 },
-    { area: 'bukit panjang',     lat: 1.3774, lng: 103.7719 },
-    { area: 'bukit timah',       lat: 1.3294, lng: 103.8021 },
-    { area: 'central water catchment', lat: 1.4050, lng: 103.8116 },
-    { area: 'changi',            lat: 1.3644, lng: 103.9915 },
-    { area: 'choa chu kang',     lat: 1.3840, lng: 103.7470 },
-    { area: 'clementi',          lat: 1.3162, lng: 103.7649 },
-    { area: 'city',              lat: 1.2897, lng: 103.8501 },
-    { area: 'geylang',           lat: 1.3201, lng: 103.8918 },
-    { area: 'hougang',           lat: 1.3612, lng: 103.8863 },
-    { area: 'jurong east',       lat: 1.3329, lng: 103.7436 },
-    { area: 'jurong island',     lat: 1.2650, lng: 103.7100 },
-    { area: 'jurong west',       lat: 1.3404, lng: 103.7090 },
-    { area: 'kallang',           lat: 1.3100, lng: 103.8714 },
-    { area: 'lim chu kang',      lat: 1.4362, lng: 103.7179 },
-    { area: 'mandai',            lat: 1.4197, lng: 103.8198 },
-    { area: 'marine parade',     lat: 1.3020, lng: 103.9070 },
-    { area: 'novena',            lat: 1.3204, lng: 103.8438 },
-    { area: 'pasir ris',         lat: 1.3721, lng: 103.9474 },
-    { area: 'paya lebar',        lat: 1.3180, lng: 103.8930 },
-    { area: 'pioneer',           lat: 1.3157, lng: 103.6969 },
-    { area: 'pulau tekong',      lat: 1.4046, lng: 104.0530 },
-    { area: 'pulau ubin',        lat: 1.4050, lng: 103.9600 },
-    { area: 'punggol',           lat: 1.3984, lng: 103.9072 },
-    { area: 'queenstown',        lat: 1.2942, lng: 103.7861 },
-    { area: 'seletar',           lat: 1.4044, lng: 103.8696 },
-    { area: 'sembawang',         lat: 1.4491, lng: 103.8185 },
-    { area: 'sengkang',          lat: 1.3868, lng: 103.8914 },
-    { area: 'sentosa',           lat: 1.2494, lng: 103.8303 },
-    { area: 'serangoon',         lat: 1.3554, lng: 103.8679 },
-    { area: 'southern islands',  lat: 1.2056, lng: 103.8420 },
-    { area: 'sungei kadut',      lat: 1.4138, lng: 103.7584 },
-    { area: 'tampines',          lat: 1.3496, lng: 103.9568 },
-    { area: 'tanglin',           lat: 1.3063, lng: 103.8132 },
-    { area: 'tengah',            lat: 1.3740, lng: 103.7237 },
-    { area: 'toa payoh',         lat: 1.3343, lng: 103.8563 },
-    { area: 'tuas',              lat: 1.2966, lng: 103.6357 },
-    { area: 'western islands',   lat: 1.2050, lng: 103.7400 },
-    { area: 'western water catchment', lat: 1.4050, lng: 103.6900 },
-    { area: 'woodlands',         lat: 1.4382, lng: 103.7890 },
-    { area: 'yishun',            lat: 1.4304, lng: 103.8354 },
-  ];
-  // Find closest area centroid
+  if (!lat || !lng || !_rainHas) return null;
   let closest = null, minDist = Infinity;
-  areas.forEach(a => {
-    const d = Math.hypot(lat - a.lat, lng - a.lng);
+  for (const a of RAIN_AREAS) {
+    const dLat = lat - a.lat, dLng = lng - a.lng, d = dLat * dLat + dLng * dLng;
     if (d < minDist) { minDist = d; closest = a.area; }
-  });
+  }
   return closest ? (_rainData[closest] || null) : null;
 }
 

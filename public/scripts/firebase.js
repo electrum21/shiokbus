@@ -39,7 +39,14 @@ onAuthStateChanged(auth, user => {
     currentUser = user;
     window._currentUser = user;
     if (user) {
-        document.getElementById('auth-btn').innerHTML = `<img src="${user.photoURL}" style="width:26px;height:26px;border-radius:50%;margin-right:6px;vertical-align:middle"><span class="auth-name">${user.displayName.split(' ')[0]}</span>`;
+        const authBtn = document.getElementById('auth-btn');
+        const img = document.createElement('img');
+        if (user.photoURL) img.src = user.photoURL;
+        img.style.cssText = 'width:26px;height:26px;border-radius:50%;margin-right:6px;vertical-align:middle';
+        const nameEl = document.createElement('span');
+        nameEl.className = 'auth-name';
+        nameEl.textContent = (user.displayName || user.email || '').split(' ')[0];
+        authBtn.replaceChildren(img, nameEl);
         document.getElementById('auth-btn').title = 'Settings';
         window.renderSettingsAccount && window.renderSettingsAccount();
         // Show favourites tab

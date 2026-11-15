@@ -242,6 +242,7 @@ function nusLiveOpen(serviceNo) {
   if (!svc || typeof L === 'undefined') return;
   ntuLiveStop();
   nusLiveStop();
+  _stopLiveStop();
   const { map, color, line } = campusLiveMapOpen(svc, {
     label: `NUS ${svc.NusRoute}`, nameKey: 'NusStopName', defaultColor: '#003D7C',
     defaultCentre: [1.2966, 103.7764], popupFn: _nusStopPopup,

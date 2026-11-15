@@ -32,9 +32,26 @@ function campusIndexStop(index, svc, stop) {
 
 // The campus service object (from PRIVATE_SERVICES) for a ServiceNo like "NTU Red" / "NUS A1".
 // Tolerant match: the route view may hold the number as typed/normalised ("NTUBROWN", "ntu brown").
+const _campusNorm = x => String(x || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+let _campusSvcIdx = null, _campusSvcSrc = null, _campusSvcCount = -1;
 function campusServiceByNo(flag, serviceNo) {
-  const norm = x => String(x || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
-  return Object.values(PRIVATE_SERVICES || {}).find(p => p[flag] && norm(p.ServiceNo) === norm(serviceNo));
+  const src = PRIVATE_SERVICES || null;
+  const count = src ? Object.keys(src).length : 0;
+  if (src !== _campusSvcSrc || count !== _campusSvcCount) {
+    _campusSvcIdx = new Map();
+    if (src) for (const k in src) {
+      const p = src[k];
+      for (const f of ['_isNtu', '_isNus']) {
+        if (!p || !p[f]) continue;
+        const key = f + '|' + _campusNorm(p.ServiceNo);
+        if (!_campusSvcIdx.has(key)) _campusSvcIdx.set(key, p);
+      }
+    }
+    _campusSvcSrc = src; _campusSvcCount = count;
+  }
+  const key = flag + '|' + _campusNorm(serviceNo);
+  if (_campusSvcIdx.has(key) || flag === '_isNtu' || flag === '_isNus') return _campusSvcIdx.get(key);
+  return Object.values(src || {}).find(p => p[flag] && _campusNorm(p.ServiceNo) === _campusNorm(serviceNo));
 }
 
 // Loops read "first ↻ last"; point-to-point routes (NUS R1, R2: _isLoop === false) read "first → last".
@@ -90,7 +107,8 @@ function campusCached(cache, key, ttl, load, isFail) {
   if (hit && Date.now() - hit.t < ttl) return hit.promise;
   const promise = load();
   cache.set(key, { t: Date.now(), promise });
-  promise.then(r => { if (isFail(r)) cache.delete(key); });
+  promise.then(r => { if (isFail(r) && cache.get(key)?.promise === promise) cache.delete(key); },
+               () => { if (cache.get(key)?.promise === promise) cache.delete(key); });
   return promise;
 }
 
