@@ -842,7 +842,227 @@
     if (rear) for (const sy of [1, -1]) add(f, box(x0 + 0.1, sy * W * 0.32, 0.4, 0.6), 1.3, 1.8, LIVERY.tail);
   }
 
-  function busParts(b, k, out, detail) {
+  // ---- NTU / NUS electric campus bus (Zhongtong-style, 10.5 m single deck) ----
+  // Detailed model built from stacked extruded prisms. lvl 0 = far, 1 = mid (zoom >= 16), 2 = full detail (zoom >= 18).
+  const NTU_LIVERY = {
+    navy: '#0C2480', blue: '#1B46C8', blue2: '#2158D8', blue3: '#2B68E4', sky: '#27A9EA', ice: '#8EDEFB',
+    roof: '#2147CC', pod: '#1B3BB0', podTop: '#2C52D2', glass: '#0F1923', glassHi: '#1E3041', door: '#182A3B',
+    black: '#0A0C0F', pillar: '#0B1636', arch: '#05070D', tyre: '#2A2D33', rim: '#CBD2D8', hub: '#7C858D', chrome: '#D8DEE3',
+    red: '#D4202E', white: '#FFFFFF', led: '#FFB02E', ledB: '#3DA5E8', head: '#D6E6F2', drl: '#8FD8F5',
+    tail: '#E5332A', plate: '#F3F3F3', marker: '#FF9A1F', bolt: '#F7C32E',
+    skirt: '#0C2480', belt: '#0C2480', rearPanel: '#27A9EA',
+  };
+  // NUS orange campus bus: same chassis, orange body, blue roof with an orange centre stripe
+  const NUS_LIVERY = Object.assign({}, NTU_LIVERY, {
+    blue: '#FF9626', skirt: '#EC8512', belt: '#D8760E', rearPanel: '#FF9626',
+    roof: '#1F4DB8', pod: '#1B45A8', podTop: '#3568D0', pillar: '#2B2012', ledB: '#E5262A',
+    stripe: '#FFA02E', navy: '#1A2F7A', crestRed: '#C8102E', ink: '#0F2F7A',
+  });
+
+  // letter glyphs for "NTU." as lists of [u, z, w, h] boxes in a 0.62 x 0.95 cell (u rightwards as read)
+  const NTU_GLYPHS = {
+    N: [[0, 0, .17, .95], [.45, 0, .17, .95], [.17, .66, .12, .29], [.25, .42, .12, .28], [.33, .2, .12, .28]],
+    T: [[0, .78, .62, .17], [.225, 0, .17, .78]],
+    U: [[0, .17, .17, .78], [.45, .17, .17, .78], [.1, 0, .42, .17]],
+    '.': [[0, 0, .17, .17]],
+    S: [[0, .78, .62, .17], [0, .5, .17, .28], [0, .39, .62, .17], [.45, .17, .17, .22], [0, 0, .62, .17]],
+  };
+
+  function campusBus(add, f, o) {
+    const nus = o.kind === 'nus', C = nus ? NUS_LIVERY : NTU_LIVERY, lvl = o.lvl, W = 3.8, hw = W / 2;
+    const x0 = -5.5, x1 = 5.5, L = x1 - x0, rb = 0.7, rf = 0.9, nose = 0.75;
+    const wf = 2.85, wr = -2.8, arch = 0.85, archTop = 1.4;
+    const full = capsule(x0, x1, W, rb, rf);
+    const rect = (a, b, w = W) => capsule(a, b, w, 0, 0);
+
+    // --- chassis / wheel wells ---
+    add(f, capsule(x0 + 0.5, x1 - 1.1, W - 0.5, 0.3, 0.3), 0.3, archTop, C.arch);
+    for (const wx of [wr, wf]) for (const s of [1, -1]) {
+      const ty = s * (hw - 0.5);
+      // round-ish tyre: three stacked slabs
+      add(f, box(wx, ty, 0.85, 0.78), 0, 1.12, C.tyre);
+      add(f, box(wx, ty, 1.2, 0.78), 0.14, 0.98, C.tyre);
+      add(f, box(wx, ty, 1.04, 0.78), 0.05, 1.07, C.tyre);
+      if (lvl >= 1) {
+        const ry = s * (hw - 0.5 + 0.4);
+        add(f, box(wx, ry, 0.62, 0.05), 0.2, 0.92, C.rim);
+        add(f, box(wx, ry, 0.84, 0.05), 0.3, 0.82, C.rim);
+        if (lvl >= 2) add(f, box(wx, s * (hw - 0.5 + 0.43), 0.3, 0.05), 0.46, 0.66, C.hub);
+      }
+    }
+
+    // --- lower body between the wheel arches (0.45 .. archTop) ---
+    const panel = nus ? [[x0, x1 - nose, C.blue, rb, 0]] : [[x0, -3.9, C.sky, rb, 0], [-3.9, -2.4, '#2A9AE6', 0, 0], [-2.4, -0.8, C.blue2, 0, 0], [-0.8, 1.2, C.blue3, 0, 0], [1.2, 2.2, C.blue2, 0, 0], [2.2, x1 - nose, C.blue, 0, 0]];
+    const lowerSegs = [[x0, wr - arch], [wr + arch, wf - arch], [wf + arch, x1 - nose]];
+    for (const [a, b] of lowerSegs) {
+      add(f, capsule(a, b, W, a === x0 ? rb : 0, 0), 0.45, 0.95, C.skirt);
+      for (const [pa, pb, col, r1] of panel) {
+        const lo = Math.max(a, pa), hi2 = Math.min(b, pb);
+        if (hi2 - lo > 0.01) add(f, capsule(lo, hi2, W, lo === x0 ? rb : 0, 0), 0.95, archTop, col);
+      }
+    }
+    // main side panel above the arches (archTop .. 2.3): gradient from sky (rear) to royal blue (front)
+    for (const [pa, pb, col, r1, r2] of panel) add(f, capsule(pa, pb, W, r1, r2), archTop, 2.3, col);
+    // thin dark sill line under the windows
+    add(f, full, 2.3, 2.38, C.belt);
+
+    // --- front nose: red bumper, black fascia, windscreen, destination sign ---
+    add(f, capsule(x1 - nose, x1, W, 0, rf), 0.45, 1.15, nus ? C.blue : C.red);
+    if (nus) {                                                              // orange front corners, black centre fascia
+      add(f, capsule(x1 - nose, x1, W, 0, rf), 1.15, 2.38, C.blue);
+      add(f, box(x1 + 0.02, 0, 0.12, 2.1), 1.2, 2.38, C.black);
+    } else add(f, capsule(x1 - nose, x1, W, 0, rf), 1.15, 2.38, C.black);
+    add(f, capsule(x1 - nose, x1, W, 0, rf), 2.38, 3.35, C.glass);
+    add(f, capsule(x1 - nose, x1, W, 0, rf), 3.35, 3.55, C.black);          // sign header; the roof curves over it from 3.55
+    if (lvl >= 1) {
+      // upper windscreen reflection band
+      add(f, capsule(x1 - 0.25, x1 - 0.02, W - 0.6, 0, 0.7), 3.0, 3.35, C.glassHi);
+      // destination LED (amber text bar + blue route box)
+      add(f, box(x1 + 0.03, 0, 0.1, 1.55), 3.38, 3.53, '#050505');
+      const ls = nus ? -1 : 1;                                           // route box sits on the viewer's left for NUS, right for NTU
+      add(f, box(x1 + 0.05, -0.12 * ls, 0.09, 1.25), 3.4, 3.5, C.led);
+      add(f, box(x1 + 0.05, 0.73 * ls, 0.09, 0.42), 3.39, 3.51, C.ledB);
+      // headlights + DRL
+      for (const s of [1, -1]) {
+        add(f, box(x1 - 0.12, s * 1.3, 0.3, 0.56), 1.6, 1.92, C.head);
+        add(f, box(x1 - 0.07, s * 1.27, 0.3, 0.46), 1.92, 1.99, C.drl);
+      }
+      // chrome grille line + plate
+      add(f, box(x1 + 0.03, 0, 0.08, 1.9), 1.6, 1.68, C.chrome);
+      add(f, box(x1 + 0.03, 0, 0.1, 1.2), 0.62, 1.0, C.plate);
+      add(f, box(x1 + 0.05, 0, 0.1, 1.08), 0.68, 0.95, C.black);
+    }
+    // windscreen pillars
+    for (const s of [1, -1]) add(f, box(x1 - 0.55, s * (hw - 0.05), 0.5, 0.12), 2.38, 3.45, C.black);
+
+    // --- side window band (2.38 .. 3.7) ---
+    const rearSill = 2.85, rearEnd = -2.55;
+    add(f, rect(x0 + 0.8, rearEnd), 2.38, rearSill, C.rearPanel);                  // solid rear-quarter panel
+    add(f, rect(x0 + 0.8, rearEnd), rearSill, 3.7, C.glass);                 // stepped rear windows
+    add(f, rect(rearEnd, x1 - nose), 2.38, 3.7, C.glass);                    // main window band
+    add(f, capsule(x0, x0 + 0.8, W, rb, 0), 2.38, 3.7, C.rearPanel);               // rear wall
+    // pillars / window dividers
+    const pillars = lvl >= 1 ? [-4.5, -3.6, -2.55, -1.0, 0.55, 2.1, 3.7] : [-2.55, 0.55, 3.7];
+    for (const px of pillars) add(f, box(px, 0, 0.1, W + 0.06), px < rearEnd ? rearSill : 2.38, 3.7, C.pillar);
+    // lower window ledge shadow (seats / reflection)
+    if (lvl >= 1) add(f, rect(rearEnd + 0.1, x1 - nose - 0.1, W + 0.02), 2.38, 2.6, C.glassHi);
+
+    // --- roof: blue shell + two raised battery pods ---
+    // roof shell: stacked, progressively inset layers so the front rolls down into the windscreen header
+    // and the side / rear edges round off (a prism-only approximation of a curved roof)
+    {
+      const N = 7, rz = 0.05, f1 = t => 1 - Math.sqrt(1 - t * t);
+      for (let i = 0; i < N; i++) {
+        const t = (i + 0.5) / N, z0 = 3.55 + rz * i, z1 = z0 + rz;
+        const dx = 0.6 * f1(t), dy = 0.28 * f1(t), dr = 0.3 * f1(t), wl = W - 2 * dy, rfl = Math.max(0.3, rf - dx * 0.6);
+        if (z1 <= 3.7 + 1e-6) add(f, capsule(x1 - 1.0, x1 - dx, wl, 0, rfl), z0, z1, C.roof);   // front-only curved cap above the sign
+        else add(f, capsule(x0 + dr, x1 - dx, wl, Math.max(0.25, rb - dr), rfl), z0, z1, C.roof);
+      }
+    }
+    add(f, capsule(x0 + 0.2, x1 - 0.9, W - 0.7, rb - 0.2, 0.4), 3.9, 3.96, C.pod);
+    if (nus) add(f, capsule(x0 + 0.3, x1 - 1.5, W - 0.95, 0.3, 0.3), 3.96, 3.99, C.stripe);
+    const px0 = x0 + L * 0.13, px1 = x0 + L * 0.44, px2 = x0 + L * 0.46, px3 = x0 + L * 0.84;
+    add(f, capsule(px0, px1, W * 0.7, 0.35, 0.35), 3.96, 4.2, C.pod);
+    add(f, capsule(px2, px3, W * 0.7, 0.35, 0.35), 3.96, nus ? 4.22 : 4.36, C.pod);
+    if (lvl >= 1) {
+      add(f, capsule(px0 + 0.1, px1 - 0.1, W * 0.7 - 0.25, 0.3, 0.3), 4.2, 4.25, C.podTop);
+      add(f, capsule(px2 + 0.1, px3 - 0.1, W * 0.7 - 0.25, 0.3, 0.3), nus ? 4.22 : 4.36, nus ? 4.27 : 4.41, C.podTop);
+    }
+
+    // --- mirrors ---
+    for (const s of [1, -1]) {
+      add(f, box(x1 - 0.55, s * (hw + 0.22), 0.14, 0.5), 3.2, 3.3, C.black);
+      add(f, box(x1 - 0.6, s * (hw + 0.45), 0.2, 0.1), 2.45, 3.3, C.black);
+    }
+
+    // --- tail lights, rear window, rear plate ---
+    for (const s of [1, -1]) add(f, box(x0 + 0.16, s * 1.5, 0.3, 0.5), 1.4, 2.1, C.tail);
+    add(f, box(x0 + 0.04, 0, 0.1, W * 0.62), 2.72, 3.5, C.glass);
+    if (lvl >= 1) add(f, box(x0 + 0.05, 0, 0.1, 1.0), 0.95, 1.3, C.plate);
+
+    // --- three doors on the kerb (left) side: front, middle, rear ---
+    const doors = [4.15, 1.25, -4.3];
+    if (lvl >= 1) for (const dx of doors) {
+      const dy = hw + 0.055;
+      add(f, box(dx, dy, 1.0, 0.06), 0.72, 1.12, C.skirt);                    // door lower panel
+      add(f, box(dx, dy, 1.0, 0.06), 1.12, 3.55, C.door);                    // glazed leaves
+      add(f, box(dx, dy + 0.02, 1.0, 0.04), 3.45, 3.55, C.pillar);            // door header
+      if (lvl >= 2) {
+        add(f, box(dx, dy + 0.02, 0.07, 0.1), 0.72, 3.55, C.black);           // centre seam
+        add(f, box(dx - 0.5, dy + 0.02, 0.07, 0.1), 0.72, 3.55, C.black);
+        add(f, box(dx + 0.5, dy + 0.02, 0.07, 0.1), 0.72, 3.55, C.black);
+      }
+    }
+    // electric badge panel behind the windscreen (both sides)
+    if (lvl >= 1) for (const s of [1, -1]) {
+      add(f, box(x1 - 1.1, s * (hw + 0.025), 0.5, 0.06), 3.0, 3.3, C.black);
+      if (lvl >= 2) add(f, box(x1 - 1.1, s * (hw + 0.055), 0.12, 0.06), 3.05, 3.25, C.bolt);
+    }
+
+    if (lvl < 2) return;
+
+    // --- full-detail side graphics ---
+    for (const s of [1, -1]) {
+      const dir = -s;                                    // reading direction along +x: right side reads forward, left side reads rearward
+      const sy = hw + 0.015;
+      const clear = x => !(s === 1 && doors.some(d => Math.abs(x - d) < 0.6));   // keep decals off the door leaves
+      // marker lights
+      for (const mx of [wf + 0.95, wr - 0.95, 0.2]) if (clear(mx)) add(f, box(mx, s * (hw + 0.02), 0.14, 0.06), 1.5, 1.62, C.marker);
+      if (nus) {
+        const xa = -2.6, xb = -0.5;                      // span of the crest + wordmark group
+        const pos = c => dir > 0 ? xa + c : xb - c;
+        // crest (shield) + "NUS" wordmark
+        add(f, box(pos(0.22), s * (hw + 0.02), 0.44, 0.05), 1.55, 2.25, C.navy);
+        add(f, box(pos(0.22), s * (hw + 0.045), 0.28, 0.05), 1.7, 2.1, C.crestRed);
+        add(f, box(pos(0.22), s * (hw + 0.07), 0.14, 0.05), 1.82, 1.98, C.white);
+        let cursor = 0.62;
+        for (const ch of ['N', 'U', 'S']) {
+          for (const [gu, gz, gw, gh] of NTU_GLYPHS[ch]) {
+            add(f, box(pos(cursor + (gu + gw / 2) * 0.62), s * (hw + 0.025), gw * 0.62, 0.05), 1.75 + gz * 0.52, 1.75 + (gz + gh) * 0.52, C.ink);
+          }
+          cursor += 0.52;
+        }
+        // "National University / of Singapore" as fine letter ticks
+        const sub = [['National University', 1.6, 1.67], ['of Singapore', 1.5, 1.57]];
+        for (const [txt, zb, zt] of sub) {
+          let c = 0.62;
+          for (const ch of txt) { if (ch !== ' ') add(f, box(pos(c), s * (hw + 0.02), 0.05, 0.04), zb, zt, C.ink); c += 0.08; }
+        }
+        // rear engine-bay vents
+        for (const vx of [-4.85, -4.3]) if (clear(vx)) add(f, box(vx, s * (hw + 0.02), 0.4, 0.04), 1.05, 1.3, C.black);
+      } else {
+        // cyan "smart campus building" wireframe at the rear
+        for (let i = 0; i < 9; i++) if (clear(-5.0 + i * 0.4)) add(f, box(-5.0 + i * 0.4, s * sy, 0.05, 0.05), 1.0, 2.28, C.ice);
+        const gx = s === 1 ? [-3.0, 1.7] : [-3.55, 3.3];              // left side stops short of the rear door
+        for (const z of [1.3, 1.65, 2.0]) add(f, box(gx[0], s * (hw + 0.03), gx[1], 0.08), z, z + 0.05, C.ice);
+        // facet highlights on the royal-blue panel
+        add(f, box(-0.2, s * sy, 1.6, 0.05), 0.95, 1.12, C.blue3);
+        if (clear(1.4)) add(f, box(1.4, s * sy, 1.1, 0.05), 1.5, 1.62, C.ice);
+        // "NTU." on the window glass, reads correctly from both sides
+        let u0 = -2.45 + (dir > 0 ? 0 : 1.9);
+        let cursor = 0;
+        for (const ch of ['N', 'T', 'U', '.']) {
+          for (const [gu, gz, gw, gh] of NTU_GLYPHS[ch]) {
+            const cu = cursor + gu + gw / 2;
+            add(f, box(dir > 0 ? u0 + cu : u0 - cu, s * (hw + 0.025), gw, 0.06), 2.55 + gz * 0.85, 2.55 + (gz + gh) * 0.85, C.white);
+          }
+          cursor += (ch === '.' ? 0.3 : 0.82);
+        }
+        // slogan lines: "SMART CAMPUS," / "SMARTER THINKING" as letter blocks
+        const rows = [['SMART CAMPUS,', 1.62, 1.9, 0.2], ['SMARTER THINKING', 1.2, 1.52, 0.2]];
+        for (const [txt, zb, zt, adv] of rows) {
+          let c = 0;
+          for (const ch of txt) {
+            const lx = dir > 0 ? -2.3 + c : -2.3 + (txt.length * adv) - c;
+            if (ch !== ' ' && ch !== ',' && clear(lx)) add(f, box(lx, s * (hw + 0.02), 0.12, 0.05), zb, zt, C.white);
+            c += adv;
+          }
+        }
+      }
+    }
+  }
+
+  function busParts(b, k, out, detail, hi) {
     const publicBus = !b.campus && b.opCls !== 'op-private';
     const campus = CAMPUS_LIVERY[b.opCls] || null;
     const body = campus ? campus.body : publicBus ? LIVERY.green : b.color;
@@ -863,6 +1083,8 @@
       add(mid, capsule(-0.9, 0.9, W * 0.9, 0.3, 0.3), 0.7, 4.4, LIVERY.joint);
       const back = busFrame(pivot.lat, pivot.lng, trail);
       busSection(add, back, { detail, x0: -7.2, x1: -0.7, W, body, pod, dd: false, front: false, rear: true, wheels: [-4.6] });
+    } else if (b.opCls === 'op-ntu' || b.opCls === 'op-nus') {
+      campusBus(add, main, { kind: b.opCls === 'op-nus' ? 'nus' : 'ntu', lvl: hi ? 2 : detail ? 1 : 0 });
     } else {
       busSection(add, main, { detail, x0: -5.5, x1: 5.5, W, body, pod, campus, dd: false, front: true, rear: true, wheels: [3.4, -3.2] });
     }
@@ -876,12 +1098,12 @@
     if (zoom >= BUS_MIN_ZOOM - 1) {
       const res = 78271.517 * Math.cos(toRad(map.getCenter().lat)) / Math.pow(2, zoom);
       const k = Math.min(40, Math.max(1.2, BUS_PX * res / 11));
-      const detail = zoom >= 16;
+      const detail = zoom >= 16, hi = zoom >= 18;
       const vb = map.getBounds(), pad = 0.004;
       const w = vb.getWest() - pad, e = vb.getEast() + pad, so = vb.getSouth() - pad, n = vb.getNorth() + pad;
       for (const b of M.buses.values()) {
         if (b.cur.lng < w || b.cur.lng > e || b.cur.lat < so || b.cur.lat > n) continue;
-        busParts(b, k, parts, detail);
+        busParts(b, k, parts, detail, hi);
         pts.push({ type: 'Feature', properties: { id: b.id, img: `sbl|${b.label}|${b.color}|${b.fg}`, sort: -b.cur.lat }, geometry: { type: 'Point', coordinates: [b.cur.lng, b.cur.lat] } });
       }
     }
@@ -1103,6 +1325,7 @@
 
   function onTab(tab) {
     const isMap = tab === 'map';
+    document.body.classList.toggle('m3d-tab', isMap);   // lets CSS drop the generic bottom padding on the map tab
     if (!isMap) {
       if (M.open) { M.open = false; stopTimers(); }
       $('map3d-wrap')?.classList.remove('full');

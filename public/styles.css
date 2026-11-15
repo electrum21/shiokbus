@@ -3961,6 +3961,9 @@ body.light .campus-popup-row { border-top-color: rgba(0,0,0,0.08); }
   z-index: 900;
 }
 body.m3d-noscroll { overflow: hidden; }
+/* The map tab has no long content below it: drop the app's generic 100px bottom padding and tighten the footer gap */
+body.m3d-tab .app { padding-bottom: 0; }
+body.m3d-tab footer { padding-top: 12px; }
 #map3d-canvas { position: absolute; inset: 0; }
 #map3d-canvas .maplibregl-canvas { outline: none; }
 #map3d-hud {
