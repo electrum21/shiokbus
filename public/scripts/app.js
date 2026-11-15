@@ -894,7 +894,7 @@ function selectRecentStop(code, name) {
 
 function switchTab(tab) {
   currentTab = tab;
-  ['stop','service','plan'].forEach(t => {
+  ['stop','service','plan','map'].forEach(t => {
     const mode = document.getElementById('mode-'+t);
     const tabBtn = document.getElementById('tab-'+t);
     if (mode) mode.style.display = t===tab ? 'block' : 'none';
@@ -917,6 +917,7 @@ function switchTab(tab) {
   if (favMode) favMode.style.display = tab==='favs' ? 'block' : 'none';
   if (favTab) favTab.classList.toggle('active', tab==='favs');
   closeUnified();
+  if (window.map3d) window.map3d.onTab(tab);
 }
 
 // ── STOP CODE SEARCH ──

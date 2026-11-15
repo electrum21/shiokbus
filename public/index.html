@@ -6,12 +6,12 @@
 <title>shiokbus</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🚌%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/leaflet.css"/>
-<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="styles.css?v=20261115b" />
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <!-- Firebase -->
-<script type="module" src="scripts/firebase.js"></script>
+<script type="module" src="scripts/firebase.js?v=20261115b"></script>
 
 </head>
 <body>
@@ -82,6 +82,7 @@
       <button class="search-tab active" id="tab-service" onclick="switchTab('service')"><i class="fa-solid fa-bus"></i> Service</button>
       <button class="search-tab" id="tab-stop" onclick="switchTab('stop')"><i class="fa-solid fa-magnifying-glass"></i> Stop</button>
       <button class="search-tab" id="tab-plan" onclick="switchTab('plan')"><i class="fa-solid fa-map-location-dot"></i> Plan</button>
+      <button class="search-tab" id="tab-map" onclick="switchTab('map')"><i class="fa-solid fa-cube"></i> Map</button>
       <button class="search-tab" id="tab-favs" onclick="switchTab('favs')" style="display:none"><i class="fa-solid fa-star"></i> Favourites</button>
     </div>
 
@@ -201,6 +202,23 @@
       </div>
       <div id="plan-results" style="margin-top:16px"></div>
     </div>
+    <div id="mode-map" style="display:none">
+      <div id="map3d-wrap">
+        <div id="map3d-canvas"></div>
+        <div id="map3d-hud">Loading map…</div>
+        <div id="map3d-tools">
+          <button class="m3d-tool" onclick="map3d.locate()" title="My location" aria-label="My location"><i class="fa-solid fa-location-crosshairs"></i></button>
+          <button class="m3d-tool" onclick="map3d.toggleFull()" title="Full screen" aria-label="Full screen"><i id="map3d-full-icon" class="fa-solid fa-expand"></i></button>
+        </div>
+        <div id="map3d-note" style="display:none">Base map could not be loaded. Stops and buses are still shown.</div>
+        <div id="map3d-sheet">
+          <button id="map3d-sheet-close" onclick="map3d.closeSheet()" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+          <div id="map3d-sheet-bus"></div>
+          <div id="map3d-sheet-stop"></div>
+        </div>
+      </div>
+      <div class="m3d-hint">Tap a bus or a stop for details. Buses shown are those approaching stops in view, from LTA arrival data.</div>
+    </div>
     <div id="mode-favs" style="display:none">
       <div style="margin-top:12px">
         <div class="fav-header"><i class="fa-solid fa-bus"></i> Services</div>
@@ -302,10 +320,11 @@
   <a href="https://datamall.lta.gov.sg/content/datamall/en/SingaporeOpenDataLicence.html" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:underline;text-underline-offset:2px">Singapore Open Data Licence v1.0</a>
 </footer>
 
-<script src="scripts/campus.js"></script>
-<script src="scripts/ntu.js"></script>
-<script src="scripts/nus.js"></script>
-<script src="scripts/app.js"></script>
+<script src="scripts/campus.js?v=20261115b"></script>
+<script src="scripts/ntu.js?v=20261115b"></script>
+<script src="scripts/nus.js?v=20261115b"></script>
+<script src="scripts/app.js?v=20261115b"></script>
+<script src="scripts/map3d.js?v=20261115b"></script>
 <script src="scripts/leaflet.js"></script>
 
 </body>
