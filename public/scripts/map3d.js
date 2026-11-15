@@ -443,6 +443,7 @@
       id: 'sb-bus-parts', type: 'fill-extrusion', source: 'sb-bus-parts', minzoom: BUS_MIN_ZOOM - 1,
       paint: { 'fill-extrusion-color': ['get', 'c'], 'fill-extrusion-height': ['get', 'h'], 'fill-extrusion-base': ['get', 'b'], 'fill-extrusion-opacity': 1 },
     });
+    try { map.addLayer(meshLayer()); } catch (e) { MESH.ok = false; }
     map.addLayer({
       id: 'sb-stops-icon', type: 'symbol', source: 'sb-stops', minzoom: STOP_ICON_ZOOM,
       layout: {
@@ -1427,24 +1428,509 @@
     }
   }
 
+  const MESH = { ok: true, gl: null, prog: null, loc: null, meshes: {}, textures: new Map(), signs: new Map(), list: [], k: 1, failed: false };
+  const ATLAS = { size: 1024, left: [0, 0, 1024, 256], right: [0, 256, 1024, 256], roof: [0, 512, 1024, 128], front: [0, 704, 256, 256], rear: [256, 704, 256, 256], under: [528, 720, 32, 32] };
+  const SHAPES = {
+    SD: { x0: -6, x1: 6, W: 2.55, H: 2.85, z0: 0.3, front: true, rear: true, rake: 0.34, wheels: [3.3, -2.6], doors: [[4.3, 5.5], [-0.9, 0.5]], bands: [[0.95, 2.3]], pods: [[-2.6, 1.9, 1.7, 0.26]] },
+    DD: { x0: -6.2, x1: 6.2, W: 2.55, H: 4.1, z0: 0.3, front: true, rear: true, rake: 0.2, wheels: [3.5, -2.4, -3.8], doors: [[4.5, 5.7], [-0.7, 0.7]], bands: [[0.95, 2.0], [2.55, 3.6]], pods: [] },
+    BDf: { x0: -1.2, x1: 8.4, W: 2.55, H: 2.85, z0: 0.3, front: true, rear: false, rake: 0.34, wheels: [5.7, 0.1], doors: [[6.7, 7.9], [2.3, 3.7]], bands: [[0.95, 2.3]], pods: [[1.2, 5.2, 1.7, 0.26]] },
+    BDr: { x0: -7.6, x1: -0.7, W: 2.55, H: 2.85, z0: 0.3, front: false, rear: true, rake: 0, wheels: [-4.9], doors: [[-3.4, -2.0]], bands: [[0.95, 2.3]], pods: [[-6.4, -2.6, 1.7, 0.26]] },
+    EV: { x0: -6, x1: 6, W: 2.55, H: 2.95, z0: 0.3, front: true, rear: true, rake: 0.3, wheels: [3.3, -2.9], doors: [[4.3, 5.5], [-0.8, 0.6]], bands: [[0.95, 2.35]], pods: [[-5.2, -0.4, 1.9, 0.3], [0.2, 4.6, 1.9, 0.3]] },
+  };
+  const LIVERIES = {
+    pub: { body: '#8FD42A', roof: '#8FD42A', pod: '#7FC522', stripe: '#D5DADE', style: 'pub' },
+    ntu: { body: '#1F56D8', roof: '#1A3FB0', pod: '#16348F', stripe: '#3FC1F0', style: 'ntu', accent: '#E0263C' },
+    nus: { body: '#F28A1C', roof: '#2458C9', pod: '#1B449C', stripe: '#F28A1C', style: 'nus', accent: '#2458C9' },
+  };
+  const WHEEL_R = 0.48, WHEEL_W = 0.3;
+
+  function sstep(a, b, x) { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
+
+  function axisSamples(h, r, inner) {
+    const out = [];
+    for (const deg of [45, 30, 15]) out.push(-(h - r) - r * Math.tan(toRad(deg)));
+    for (let i = 0; i <= inner; i++) out.push(-(h - r) + (2 * (h - r) * i) / inner);
+    for (const deg of [15, 30, 45]) out.push((h - r) + r * Math.tan(toRad(deg)));
+    return out;
+  }
+
+  function buildBody(s, r, plain) {
+    const hx = (s.x1 - s.x0) / 2, cx = (s.x0 + s.x1) / 2, hy = s.W / 2, hz = s.H / 2, cz = s.z0 + hz;
+    const half = [hx, hy, hz];
+    const samp = [axisSamples(hx, r, plain ? 2 : Math.max(6, Math.round(hx * 1.6))), axisSamples(hy, r, 2), axisSamples(hz, r, plain ? 2 : 4)];
+    const pos = [], nrm = [], uv = [], idx = [];
+    const region = (name, u, v) => { const [rx, ry, rw, rh] = ATLAS[name]; const pad = 1.5; return [(rx + pad + u * (rw - 2 * pad)) / ATLAS.size, (ry + pad + v * (rh - 2 * pad)) / ATLAS.size]; };
+    for (let a = 0; a < 3; a++) {
+      const b = (a + 1) % 3, c = (a + 2) % 3;
+      for (const sign of [1, -1]) {
+        const base = pos.length / 3, nb = samp[b].length, nc = samp[c].length;
+        for (let i = 0; i < nb; i++) for (let j = 0; j < nc; j++) {
+          const p = [0, 0, 0];
+          p[a] = sign * half[a]; p[b] = samp[b][i]; p[c] = samp[c][j];
+          const d = [0, 0, 0];
+          let len = 0;
+          for (let t = 0; t < 3; t++) { const q = Math.max(-(half[t] - r), Math.min(half[t] - r, p[t])); d[t] = p[t] - q; len += d[t] * d[t]; }
+          len = Math.sqrt(len);
+          const n = [d[0] / len, d[1] / len, d[2] / len];
+          pos.push(p[0] - d[0] + n[0] * r, p[1] - d[1] + n[1] * r, p[2] - d[2] + n[2] * r);
+          nrm.push(n[0], n[1], n[2]);
+          const ux = (p[0] + hx) / (2 * hx), uy = (p[1] + hy) / (2 * hy), uz = 1 - (p[2] + hz) / (2 * hz);
+          let t;
+          if (a === 0) t = sign > 0 ? region('front', uy, uz) : region('rear', 1 - uy, uz);
+          else if (a === 1) t = region(sign > 0 ? 'left' : 'right', ux, uz);
+          else t = sign > 0 ? region('roof', ux, uy) : region('under', 0.5, 0.5);
+          uv.push(t[0], t[1]);
+        }
+        for (let i = 0; i < nb - 1; i++) for (let j = 0; j < nc - 1; j++) {
+          const v0 = base + i * nc + j, v1 = v0 + nc, v2 = v1 + 1, v3 = v0 + 1;
+          idx.push(v0, v1, v2, v0, v2, v3);
+        }
+      }
+    }
+    const count = pos.length / 3;
+    if (!plain) {
+      const top = s.z0 + s.H, waist = s.z0 + 1.0;
+      for (let v = 0; v < count; v++) {
+        let x = pos[v * 3] + cx, y = pos[v * 3 + 1], z = pos[v * 3 + 2] + cz;
+        const side = (y / hy) * (y / hy);
+        if (s.front) {
+          const f = sstep(s.x1 - 1.5, s.x1, x);
+          x -= s.rake * f * Math.min(1, Math.max(0, (z - waist) / (top - waist)));
+          x -= 0.22 * f * side;
+          y *= 1 - 0.035 * f;
+        }
+        if (s.rear) {
+          const f = sstep(s.x0 + 1.2, s.x0, x);
+          x += 0.1 * f * side;
+          y *= 1 - 0.02 * f;
+        }
+        const crown = sstep(top - 0.5, top, z);
+        z += 0.05 * crown * (1 - side);
+        pos[v * 3] = x; pos[v * 3 + 1] = y; pos[v * 3 + 2] = z;
+      }
+      const acc = new Map(), key = v => Math.round(pos[v * 3] * 500) + ',' + Math.round(pos[v * 3 + 1] * 500) + ',' + Math.round(pos[v * 3 + 2] * 500);
+      for (let t = 0; t < idx.length; t += 3) {
+        const [i0, i1, i2] = [idx[t], idx[t + 1], idx[t + 2]];
+        const ax = pos[i1 * 3] - pos[i0 * 3], ay = pos[i1 * 3 + 1] - pos[i0 * 3 + 1], az = pos[i1 * 3 + 2] - pos[i0 * 3 + 2];
+        const bx = pos[i2 * 3] - pos[i0 * 3], by = pos[i2 * 3 + 1] - pos[i0 * 3 + 1], bz = pos[i2 * 3 + 2] - pos[i0 * 3 + 2];
+        let nx = ay * bz - az * by, ny = az * bx - ax * bz, nz = ax * by - ay * bx;
+        if (nx * nrm[i0 * 3] + ny * nrm[i0 * 3 + 1] + nz * nrm[i0 * 3 + 2] < 0) { nx = -nx; ny = -ny; nz = -nz; }
+        for (const i of [i0, i1, i2]) {
+          const k = key(i);
+          let e = acc.get(k);
+          if (!e) acc.set(k, e = [0, 0, 0]);
+          e[0] += nx; e[1] += ny; e[2] += nz;
+        }
+      }
+      for (let v = 0; v < count; v++) {
+        const e = acc.get(key(v)), l = Math.hypot(e[0], e[1], e[2]) || 1;
+        nrm[v * 3] = e[0] / l; nrm[v * 3 + 1] = e[1] / l; nrm[v * 3 + 2] = e[2] / l;
+      }
+    }
+    return packMesh(pos, nrm, uv, idx);
+  }
+
+  function buildWheel() {
+    const pos = [], nrm = [], uv = [], idx = [], N = 20;
+    for (let i = 0; i <= N; i++) {
+      const a = (i / N) * Math.PI * 2, cxs = Math.cos(a), sn = Math.sin(a);
+      for (const y of [1, -1]) { pos.push(cxs, y, sn); nrm.push(cxs, 0, sn); uv.push(0, 0); }
+    }
+    for (let i = 0; i < N; i++) { const v = i * 2; idx.push(v, v + 1, v + 3, v, v + 3, v + 2); }
+    for (const y of [1, -1]) {
+      const c = pos.length / 3;
+      pos.push(0, y, 0); nrm.push(0, y, 0); uv.push(0, 0);
+      for (let i = 0; i <= N; i++) { const a = (i / N) * Math.PI * 2; pos.push(Math.cos(a), y, Math.sin(a)); nrm.push(0, y, 0); uv.push(0, 0); }
+      for (let i = 0; i < N; i++) idx.push(c, c + 1 + i, c + 2 + i);
+    }
+    return packMesh(pos, nrm, uv, idx);
+  }
+
+  function buildQuad(axis) {
+    const pos = axis === 'x' ? [0, -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1] : [-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0];
+    const nrm = axis === 'x' ? [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0] : [0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1];
+    return packMesh(pos, nrm, axis === 'x' ? [0, 1, 1, 1, 1, 0, 0, 0] : [0, 0, 1, 0, 1, 1, 0, 1], [0, 1, 2, 0, 2, 3]);
+  }
+
+  function packMesh(pos, nrm, uv, idx) {
+    const n = pos.length / 3, data = new Float32Array(n * 8);
+    for (let v = 0; v < n; v++) data.set([pos[v * 3], pos[v * 3 + 1], pos[v * 3 + 2], nrm[v * 3], nrm[v * 3 + 1], nrm[v * 3 + 2], uv[v * 2], uv[v * 2 + 1]], v * 8);
+    return { data, idx: new Uint16Array(idx), count: idx.length };
+  }
+
+  function shade(hex, amt) {
+    const n = parseInt(hex.slice(1), 16);
+    const ch = sft => { const v = (n >> sft) & 255; return Math.max(0, Math.min(255, Math.round(amt >= 0 ? v + (255 - v) * amt : v * (1 + amt)))); };
+    return '#' + [16, 8, 0].map(sft => ch(sft).toString(16).padStart(2, '0')).join('');
+  }
+
+  function paintAtlas(shapeName, liv) {
+    const s = SHAPES[shapeName], c = document.createElement('canvas');
+    c.width = c.height = ATLAS.size;
+    const g = c.getContext('2d');
+    const L = s.x1 - s.x0, H = s.H, style = liv.style;
+    const glassFill = (x, y, w, h) => {
+      const gr = g.createLinearGradient(0, y, 0, y + h);
+      gr.addColorStop(0, '#10161B'); gr.addColorStop(0.55, '#1C262E'); gr.addColorStop(1, '#2A3842');
+      g.fillStyle = gr; g.fillRect(x, y, w, h);
+    };
+    const rrect = (x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
+
+    const side = (name, isLeft) => {
+      const [rx, ry, rw, rh] = ATLAS[name];
+      const X = x => rx + ((x - s.x0) / L) * rw, Y = z => ry + (1 - z / H) * rh, PX = m => (m / L) * rw, PY = m => (m / H) * rh;
+      g.save(); g.beginPath(); g.rect(rx, ry, rw, rh); g.clip();
+      g.fillStyle = liv.body; g.fillRect(rx, ry, rw, rh);
+      if (style === 'ntu') {
+        const gr = g.createLinearGradient(rx, 0, rx + rw, 0);
+        gr.addColorStop(0, '#2FA6E8'); gr.addColorStop(0.45, liv.body); gr.addColorStop(1, '#1B43B8');
+        g.fillStyle = gr; g.fillRect(rx, ry, rw, rh);
+        g.globalAlpha = 0.35; g.fillStyle = '#8FE0FF';
+        for (const [a, b2, w2] of [[0.4, 2.6, 0.9], [1.8, 3.6, 0.5], [3.3, 4.6, 0.35]]) { g.beginPath(); g.moveTo(X(s.x0 + a), Y(0)); g.lineTo(X(s.x0 + a + w2), Y(0)); g.lineTo(X(s.x0 + b2 + w2), Y(H)); g.lineTo(X(s.x0 + b2), Y(H)); g.closePath(); g.fill(); }
+        g.globalAlpha = 1;
+        g.fillStyle = liv.accent; g.beginPath(); g.moveTo(X(s.x1 - 1.5), Y(0)); g.lineTo(X(s.x1), Y(0)); g.lineTo(X(s.x1), Y(0.95)); g.closePath(); g.fill();
+      }
+      if (style === 'nus') { g.fillStyle = liv.roof; g.beginPath(); g.moveTo(X(s.x0), Y(H)); g.lineTo(X(s.x1), Y(H)); g.lineTo(X(s.x1), Y(H - 0.5)); g.lineTo(X(s.x1 - 2.6), Y(H - 0.28)); g.lineTo(X(s.x0 + 2.4), Y(H - 0.28)); g.lineTo(X(s.x0), Y(H - 0.5)); g.closePath(); g.fill(); }
+      const sh = g.createLinearGradient(0, ry, 0, ry + rh);
+      sh.addColorStop(0, 'rgba(255,255,255,0.16)'); sh.addColorStop(0.5, 'rgba(255,255,255,0)'); sh.addColorStop(1, 'rgba(0,0,0,0.22)');
+      g.fillStyle = sh; g.fillRect(rx, ry, rw, rh);
+      g.fillStyle = 'rgba(0,0,0,0.18)'; g.fillRect(rx, Y(0.5), rw, 2);
+      s.bands.forEach(([lo, hi], bi) => {
+        const xa = s.rear ? s.x0 + 0.55 : s.x0 - 0.2, xb = s.front ? s.x1 + 0.2 : s.x1 + 0.2;
+        g.fillStyle = liv.stripe; g.fillRect(X(xa), Y(lo) , PX(xb - xa), PY(0.07));
+        g.save(); rrect(X(xa), Y(hi), PX(xb - xa), PY(hi - lo), PY(0.12)); g.clip();
+        glassFill(X(xa), Y(hi), PX(xb - xa), PY(hi - lo));
+        g.fillStyle = 'rgba(255,255,255,0.07)';
+        for (let x = s.x0 + 1; x < s.x1; x += 2.9) { g.beginPath(); g.moveTo(X(x), Y(lo)); g.lineTo(X(x + 0.5), Y(lo)); g.lineTo(X(x + 1.3), Y(hi)); g.lineTo(X(x + 0.8), Y(hi)); g.closePath(); g.fill(); }
+        g.fillStyle = '#0A0E11';
+        for (let x = xa + 1.45; x < s.x1 - 0.6; x += 1.45) g.fillRect(X(x) - 1.5, Y(hi), 3, PY(hi - lo));
+        g.restore();
+        if (s.front && style === 'pub' && bi === s.bands.length - 1 && s.bands.length > 1) { g.fillStyle = '#15191C'; g.fillRect(X(s.x1 - 1.5), Y(H), PX(1.7), PY(H - s.bands[0][1] - 0.1)); glassFill(X(s.x1 - 1.4), Y(hi), PX(1.6), PY(hi - lo)); }
+      });
+      if (s.front && style !== 'pub') { g.fillStyle = '#15191C'; g.fillRect(X(s.x1 - 0.55), Y(s.bands[0][1] + 0.3), PX(0.8), PY(s.bands[0][1] + 0.3 - 0.9)); }
+      if (isLeft) for (const [a, b2] of s.doors) {
+        const top = s.bands[0][1], x = X(a), w = PX(b2 - a), y = Y(top), h = PY(top - 0.1);
+        glassFill(x, y, w, h);
+        g.fillStyle = 'rgba(255,255,255,0.08)'; g.beginPath(); g.moveTo(x, y + h); g.lineTo(x + w * 0.35, y + h); g.lineTo(x + w, y); g.lineTo(x + w * 0.65, y); g.closePath(); g.fill();
+        g.strokeStyle = '#AEB5BB'; g.lineWidth = 2.5; g.strokeRect(x + 1, y + 1, w - 2, h - 2);
+        g.beginPath(); g.moveTo(x + w / 2, y); g.lineTo(x + w / 2, y + h); g.stroke();
+      }
+      if (!isLeft && s.rear) { g.fillStyle = 'rgba(0,0,0,0.3)'; for (let i = 0; i < 6; i++) g.fillRect(X(s.x0 + 0.5), Y(0.85 - i * 0.09), PX(1.1), 2); }
+      for (const wx of s.wheels) { g.fillStyle = '#0B0C0E'; g.beginPath(); g.ellipse(X(wx), Y(WHEEL_R - s.z0), PX(0.64), PY(0.64), 0, 0, Math.PI * 2); g.fill(); }
+      g.fillStyle = '#FFB020'; for (let x = s.x0 + 1.5; x < s.x1 - 1; x += 3.2) g.fillRect(X(x), Y(0.72), PX(0.12), PY(0.06));
+      g.restore();
+    };
+    side('left', true); side('right', false);
+
+    {
+      const [rx, ry, rw, rh] = ATLAS.roof;
+      g.fillStyle = liv.roof; g.fillRect(rx, ry, rw, rh);
+      const X = x => rx + ((x - s.x0) / L) * rw;
+      if (style === 'pub' && s.bands.length > 1) { g.fillStyle = '#15191C'; g.fillRect(X(s.x1 - 2.2), ry, rw, rh); }
+      if (style === 'nus') { g.fillStyle = liv.body; g.fillRect(X(s.x0 + 2.4), ry + rh * 0.2, (2.4 / L) * rw, rh * 0.6); }
+      g.strokeStyle = 'rgba(0,0,0,0.14)'; g.lineWidth = 1.5;
+      for (let x = s.x0 + 1.5; x < s.x1; x += 1.5) { g.beginPath(); g.moveTo(X(x), ry); g.lineTo(X(x), ry + rh); g.stroke(); }
+      g.fillStyle = 'rgba(0,0,0,0.22)';
+      for (const hx of [s.x0 + L * 0.2, s.x0 + L * 0.82]) g.fillRect(X(hx), ry + rh * 0.36, (0.7 / L) * rw, rh * 0.28);
+      const sh = g.createLinearGradient(0, ry, 0, ry + rh);
+      sh.addColorStop(0, 'rgba(0,0,0,0.18)'); sh.addColorStop(0.5, 'rgba(255,255,255,0.1)'); sh.addColorStop(1, 'rgba(0,0,0,0.18)');
+      g.fillStyle = sh; g.fillRect(rx, ry, rw, rh);
+    }
+
+    const endFace = (name, isFront) => {
+      const [rx, ry, rw, rh] = ATLAS[name], W = s.W;
+      const X = y => rx + ((y + W / 2) / W) * rw, Y = z => ry + (1 - z / H) * rh, PX = m => (m / W) * rw, PY = m => (m / H) * rh;
+      g.save(); g.beginPath(); g.rect(rx, ry, rw, rh); g.clip();
+      g.fillStyle = liv.body; g.fillRect(rx, ry, rw, rh);
+      if (style === 'nus') { g.fillStyle = liv.roof; g.fillRect(rx, ry, rw, PY(0.3)); }
+      if (!(isFront ? s.front : s.rear)) { g.fillStyle = '#2B2E32'; g.fillRect(rx, ry, rw, rh); g.restore(); return; }
+      const lo = s.bands[0][0], hi = s.bands[0][1], dd = s.bands.length > 1;
+      if (isFront) {
+        const maskTop = dd ? H - 0.12 : H - 0.14, maskLo = style === 'pub' ? lo - 0.25 : 0.12;
+        g.fillStyle = '#121518'; rrect(X(-W / 2 + 0.07), Y(maskTop), PX(W - 0.14), PY(maskTop - maskLo), PX(0.16)); g.fill();
+        const ws = (zlo, zhi) => {
+          g.save(); rrect(X(-W / 2 + 0.16), Y(zhi), PX(W - 0.32), PY(zhi - zlo), PX(0.12)); g.clip();
+          const gr = g.createLinearGradient(0, Y(zhi), 0, Y(zlo));
+          gr.addColorStop(0, '#141C22'); gr.addColorStop(1, '#3A4B57');
+          g.fillStyle = gr; g.fillRect(rx, Y(zhi), rw, PY(zhi - zlo));
+          g.fillStyle = 'rgba(255,255,255,0.09)'; g.beginPath(); g.moveTo(X(-0.9), Y(zlo)); g.lineTo(X(-0.3), Y(zlo)); g.lineTo(X(0.5), Y(zhi)); g.lineTo(X(-0.1), Y(zhi)); g.closePath(); g.fill();
+          g.restore();
+        };
+        ws(lo - 0.05, dd ? hi : hi - 0.15);
+        if (dd) ws(s.bands[1][0], s.bands[1][1] + 0.1);
+        g.strokeStyle = '#06080A'; g.lineWidth = 2;
+        for (const sx of [-0.55, 0.45]) { g.beginPath(); g.moveTo(X(sx), Y(lo)); g.lineTo(X(sx + 0.55), Y(lo + 0.5)); g.stroke(); }
+        if (style === 'pub') { g.fillStyle = liv.stripe; g.fillRect(rx, Y(lo - 0.25), rw, PY(0.05)); }
+        if (style === 'ntu') { g.fillStyle = liv.accent; g.fillRect(rx, Y(0.42), rw, PY(0.42)); g.fillStyle = '#121518'; rrect(X(-0.8), Y(0.4), PX(1.6), PY(0.3), 4); g.fill(); }
+        if (style === 'nus') { g.fillStyle = liv.body; g.fillRect(rx, Y(0.3), rw, PY(0.3)); }
+        for (const sy of [-1, 1]) {
+          g.fillStyle = '#F4F7FA'; rrect(X(sy * 0.86 - 0.24), Y(0.62), PX(0.48), PY(0.2), 3); g.fill();
+          g.fillStyle = '#FFB020'; g.fillRect(X(sy * 1.06 - 0.05), Y(0.6), PX(0.1), PY(0.16));
+        }
+        g.fillStyle = 'rgba(0,0,0,0.28)'; g.fillRect(rx, Y(0.2), rw, PY(0.2));
+      } else {
+        const wlo = dd ? s.bands[1][0] : lo + 0.5, whi = dd ? s.bands[1][1] : hi;
+        g.save(); rrect(X(-W / 2 + 0.3), Y(whi), PX(W - 0.6), PY(whi - wlo), PX(0.1)); g.clip(); glassFill(rx, Y(whi), rw, PY(whi - wlo)); g.restore();
+        g.fillStyle = 'rgba(0,0,0,0.25)'; rrect(X(-0.85), Y(lo + 0.3), PX(1.7), PY(lo - 0.05), 4); g.fill();
+        g.fillStyle = 'rgba(0,0,0,0.3)'; for (let i = 0; i < 5; i++) g.fillRect(X(-0.7), Y(0.9 - i * 0.12), PX(1.4), 2);
+        for (const sy of [-1, 1]) {
+          g.fillStyle = '#E5332A'; rrect(X(sy * 1.04 - 0.1), Y(1.25), PX(0.2), PY(0.4), 3); g.fill();
+          g.fillStyle = '#FFB020'; rrect(X(sy * 1.04 - 0.1), Y(0.82), PX(0.2), PY(0.2), 3); g.fill();
+          g.fillStyle = '#F4F7FA'; rrect(X(sy * 1.04 - 0.1), Y(0.6), PX(0.2), PY(0.12), 2); g.fill();
+        }
+        g.fillStyle = '#101316'; rrect(X(0.2), Y(H - 0.2), PX(0.85), PY(0.3), 3); g.fill();
+        g.fillStyle = 'rgba(0,0,0,0.28)'; g.fillRect(rx, Y(0.2), rw, PY(0.2));
+      }
+      g.restore();
+    };
+    endFace('front', true); endFace('rear', false);
+    { const [rx, ry, rw, rh] = ATLAS.under; g.fillStyle = '#17181B'; g.fillRect(rx - 8, ry - 8, rw + 16, rh + 16); }
+    return c;
+  }
+
+  function paintSign(text, color) {
+    const c = document.createElement('canvas');
+    c.width = 256; c.height = 64;
+    const g = c.getContext('2d');
+    g.fillStyle = '#07090A'; g.fillRect(0, 0, 256, 64);
+    let size = 52;
+    g.font = `700 ${size}px "Barlow Condensed", Arial, sans-serif`;
+    while (size > 18 && g.measureText(text).width > 228) { size -= 3; g.font = `700 ${size}px "Barlow Condensed", Arial, sans-serif`; }
+    g.fillStyle = color; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.shadowColor = color; g.shadowBlur = 6;
+    g.fillText(text, 128, 35);
+    return c;
+  }
+
+  const MESH_VS = `
+    attribute vec3 a_pos; attribute vec3 a_nrm; attribute vec2 a_uv;
+    uniform mat4 u_mvp; varying vec3 v_nrm; varying vec2 v_uv;
+    void main() { v_nrm = a_nrm; v_uv = a_uv; gl_Position = u_mvp * vec4(a_pos, 1.0); }`;
+  const MESH_FS = `
+    precision mediump float;
+    uniform sampler2D u_tex; uniform vec4 u_color; uniform float u_mode; uniform vec3 u_light; uniform vec3 u_amb;
+    varying vec3 v_nrm; varying vec2 v_uv;
+    void main() {
+      if (u_mode > 1.5 && u_mode < 2.5) {
+        vec2 p = abs(v_uv * 2.0 - 1.0);
+        float d = length(max(p - vec2(0.62, 0.45), 0.0));
+        gl_FragColor = vec4(0.0, 0.0, 0.0, u_color.a * (1.0 - smoothstep(0.0, 0.5, d)));
+        return;
+      }
+      vec4 base = u_mode > 0.5 ? texture2D(u_tex, v_uv) : u_color;
+      if (u_mode > 2.5) { gl_FragColor = vec4(base.rgb, 1.0); return; }
+      vec3 n = normalize(v_nrm);
+      float dif = max(dot(n, u_light), 0.0);
+      float sky = n.z * 0.5 + 0.5;
+      vec3 lit = base.rgb * (u_amb.x + u_amb.y * sky + u_amb.z * dif);
+      float gloss = pow(max(dot(n, normalize(u_light + vec3(0.0, 0.0, 1.0))), 0.0), 28.0) * 0.16;
+      gl_FragColor = vec4(lit + gloss, 1.0);
+    }`;
+
+  function meshInit(gl) {
+    const compile = (type, src) => {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, src); gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh) || 'shader');
+      return sh;
+    };
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, MESH_VS));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, MESH_FS));
+    gl.bindAttribLocation(prog, 0, 'a_pos'); gl.bindAttribLocation(prog, 1, 'a_nrm'); gl.bindAttribLocation(prog, 2, 'a_uv');
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog) || 'link');
+    MESH.gl = gl; MESH.prog = prog;
+    MESH.loc = {};
+    for (const u of ['u_mvp', 'u_tex', 'u_color', 'u_mode', 'u_light', 'u_amb']) MESH.loc[u] = gl.getUniformLocation(prog, u);
+    const upload = m => {
+      m.vbo = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, m.vbo); gl.bufferData(gl.ARRAY_BUFFER, m.data, gl.STATIC_DRAW);
+      m.ibo = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.ibo); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, m.idx, gl.STATIC_DRAW);
+      return m;
+    };
+    if (gl.bindVertexArray) gl.bindVertexArray(null);
+    for (const name of Object.keys(SHAPES)) MESH.meshes[name] = upload(buildBody(SHAPES[name], 0.2, false));
+    MESH.meshes.box = upload(buildBody({ x0: -1, x1: 1, W: 2, H: 2, z0: -1 }, 0.28, true));
+    MESH.meshes.wheel = upload(buildWheel());
+    MESH.meshes.sign = upload(buildQuad('x'));
+    MESH.meshes.ground = upload(buildQuad('z'));
+  }
+
+  function meshTexture(gl, map, key, paint, max) {
+    let t = map.get(key);
+    if (t) { map.delete(key); map.set(key, t); return t; }
+    const canvas = paint();
+    t = gl.createTexture();
+    const flip = gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL), pre = gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flip); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, pre);
+    map.set(key, t);
+    if (map.size > max) { const old = map.keys().next().value; gl.deleteTexture(map.get(old)); map.delete(old); }
+    return t;
+  }
+
+  function busLivery(b) {
+    if (b.opCls === 'op-ntu') return ['ntu', LIVERIES.ntu];
+    if (b.opCls === 'op-nus') return ['nus', LIVERIES.nus];
+    if (!b.campus && b.opCls !== 'op-private') return ['pub', LIVERIES.pub];
+    return ['c' + b.color, { body: b.color, roof: b.color, pod: shade(b.color, -0.15), stripe: '#D5DADE', style: 'priv' }];
+  }
+
+  function hexRgba(hex, a) {
+    const n = parseInt(hex.slice(1), 16);
+    return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255, a];
+  }
+
+  function meshRender(gl, args) {
+    const main = args?.defaultProjectionData?.mainMatrix || args?.modelViewProjectionMatrix || args;
+    if (!main || main.length !== 16 || !MESH.list.length) return;
+    if (!MESH.prog) meshInit(gl);
+    const loc = MESH.loc, k = MESH.k, light = isLight();
+    gl.useProgram(MESH.prog);
+    if (gl.bindVertexArray) gl.bindVertexArray(null);
+    gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL); gl.disable(gl.CULL_FACE); gl.disable(gl.STENCIL_TEST);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.activeTexture(gl.TEXTURE0); gl.uniform1i(loc.u_tex, 0);
+    gl.uniform3f(loc.u_amb, light ? 0.5 : 0.4, light ? 0.22 : 0.18, light ? 0.5 : 0.42);
+    for (let i = 0; i < 3; i++) gl.enableVertexAttribArray(i);
+    let bound = null;
+    const mvp = new Float32Array(16), mm = new Float64Array(16);
+    const sun = [0.36, 0.48, 0.8];
+    const draw = (mesh, fr, t, sc, mode, color, tex) => {
+      if (bound !== mesh) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vbo); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.ibo);
+        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 32, 0); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 32, 12); gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 32, 24);
+        bound = mesh;
+      }
+      const s = fr.s;
+      mm[0] = s * sc[0] * fr.sin; mm[1] = -s * sc[0] * fr.cos; mm[2] = 0; mm[3] = 0;
+      mm[4] = -s * sc[1] * fr.cos; mm[5] = -s * sc[1] * fr.sin; mm[6] = 0; mm[7] = 0;
+      mm[8] = 0; mm[9] = 0; mm[10] = s * sc[2]; mm[11] = 0;
+      mm[12] = fr.ox + s * (t[0] * fr.sin - t[1] * fr.cos); mm[13] = fr.oy + s * (-t[0] * fr.cos - t[1] * fr.sin); mm[14] = s * t[2]; mm[15] = 1;
+      for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) mvp[c * 4 + r] = main[r] * mm[c * 4] + main[4 + r] * mm[c * 4 + 1] + main[8 + r] * mm[c * 4 + 2] + main[12 + r] * mm[c * 4 + 3];
+      gl.uniformMatrix4fv(loc.u_mvp, false, mvp);
+      gl.uniform1f(loc.u_mode, mode);
+      gl.uniform4fv(loc.u_color, color || [1, 1, 1, 1]);
+      gl.uniform3f(loc.u_light, sun[0] * fr.sin + sun[1] * fr.cos, -sun[0] * fr.cos + sun[1] * fr.sin, sun[2]);
+      if (tex) gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.drawElements(gl.TRIANGLES, mesh.count, gl.UNSIGNED_SHORT, 0);
+    };
+    const frameAt = (lat, lng, heading) => {
+      const mc = maplibregl.MercatorCoordinate.fromLngLat([lng, lat], 0);
+      return { ox: mc.x, oy: mc.y, s: mc.meterInMercatorCoordinateUnits() * k, sin: Math.sin(toRad(heading)), cos: Math.cos(toRad(heading)), lat, lng, heading };
+    };
+    const offset = (fr, x) => ({ lat: fr.lat + (x * k * fr.cos) / 110540, lng: fr.lng + (x * k * fr.sin) / (111320 * Math.cos(toRad(fr.lat))) });
+    const jobs = [];
+    for (const b of MESH.list) {
+      const [lk, liv] = busLivery(b), fr = frameAt(b.cur.lat, b.cur.lng, b.heading);
+      const campus = lk === 'ntu' || lk === 'nus';
+      if (b.type === 'BD' && !campus) {
+        const trail = b.trail ?? b.heading, pv = offset(fr, -1.9);
+        jobs.push({ b, fr, shape: 'BDf', lk, liv, sign: true });
+        jobs.push({ b, fr: frameAt(pv.lat, pv.lng, lerpAngle(trail, b.heading, 0.5)), joint: true });
+        jobs.push({ b, fr: frameAt(pv.lat, pv.lng, trail), shape: 'BDr', lk, liv });
+      } else jobs.push({ b, fr, shape: campus ? 'EV' : b.type === 'DD' ? 'DD' : 'SD', lk, liv, sign: true });
+    }
+    gl.depthMask(false);
+    for (const j of jobs) {
+      if (j.joint) continue;
+      const s = SHAPES[j.shape], L = s.x1 - s.x0;
+      draw(MESH.meshes.ground, j.fr, [(s.x0 + s.x1) / 2 - 0.25, -0.2, 0.03], [L / 2 + 1.1, s.W / 2 + 0.95, 1], 2, [0, 0, 0, light ? 0.3 : 0.42]);
+    }
+    gl.depthMask(true);
+    const tyre = [0.07, 0.07, 0.08, 1], hub = [0.62, 0.64, 0.66, 1], dark = [0.09, 0.1, 0.11, 1], rib = [0.2, 0.21, 0.23, 1];
+    for (const j of jobs) {
+      if (j.joint) {
+        draw(MESH.meshes.box, j.fr, [0, 0, 1.72], [0.75, 1.2, 1.36], 0, rib);
+        for (const x of [-0.45, -0.15, 0.15, 0.45]) draw(MESH.meshes.box, j.fr, [x, 0, 1.72], [0.06, 1.25, 1.4], 0, dark);
+        continue;
+      }
+      const s = SHAPES[j.shape];
+      const tex = meshTexture(gl, MESH.textures, j.shape + '|' + j.lk, () => paintAtlas(j.shape, j.liv), 24);
+      bound = null;
+      draw(MESH.meshes[j.shape], j.fr, [0, 0, 0], [1, 1, 1], 1, null, tex);
+      for (const wx of s.wheels) for (const sy of [1, -1]) {
+        const y = sy * (s.W / 2 - WHEEL_W / 2 + 0.05);
+        draw(MESH.meshes.wheel, j.fr, [wx, y, WHEEL_R], [WHEEL_R, WHEEL_W / 2, WHEEL_R], 0, tyre);
+        draw(MESH.meshes.wheel, j.fr, [wx, y + sy * 0.02, WHEEL_R], [WHEEL_R * 0.56, WHEEL_W / 2, WHEEL_R * 0.56], 0, hub);
+      }
+      const top = s.z0 + s.H, podCol = hexRgba(j.liv.pod, 1);
+      for (const [a, c, w, h] of s.pods) draw(MESH.meshes.box, j.fr, [(a + c) / 2, 0, top + h / 2 - 0.04], [(c - a) / 2, w / 2, h / 2 + 0.04], 0, podCol);
+      if (s.front) {
+        for (const sy of [1, -1]) {
+          draw(MESH.meshes.box, j.fr, [s.x1 - 0.42, sy * (s.W / 2 + 0.2), s.z0 + 1.75], [0.07, 0.1, 0.22], 0, dark);
+          draw(MESH.meshes.box, j.fr, [s.x1 - 0.5, sy * (s.W / 2 + 0.08), s.z0 + 1.95], [0.03, 0.14, 0.03], 0, dark);
+        }
+        if (j.sign) {
+          const dd = s.bands.length > 1, zc = dd ? s.z0 + (s.bands[0][1] + s.bands[1][0]) / 2 : top - 0.42;
+          const waist = s.z0 + 1.0, lean = s.rake * Math.min(1, Math.max(0, (zc - 0.18 - waist) / (top - waist)));
+          const label = String(j.b.campus ? (j.b.label || j.b.svc) : j.b.label || '');
+          const col = j.lk === 'ntu' ? '#8CFFC0' : j.lk === 'nus' ? '#FFD23F' : '#FF9A1F';
+          const st = meshTexture(gl, MESH.signs, label + '|' + col, () => paintSign(label, col), 96);
+          draw(MESH.meshes.sign, j.fr, [s.x1 - lean + 0.035, 0, zc], [1, 0.8, 0.2], 3, null, st);
+        }
+      }
+    }
+    for (let i = 1; i < 3; i++) gl.disableVertexAttribArray(i);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  }
+
+  function meshLayer() {
+    return {
+      id: 'sb-bus-mesh', type: 'custom', renderingMode: '3d',
+      render(gl, args) {
+        if (!MESH.ok) return;
+        try { meshRender(gl, args); } catch (e) {
+          MESH.ok = false; MESH.list = [];
+          console.error('3D bus meshes unavailable, using block models', e);
+          M.dirty = true; startLoop();
+        }
+      },
+      onRemove() { MESH.prog = null; MESH.textures.clear(); MESH.signs.clear(); MESH.meshes = {}; },
+    };
+  }
+
+  function meshBusAt(pt) {
+    if (!MESH.ok || !MESH.list.length) return null;
+    let best = null, bestD = Math.max(16, BUS_PX * 0.5) ** 2;
+    for (const b of MESH.list) {
+      const p = M.map.project([b.cur.lng, b.cur.lat]), d = (p.x - pt.x) ** 2 + (p.y - 6 - pt.y) ** 2;
+      if (d < bestD) { bestD = d; best = b; }
+    }
+    return best;
+  }
+
   function drawBuses() {
     const map = M.map;
     if (!map || !M.ready || !map.getSource('sb-bus-parts')) return;
     const zoom = map.getZoom();
-    const parts = [], pts = [];
+    const parts = [], pts = [], meshList = [];
+    MESH.list = [];
     if (zoom >= BUS_MIN_ZOOM - 1) {
       const res = 78271.517 * Math.cos(toRad(map.getCenter().lat)) / Math.pow(2, zoom);
       const k = Math.min(40, Math.max(1.2, BUS_PX * res / 11));
       const detail = zoom >= 16, hi = zoom >= 18;
       const vb = map.getBounds(), pad = 0.004;
       const w = vb.getWest() - pad, e = vb.getEast() + pad, so = vb.getSouth() - pad, n = vb.getNorth() + pad;
+      const useMesh = MESH.ok && !!map.getLayer('sb-bus-mesh');
+      if (useMesh) { MESH.list = meshList; MESH.k = Math.min(40, Math.max(1, BUS_PX * res / 12)); }
       for (const b of M.buses.values()) {
         if (b.cur.lng < w || b.cur.lng > e || b.cur.lat < so || b.cur.lat > n) continue;
-        busParts(b, k, parts, detail, hi);
+        if (useMesh) meshList.push(b); else busParts(b, k, parts, detail, hi);
         pts.push({ type: 'Feature', properties: { id: b.id, img: `sbl|${b.label}|${b.color}|${b.fg}`, sort: -b.cur.lat }, geometry: { type: 'Point', coordinates: [b.cur.lng, b.cur.lat] } });
       }
     }
-    map.getSource('sb-bus-parts').setData({ type: 'FeatureCollection', features: parts });
+    if (parts.length || M.partsShown) map.getSource('sb-bus-parts').setData({ type: 'FeatureCollection', features: parts });
+    M.partsShown = parts.length > 0;
+    map.triggerRepaint();
     map.getSource('sb-bus-pts').setData({ type: 'FeatureCollection', features: pts });
     if (M.sel?.kind === 'bus') {
       const b = M.buses.get(M.sel.id);
@@ -1589,6 +2075,8 @@
     const busLayers = ['sb-bus-label', 'sb-bus-parts'].filter(l => map.getLayer(l));
     let f = map.queryRenderedFeatures(hitBox(6), { layers: busLayers })[0];
     if (f) return openBus(f.properties.id);
+    const hit = meshBusAt(pt);
+    if (hit) return openBus(hit.id);
     const stopLayers = ['sb-stops-icon', 'sb-stops-dot'].filter(l => map.getLayer(l));
     const hits = map.queryRenderedFeatures(hitBox(12), { layers: stopLayers });
     if (hits.length) {
@@ -1645,7 +2133,7 @@
     map.on('click', onMapClick);
     map.on('mousemove', e => {
       const layers = ['sb-bus-label', 'sb-bus-parts', 'sb-stops-icon', 'sb-stops-dot'].filter(l => map.getLayer(l));
-      map.getCanvas().style.cursor = map.queryRenderedFeatures(e.point, { layers }).length ? 'pointer' : '';
+      map.getCanvas().style.cursor = (map.queryRenderedFeatures(e.point, { layers }).length || meshBusAt(e.point)) ? 'pointer' : '';
     });
     map.on('dragstart', () => { M.userMoved = true; });
     map.on('zoom', () => { M.dirty = true; startLoop(); });
@@ -1699,5 +2187,5 @@
     if (typeof goToService === 'function') goToService(svc, stopCode || undefined);
   }
 
-  window.map3d = { onTab, openStop, openBus, closeSheet, locate: () => locate(true), toggleFull, viewRoute, _state: M, _roads: { buildRoads, roadSnap, roadRoute } };
+  window.map3d = { onTab, openStop, openBus, closeSheet, locate: () => locate(true), toggleFull, viewRoute, _state: M, _mesh: MESH, _roads: { buildRoads, roadSnap, roadRoute } };
 })();
