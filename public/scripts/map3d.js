@@ -9,7 +9,7 @@
   const POLL_MIN_GAP_MS = 10000;
   const BUS_TTL_MS = 50000;
   const FRAME_MS = 40;
-  const BUS_PX = 56;
+  const BUS_PX = 42;
   const CAMPUS = [
     { flag: '_isNtu', lat: 1.3483, lng: 103.6831, routeKey: 'NtuRoute', fetch: r => fetchNtuBuses(r), op: 'NTU' },
     { flag: '_isNus', lat: 1.2966, lng: 103.7764, routeKey: 'NusRoute', fetch: r => fetchNusBuses(r), op: 'NUS' },
@@ -396,7 +396,7 @@
     map.addLayer({
       id: 'sb-bus-label', type: 'symbol', source: 'sb-bus-pts', minzoom: BUS_MIN_ZOOM - 1,
       layout: {
-        'icon-image': ['get', 'img'], 'icon-anchor': 'bottom', 'icon-offset': [0, -34],
+        'icon-image': ['get', 'img'], 'icon-anchor': 'bottom', 'icon-offset': [0, -30],
         'icon-size': ['interpolate', ['linear'], ['zoom'], 13.5, 0.7, 17, 1],
         'icon-allow-overlap': true, 'icon-ignore-placement': true,
         'symbol-sort-key': ['get', 'sort'],
