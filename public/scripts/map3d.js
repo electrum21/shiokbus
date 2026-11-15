@@ -760,11 +760,12 @@
     'op-nus': { body: '#F28A1C', roof: '#2458C9', pod: '#1B449C', stripe: '#F28A1C', bumper: '#F28A1C', led: '#FF5A4D' },
   };
 
+  let CAP_N = 3;
   function capsule(x0, x1, W, rBack, rFront) {
     const hy = W / 2, pts = [];
     for (const [cx, cy, a0, r] of [[x1 - rFront, hy - rFront, 0, rFront], [x0 + rBack, hy - rBack, 90, rBack], [x0 + rBack, -(hy - rBack), 180, rBack], [x1 - rFront, -(hy - rFront), 270, rFront]]) {
       if (!r) { pts.push([cx, cy]); continue; }
-      for (let i = 0; i <= 3; i++) { const a = toRad(a0 + i * 30); pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
+      for (let i = 0; i <= CAP_N; i++) { const a = toRad(a0 + i * 90 / CAP_N); pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
     }
     return pts;
   }
@@ -1062,6 +1063,324 @@
     }
   }
 
+  // ---- Public bus models: SG♥BUS lime-green livery (single deck / double deck / bendy) ----
+  // Same approach as campusBus: stacked extruded prisms. lvl 0 = far, 1 = mid (zoom >= 16), 2 = full detail (zoom >= 18).
+  // Frame: +x forward, +y towards the kerb (left) side where the doors are.
+  const PUB = {
+    green: '#8FD42A', roof: '#9BDD33', pod: '#84C722', greenDk: '#74B91D', skirt: '#68A819',
+    black: '#0B0E11', glass: '#18232B', glassHi: '#2B3C48', pillar: '#0F171C', door: '#142029',
+    silver: '#D7DDE1', silverDk: '#9FA9B0', arch: '#05070A', tyre: '#25282D', rim: '#CDD4D9', hub: '#7D878F',
+    led: '#FF8A1F', ledBg: '#070707', head: '#F2F6F9', drl: '#BFE6FF', tail: '#E5332A', plate: '#F3F3F3',
+    marker: '#FF9A1F', ink: '#0E1316', heart: '#E5262A', white: '#FFFFFF', wc: '#2C6BD6', vent: '#1D2328',
+    joint: '#17191C', rib: '#0A0B0D', ribHi: '#2A2724',
+  };
+  const PUB_OPS = { SBST: ['SBS Transit', '#D5202F'], SMRT: ['SMRT', '#E2231A'], TTS: ['Tower Transit', '#1F7A33'], GAS: ['Go-Ahead', '#0E3B5B'] };
+  // "SG♥BUS" decal glyphs, same [u, z, w, h] box format and 0.62 x 0.95 cell as NTU_GLYPHS
+  const HEART_ROWS = [[1, 4, 5, 8], [0, 9], [0, 9], [0, 9], [1, 8], [2, 7], [3, 6], [4, 5]];
+  const PUB_GLYPHS = Object.assign({}, NTU_GLYPHS, {
+    G: [[0, .17, .17, .61], [.1, .78, .52, .17], [.1, 0, .52, .17], [.45, .17, .17, .3], [.28, .3, .34, .15]],
+    B: [[0, 0, .17, .95], [.1, .78, .4, .17], [.1, .39, .4, .17], [.1, 0, .4, .17], [.45, .56, .17, .26], [.45, .17, .17, .24]],
+    '*': HEART_ROWS.map((r, i) => {
+      const z = (7 - i) * 0.95 / 8, u = c => c * 0.62 / 9, out = [];
+      for (let j = 0; j < r.length; j += 2) out.push([u(r[j]), z, u(r[j + 1]) - u(r[j]), 0.95 / 8]);
+      return out;
+    }).flat(),
+  });
+  // seven-segment strokes (a top, b upper right, c lower right, d bottom, e lower left, f upper left, g middle) for the LED route number
+  const SEG7 = {
+    0: 'abcdef', 1: 'bc', 2: 'abdeg', 3: 'abcdg', 4: 'bcfg', 5: 'acdfg', 6: 'acdefg', 7: 'abc', 8: 'abcdefg', 9: 'abcdfg',
+    A: 'abcefg', B: 'cdefg', C: 'adef', D: 'bcdeg', E: 'adefg', F: 'aefg', G: 'acdef', H: 'bcefg', J: 'bcde', K: 'efg', L: 'def', M: 'abcef',
+    N: 'ceg', P: 'abefg', R: 'efg', S: 'acdfg', T: 'defg', U: 'bcdef', W: 'bcdef', X: 'bcefg', Y: 'bcdfg', Z: 'abdeg',
+  };
+
+  // wheels as stacked slabs whose chord follows a circle (smooth round profile)
+  function pubTyres(add, f, o, th) {
+    const hw = o.W / 2, lvl = o.lvl, R = th / 2;
+    const disc = (wx, y, wd, rad, m, col) => {
+      for (let j = 0; j < m; j++) {
+        const dz = -rad + (j + 0.5) * 2 * rad / m;
+        add(f, box(wx, y, 2 * Math.sqrt(Math.max(0.0004, rad * rad - dz * dz)), wd), R - rad + j * 2 * rad / m, R - rad + (j + 1) * 2 * rad / m, col);
+      }
+    };
+    for (const wx of o.wheels) for (const s of [1, -1]) {
+      disc(wx, s * (hw - 0.5), 0.8, R, lvl >= 2 ? 9 : lvl >= 1 ? 6 : 3, PUB.tyre);
+      if (lvl >= 1) {
+        disc(wx, s * (hw - 0.1), 0.05, R * 0.74, lvl >= 2 ? 7 : 4, PUB.rim);
+        if (lvl >= 2) disc(wx, s * (hw - 0.07), 0.05, R * 0.3, 3, PUB.hub);
+      }
+    }
+  }
+  // raked windscreen: slices that step back with height (smoother than a vertical pane)
+  function pubGlass(add, f, o, xb, x1, rf, z0, z1, rk, divider) {
+    const lvl = o.lvl, ms = lvl >= 2 ? 7 : lvl >= 1 ? 4 : 1, gh = (z1 - z0) / ms, k = lvl >= 1 ? rk : 0;
+    for (let i = 0; i < ms; i++) {
+      const a = z0 + i * gh, xf = x1 - k * (i + 1) / ms;
+      add(f, capsule(xb, xf, o.W, 0, Math.max(0.3, rf - (x1 - xf))), a, a + gh, lvl >= 1 && i === ms - 1 ? PUB.glassHi : PUB.glass);
+      if (divider && lvl >= 1) add(f, box(xf + 0.02, 0, 0.1, 0.1), a, a + gh, PUB.black);
+    }
+    return x1 - k;
+  }
+
+  // wheel-arch aware lower body: dark skirt + green panel between the arches (up to archTop)
+  function pubLower(add, f, o, xb, archTop) {
+    const { x0, W, wheels } = o, arch = 0.85;
+    const rb = o.rear ? 0.7 : 0;
+    const archs = wheels.map(w => [w - arch, w + arch]).sort((p, q) => p[0] - q[0]);
+    const segs = []; let cur = x0;
+    for (const [a, b] of archs) { if (a > cur) segs.push([cur, Math.min(a, xb)]); cur = Math.max(cur, b); }
+    if (cur < xb) segs.push([cur, xb]);
+    for (const [a, b] of segs) {
+      if (b - a < 0.02) continue;
+      add(f, capsule(a, b, W, a === x0 ? rb : 0, 0), 0.45, 0.95, PUB.skirt);
+      add(f, capsule(a, b, W, a === x0 ? rb : 0, 0), 0.95, archTop, PUB.green);
+    }
+  }
+
+  // LED destination sign: black panel, text bars on the left, route number (seven-segment) on the right
+  function pubSign(add, f, o, xs, z0, z1) {
+    const lvl = o.lvl, sw = o.W * 0.8, h = z1 - z0, label = String(o.label || '').toUpperCase().slice(0, 4);
+    add(f, box(xs + 0.03, 0, 0.1, sw), z0, z1, PUB.ledBg);
+    const zc0 = z0 + h * 0.16, zc1 = z1 - h * 0.16, dh = zc1 - zc0;
+    if (lvl < 1) { add(f, box(xs + 0.05, 0, 0.08, sw * 0.7), zc0 + dh * 0.15, zc1 - dh * 0.15, PUB.led); return; }
+    const dw = dh * 0.52, adv = dw * 1.32, n = Math.max(1, label.length), nw = n * adv - (adv - dw), yR = sw / 2 - 0.12;
+    const yL = -sw / 2 + 0.12, tr = yR - nw - 0.16;
+    if (lvl < 2) {
+      add(f, box(xs + 0.05, yR - nw / 2, 0.08, nw), zc0, zc1, PUB.led);
+      add(f, box(xs + 0.05, (yL + tr) / 2, 0.08, tr - yL), zc0 + dh * 0.3, zc1 - dh * 0.3, PUB.led);
+      return;
+    }
+    // two lines of destination text as word blocks
+    const words = [[0, .32], [.38, .2], [.64, .36]], span = tr - yL;
+    for (const [rz0, rz1, off] of [[zc0, zc0 + dh * 0.38, 0], [zc1 - dh * 0.38, zc1, 0.06]]) {
+      for (const [wa, wb] of words) {
+        const a = yL + span * Math.min(1, wa + off), b = yL + span * Math.min(1, wb + off);
+        if (b - a > 0.04) add(f, box(xs + 0.05, (a + b) / 2, 0.08, b - a), rz0, rz1, PUB.led);
+      }
+    }
+    const st = Math.max(0.025, dw * 0.2);
+    for (let i = 0; i < label.length; i++) {
+      const segs = SEG7[label[i]] || 'g', yc = yR - nw + i * adv + dw / 2;
+      const seg = { a: [0, dh - st, dw, st], b: [dw - st, dh / 2, st, dh / 2], c: [dw - st, 0, st, dh / 2], d: [0, 0, dw, st], e: [0, 0, st, dh / 2], f: [0, dh / 2, st, dh / 2], g: [0, dh / 2 - st / 2, dw, st] };
+      for (const k of segs) { const [u, z, w, hh] = seg[k]; add(f, box(xs + 0.06, yc - dw / 2 + u + w / 2, 0.06, w), zc0 + z, zc0 + z + hh, PUB.led); }
+    }
+  }
+
+  // "SG♥BUS" lettering, centred on xc, on side s (+1 kerb side, -1 offside)
+  function pubDecal(add, f, o, s, xc, z0, h) {
+    const hw = o.W / 2, dir = -s, k = h / 0.95, adv = 0.8 * k, chars = ['S', 'G', '*', 'B', 'U', 'S'];
+    const total = chars.length * adv - 0.18 * k, y = s * (hw + 0.02);
+    let cursor = 0;
+    for (const ch of chars) {
+      for (const [gu, gz, gw, gh] of PUB_GLYPHS[ch]) {
+        const c = cursor + (gu + gw / 2) * k - total / 2;
+        add(f, box(xc + dir * c, y, Math.max(0.03, gw * k), 0.05), z0 + gz * k, z0 + (gz + gh) * k, ch === '*' ? PUB.heart : PUB.ink);
+      }
+      cursor += adv;
+    }
+    add(f, box(xc, s * (hw + 0.02), total * 0.92, 0.05), z0 - 0.11, z0 - 0.07, PUB.ink);           // "Moving Ahead Together" line
+  }
+  // operator name as letter ticks (same trick as the NUS subtitle)
+  function pubMark(add, f, o, s, xc, z0, h) {
+    const op = PUB_OPS[o.op]; if (!op) return;
+    const dir = -s, step = 0.085, total = op[0].length * step, hw = o.W / 2;
+    let c = 0;
+    for (const ch of op[0]) {
+      if (ch !== ' ') add(f, box(xc + dir * (c - total / 2), s * (hw + 0.02), 0.05, 0.04), z0, z0 + h, op[1]);
+      c += step;
+    }
+  }
+  function pubDoors(add, f, o, doors, hw, z0, glassLo, glassHi, hdr) {
+    const lvl = o.lvl; if (lvl < 1) return;
+    for (const dx of doors) {
+      const dy = hw + 0.055;
+      add(f, box(dx, dy, 1.0, 0.06), z0, glassLo, PUB.greenDk);
+      add(f, box(dx, dy, 1.0, 0.06), glassLo, glassHi, PUB.door);
+      add(f, box(dx, dy + 0.02, 1.0, 0.04), glassHi, hdr, PUB.black);
+      if (lvl >= 2) {
+        for (const ox of [0, -0.5, 0.5]) add(f, box(dx + ox, dy + 0.02, 0.07, 0.1), z0, hdr, PUB.black);
+        add(f, box(dx, dy + 0.03, 0.9, 0.04), glassLo + 0.04, glassLo + 0.1, PUB.silverDk);            // door sill rail
+      }
+    }
+  }
+  // wheelchair sticker + plate + badge on the green fascia
+  function pubFascia(add, f, o, xs, z0, z1, wcZ) {
+    const hw = o.W / 2, lvl = o.lvl;
+    for (const s of [1, -1]) {
+      add(f, box(xs - 0.1, s * (o.W * 0.3), 0.4, 0.82), z0 + 0.15, z0 + 0.62, PUB.head);               // headlight
+      if (lvl >= 1) add(f, box(xs - 0.05, s * (o.W * 0.3), 0.4, 0.74), z0 + 0.62, z0 + 0.68, PUB.drl);
+    }
+    if (lvl < 1) return;
+    add(f, box(xs + 0.03, 0, 0.09, 1.7), z0 + 0.08, z0 + 0.4, PUB.black);                                // lower intake
+    add(f, box(xs + 0.03, 0, 0.1, 1.1), z1 - 0.34, z1 - 0.06, PUB.plate);                                // plate
+    add(f, box(xs + 0.05, 0, 0.1, 0.98), z1 - 0.3, z1 - 0.1, PUB.black);
+    if (lvl >= 2) {
+      add(f, box(xs + 0.03, 0, 0.07, 0.5), z0 + 0.55, z0 + 0.72, PUB.silver);                           // badge
+      add(f, box(xs + 0.03, hw - 0.4, 0.07, 0.34), wcZ, wcZ + 0.34, PUB.wc);                            // wheelchair sticker
+      add(f, box(xs + 0.05, hw - 0.4, 0.07, 0.14), wcZ + 0.06, wcZ + 0.28, PUB.white);
+    }
+  }
+
+  // Single-deck section. Used for the whole SD bus and for each half of the bendy.
+  function pubSD(add, f, o) {
+    const C = PUB, lvl = o.lvl, W = o.W, hw = W / 2, { x0, x1, wheels } = o, front = !!o.front, rear = !!o.rear;
+    const rb = rear ? 0.7 : 0, rf = front ? 0.9 : 0, nose = front ? 0.85 : 0, xb = x1 - nose, archTop = 1.45;
+    const cap = (a, b, z0, z1, col, wd = W) => add(f, capsule(a, b, wd, a === x0 ? rb : 0, b === x1 ? rf : 0), z0, z1, col);
+    add(f, capsule(x0 + (rear ? 0.5 : 0), x1 - (front ? 1.1 : 0), W - 0.5, rear ? 0.3 : 0, front ? 0.3 : 0), 0.3, archTop, C.arch);
+    pubTyres(add, f, o, 1.2);
+    pubLower(add, f, o, xb, archTop);
+    cap(x0, xb, archTop, 1.55, C.green);
+    cap(x0, x1, 1.55, 1.65, C.silver);                                              // silver belt line under the windows
+    // --- side windows 1.65 .. 3.5 ---
+    const g0 = rear ? x0 + 0.7 : x0;
+    if (rear) cap(x0, x0 + 0.7, 1.65, 3.5, C.green);
+    cap(g0, xb, 1.65, 3.5, C.glass);
+    if (lvl >= 1) cap(g0, xb, 1.65, 1.92, C.glassHi);                                // seat-back / ledge reflection
+    if (lvl >= 1) {
+      const px = [];
+      for (let x = g0 + 0.5; x < xb - 0.2; x += 1.18) if (!o.doors.some(d => Math.abs(x - d) < 0.68)) px.push(x);
+      for (const x of (lvl >= 2 ? px : px.filter((_, i) => i % 2 === 0))) add(f, box(x, 0, 0.1, W + 0.06), 1.65, 3.5, C.pillar);
+    }
+    cap(x0, xb, 3.5, 3.6, C.green);                                                  // roof header
+    // --- front: spoiler, green fascia, windscreen, LED sign ---
+    if (front) {
+      cap(xb, x1, 0.45, 0.8, C.black);
+      cap(xb, x1, 0.8, 1.55, C.green);
+      const xt = pubGlass(add, f, o, xb, x1, rf, 1.65, 3.3, 0.3, true);
+      add(f, capsule(xb, xt, W, 0, Math.max(0.3, rf - (x1 - xt))), 3.3, 3.6, C.black);
+      if (lvl >= 1) for (const s of [1, -1]) add(f, box(xb + 0.05, s * (hw - 0.05), 0.5, 0.12), 1.65, 3.3, C.black);   // A-pillars
+      pubSign(add, f, o, xt, 3.34, 3.56);
+      pubFascia(add, f, o, x1, 0.8, 1.55, 1.72);
+      for (const s of [1, -1]) {                                                     // mirrors
+        add(f, box(xb - 0.1, s * (hw + 0.22), 0.14, 0.5), 3.0, 3.1, C.black);
+        add(f, box(xb - 0.12, s * (hw + 0.42), 0.2, 0.1), 2.0, 3.1, C.black);
+      }
+    }
+    // --- rear ---
+    if (rear) {
+      for (const s of [1, -1]) add(f, box(x0 + 0.16, s * 1.45, 0.3, 0.5), 1.3, 2.0, C.tail);
+      add(f, box(x0 + 0.04, 0, 0.1, W * 0.6), 2.3, 3.35, C.glass);
+      if (lvl >= 1) {
+        add(f, box(x0 + 0.05, 0, 0.1, 1.0), 0.95, 1.25, C.plate);
+        for (const s of [1, -1]) add(f, box(x0 + 0.85, s * (hw + 0.02), 0.8, 0.05), 0.95, 2.2, C.vent);   // engine bay louvres
+      }
+      if (lvl >= 2) for (const s of [1, -1]) for (let i = 0; i < 4; i++) add(f, box(x0 + 0.85, s * (hw + 0.04), 0.8, 0.03), 1.05 + i * 0.25, 1.11 + i * 0.25, C.arch);
+    }
+    // --- doors on the kerb side ---
+    pubDoors(add, f, o, o.doors, hw, 0.72, 1.2, 3.42, 3.52);
+    // --- roof shell + A/C pods ---
+    const N = lvl >= 2 ? 10 : lvl >= 1 ? 7 : 3, rz = 0.3 / N, f1 = t => 1 - Math.sqrt(1 - t * t);
+    for (let i = 0; i < N; i++) {
+      const t = (i + 0.5) / N, z0 = 3.6 + rz * i, dx = 0.55 * f1(t), dy = 0.26 * f1(t), dr = rear ? 0.3 * f1(t) : 0;
+      add(f, capsule(x0 + dr, x1 - (front ? dx : 0), W - 2 * dy, rear ? Math.max(0.25, rb - dr) : 0, front ? Math.max(0.3, rf - dx * 0.6) : 0), z0, z0 + rz, C.roof);
+    }
+    const top = 3.9;
+    for (const [a, b, h] of o.pods) {
+      add(f, capsule(a, b, W * 0.62, 0.3, 0.3), top, top + h, C.pod);
+      if (lvl >= 2) for (const s of [1, -1]) {
+        add(f, box((a + b) / 2, s * (W * 0.31 + 0.01), b - a - 0.7, 0.04), top + 0.08, top + 0.15, C.vent);
+        add(f, box((a + b) / 2, s * (W * 0.31 + 0.01), b - a - 0.7, 0.04), top + 0.22, top + 0.29, C.vent);
+      }
+    }
+    // --- side graphics & markers ---
+    if (lvl >= 2) {
+      for (const s of [1, -1]) {
+        for (const mx of o.markers) add(f, box(mx, s * (hw + 0.02), 0.14, 0.06), 1.5, 1.6, C.marker);
+        for (const xc of (s === 1 ? o.decalL : o.decalR)) pubDecal(add, f, o, s, xc, o.decalZ, 0.4);
+        for (const xc of (s === 1 ? o.markL : o.markR)) pubMark(add, f, o, s, xc, 0.78, 0.2);
+      }
+    }
+  }
+
+  // Double-deck section (MAN A95 style): tri-axle, silver trim lines, black upper-deck front, SG♥BUS on the green belt.
+  function pubDD(add, f, o) {
+    const C = PUB, lvl = o.lvl, W = o.W, hw = W / 2, x0 = -5.9, x1 = 5.9, rb = 0.7, rf = 0.9, nose = 0.9, xb = x1 - nose, archTop = 1.55;
+    const oo = Object.assign({ x0, x1, rear: true, front: true }, o);
+    const cap = (a, b, z0, z1, col, wd = W) => add(f, capsule(a, b, wd, a === x0 ? rb : 0, b === x1 ? rf : 0), z0, z1, col);
+    add(f, capsule(x0 + 0.5, x1 - 1.1, W - 0.5, 0.3, 0.3), 0.3, archTop, C.arch);
+    pubTyres(add, f, oo, 1.3);
+    pubLower(add, f, oo, xb, archTop);
+    cap(x0, xb, archTop, 1.75, C.green);
+    cap(x0, x1, 1.75, 1.87, C.silver);
+    // lower deck windows 1.87 .. 3.5
+    cap(x0, x0 + 0.7, 1.87, 3.5, C.green);
+    cap(x0 + 0.7, xb, 1.87, 3.5, C.glass);
+    if (lvl >= 1) cap(x0 + 0.7, xb, 1.87, 2.12, C.glassHi);
+    pubGlass(add, f, o, xb, x1, rf, 1.87, 3.5, 0.25, true);                          // lower-deck windscreen
+    cap(x0, x1, 3.5, 3.6, C.silver);
+    // green belt (decal band) 3.6 .. 4.25, black sign band on the nose
+    cap(x0, xb, 3.6, 4.25, C.green);
+    cap(xb, x1, 3.6, 4.25, C.black);
+    cap(x0, x1, 4.25, 4.33, C.silver);
+    // upper deck windows 4.33 .. 5.65
+    cap(x0, x0 + 0.7, 4.33, 5.65, C.green);
+    cap(x0 + 0.7, xb, 4.33, 5.65, C.glass);
+    if (lvl >= 1) cap(x0 + 0.7, xb, 4.33, 4.58, C.glassHi);
+    pubGlass(add, f, o, xb, x1, rf, 4.33, 5.65, 0.3, true);                          // upper-deck panoramic windscreen
+    if (lvl >= 1) {
+      const lo = [], up = [];
+      for (let x = x0 + 1.2; x < xb - 0.2; x += 1.15) { up.push(x); if (!o.doors.some(d => Math.abs(x - d) < 0.68)) lo.push(x); }
+      for (const x of (lvl >= 2 ? lo : lo.filter((_, i) => i % 2 === 0))) add(f, box(x, 0, 0.1, W + 0.06), 1.87, 3.5, C.pillar);
+      for (const x of (lvl >= 2 ? up : up.filter((_, i) => i % 2 === 0))) add(f, box(x, 0, 0.1, W + 0.06), 4.33, 5.65, C.pillar);
+      for (const s of [1, -1]) add(f, box(xb + 0.05, s * (hw - 0.05), 0.5, 0.12), 1.87, 5.65, C.black);   // A-pillars
+    }
+    // silver vertical swoosh behind the front face
+    if (lvl >= 1) for (const s of [1, -1]) add(f, box(xb + 0.02, s * (hw + 0.015), 0.32, 0.06), 1.0, 5.65, C.silver);
+    // front: spoiler, green fascia, LED sign
+    cap(xb, x1, 0.45, 0.8, C.black);
+    cap(xb, x1, 0.8, 1.75, C.green);
+    pubSign(add, f, o, x1, 3.66, 4.2);
+    pubFascia(add, f, oo, x1, 0.8, 1.75, 1.95);
+    for (const s of [1, -1]) {                                                       // big mirrors
+      add(f, box(xb - 0.1, s * (hw + 0.22), 0.14, 0.55), 3.0, 3.1, C.black);
+      add(f, box(xb - 0.12, s * (hw + 0.45), 0.2, 0.1), 2.0, 3.1, C.black);
+    }
+    // rear
+    for (const s of [1, -1]) add(f, box(x0 + 0.16, s * 1.5, 0.3, 0.5), 1.3, 2.0, C.tail);
+    add(f, box(x0 + 0.04, 0, 0.1, W * 0.6), 2.3, 3.4, C.glass);
+    add(f, box(x0 + 0.04, 0, 0.1, W * 0.6), 4.55, 5.55, C.glass);
+    if (lvl >= 1) {
+      add(f, box(x0 + 0.05, 0, 0.1, 1.0), 0.95, 1.25, C.plate);
+      for (const s of [1, -1]) {
+        add(f, box(x0 + 0.85, s * (hw + 0.02), 0.8, 0.05), 0.95, 3.0, C.vent);       // engine bay louvres
+        if (lvl >= 2) for (let i = 0; i < 7; i++) add(f, box(x0 + 0.85, s * (hw + 0.04), 0.8, 0.03), 1.05 + i * 0.28, 1.11 + i * 0.28, C.arch);
+      }
+    }
+    pubDoors(add, f, o, o.doors, hw, 0.72, 1.3, 3.42, 3.52);
+    // roof shell: green, black dome over the front (upper deck panoramic cap)
+    add(f, capsule(x0, xb, W, rb, 0), 5.65, 5.75, C.green);
+    add(f, capsule(xb, x1, W, 0, rf), 5.65, 5.75, C.black);
+    const N = lvl >= 2 ? 10 : lvl >= 1 ? 7 : 3, rz = 0.3 / N, f1 = t => 1 - Math.sqrt(1 - t * t), cut = x1 - 2.0;
+    for (let i = 0; i < N; i++) {
+      const t = (i + 0.5) / N, z0 = 5.75 + rz * i, dx = 0.55 * f1(t), dy = 0.26 * f1(t), dr = 0.3 * f1(t), wl = W - 2 * dy;
+      add(f, capsule(x0 + dr, cut, wl, Math.max(0.25, rb - dr), 0), z0, z0 + rz, C.roof);
+      add(f, capsule(cut, x1 - dx, wl, 0, Math.max(0.3, rf - dx * 0.6)), z0, z0 + rz, C.black);
+    }
+    const top = 6.05;
+    add(f, capsule(x0 + 0.8, x0 + 3.9, W * 0.6, 0.3, 0.3), top, top + 0.28, C.pod);                  // rear A/C unit
+    if (lvl >= 2) for (const s of [1, -1]) add(f, box(x0 + 2.35, s * (W * 0.3 + 0.01), 2.4, 0.04), top + 0.1, top + 0.2, C.vent);
+    if (lvl >= 2) {
+      for (const s of [1, -1]) {
+        for (const mx of [3.9, -0.9, -5.4]) add(f, box(mx, s * (hw + 0.02), 0.14, 0.06), 1.6, 1.7, C.marker);
+        for (const xc of (s === 1 ? o.decalL : o.decalR)) pubDecal(add, f, o, s, xc, 3.72, 0.42);
+        for (const xc of (s === 1 ? o.markL : o.markR)) pubMark(add, f, o, s, xc, 1.25, 0.22);
+      }
+    }
+  }
+
+  // Bendy: dark ribbed bellows (accordion) bridging the two sections, with a roof turntable cover
+  function pubJoint(add, f, o) {
+    const W = o.W, lvl = o.lvl;
+    add(f, capsule(-0.9, 0.9, W * 0.9, 0.2, 0.2), 0.7, 3.62, PUB.joint);
+    if (lvl >= 1) {
+      for (let i = 0; i < 6; i++) {
+        const x = -0.72 + i * 0.29, wide = i % 2 === 0;
+        add(f, box(x, 0, 0.13, W * (wide ? 0.97 : 0.92)), 0.72, 3.6, wide ? PUB.ribHi : PUB.rib);
+      }
+    }
+    add(f, box(0, 0, 1.9, W * 0.84), 3.62, 3.72, PUB.rib);
+    if (lvl >= 1) add(f, box(0, 0, 1.2, W * 0.5), 3.72, 3.78, PUB.glassHi);
+  }
+
   function busParts(b, k, out, detail, hi) {
     const publicBus = !b.campus && b.opCls !== 'op-private';
     const campus = CAMPUS_LIVERY[b.opCls] || null;
@@ -1073,7 +1392,25 @@
       geometry: { type: 'Polygon', coordinates: [localPoly(pts.map(([x, y]) => [x * k, y * k]), f.lat, f.lng, f.cosLat, f.sinH, f.cosH)] },
     });
     const main = busFrame(b.cur.lat, b.cur.lng, b.heading);
-    if (b.type === 'DD') {
+    if (publicBus) {
+      CAP_N = hi ? 8 : detail ? 5 : 3;
+      const base = { lvl: hi ? 2 : detail ? 1 : 0, label: b.label, op: b.operator };
+      if (b.type === 'DD') {
+        pubDD(add, main, Object.assign({ W: 4.0, wheels: [2.7, -2.6, -4.3], doors: [4.35, -0.05], decalL: [-1.0], decalR: [-1.0], markL: [1.2], markR: [0.0] }, base));
+      } else if (b.type === 'BD') {
+        const trail = b.trail ?? b.heading;
+        const BW = 3.9;
+        pubSD(add, main, Object.assign({ W: BW, x0: -1.4, x1: 8.4, front: true, rear: false, wheels: [5.6, 0.4], doors: [7.05, 2.9], pods: [[0.4, 4.4, 0.34]], markers: [4.2, -0.9], decalL: [], decalR: [3.4], decalZ: 0.85, markL: [], markR: [1.5] }, base));
+        const pivot = framePoint(main, -2.1, k);
+        const mid = busFrame(pivot.lat, pivot.lng, lerpAngle(trail, b.heading, 0.5));
+        pubJoint(add, mid, Object.assign({ W: BW }, base));
+        const back = busFrame(pivot.lat, pivot.lng, trail);
+        pubSD(add, back, Object.assign({ W: BW, x0: -7.2, x1: -0.7, front: false, rear: true, wheels: [-4.6], doors: [-2.5], pods: [[-6.4, -2.7, 0.34]], markers: [-6.2], decalL: [], decalR: [-2.0], decalZ: 0.85, markL: [], markR: [] }, base));
+      } else {
+        pubSD(add, main, Object.assign({ W: 3.9, x0: -5.5, x1: 5.5, front: true, rear: true, wheels: [2.5, -3.1], doors: [4.0, 0.6], pods: [[-2.2, 2.4, 0.32]], markers: [-4.6, 1.5], decalL: [-1.15], decalR: [-0.9], decalZ: 0.85, markL: [], markR: [0.95] }, base));
+      }
+      CAP_N = 3;
+    } else if (b.type === 'DD') {
       busSection(add, main, { detail, x0: -5.8, x1: 5.8, W, body, pod, dd: true, front: true, rear: true, wheels: [3.7, -2.3, -4.1] });
     } else if (b.type === 'BD') {
       const trail = b.trail ?? b.heading;
