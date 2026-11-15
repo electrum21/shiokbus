@@ -31,6 +31,7 @@
     pollTimer: null, lastPoll: 0, polling: false, moveTimer: null, raf: 0, lastFrame: 0, dirty: true,
     lastUpdate: 0, hudTimer: null, userMarker: null, baseOk: true,
     resultsHome: null,
+    svcRoutes: new Map(), svcPending: new Set(), svcFail: new Map(),
   };
 
   const $ = id => document.getElementById(id);
@@ -105,7 +106,7 @@
     }
   }
 
-  function roadSnap(lat, lng, maxM, skip) {
+  function roadSnap(lat, lng, maxM, skip, accept) {
     const roads = M.roads;
     if (!roads) return null;
     const kx = 111320 * Math.cos(toRad(lat)), ky = 110540;
@@ -121,6 +122,7 @@
         const t = len2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / len2)) : 0;
         const px = ax + dx * t, py = ay + dy * t, d = Math.hypot(px, py);
         if (d < bestD) {
+          if (accept && !accept(lat + py / ky, lng + px / kx)) continue;
           const len = Math.sqrt(len2);
           bestD = d;
           best = { lat: lat + py / ky, lng: lng + px / kx, a, b, da: len * t, db: len * (1 - t), d };
@@ -128,6 +130,72 @@
       }
     }
     return best;
+  }
+
+  // ── ROUTE-CONSTRAINED SNAP ──
+  // Buses are snapped to roads that lie near their own service's route (built
+  // from its stop sequence), so a reading can't land on a parallel road.
+  const CORRIDOR_M = 45;
+  const svcKey = svc => String(svc).replace(/^0+/, '').toUpperCase();
+
+  function loadSvcRoute(svc) {
+    const key = svcKey(svc);
+    if (M.svcRoutes.has(key) || M.svcPending.has(key)) return;
+    if (Date.now() - (M.svcFail.get(key) || 0) < 60000) return;
+    if (typeof fetchBusRoute !== 'function' || typeof stopByCode !== 'function') return;
+    M.svcPending.add(key);
+    fetchBusRoute(key).then(rows => {
+      const byDir = new Map();
+      for (const r of rows || []) {
+        if (!byDir.has(r.Direction)) byDir.set(r.Direction, []);
+        byDir.get(r.Direction).push(r);
+      }
+      const out = {};
+      for (const [dir, list] of byDir) {
+        list.sort((x, y) => x.StopSequence - y.StopSequence);
+        const pts = [];
+        for (const r of list) {
+          const st = stopByCode(r.BusStopCode);
+          const lat = parseFloat(st?.Latitude), lng = parseFloat(st?.Longitude);
+          if (isFinite(lat) && isFinite(lng)) pts.push({ lat, lng, code: r.BusStopCode });
+        }
+        if (pts.length >= 2) out[dir] = { pts, last: String(list[list.length - 1].BusStopCode) };
+      }
+      if (Object.keys(out).length) M.svcRoutes.set(key, out);
+      else M.svcFail.set(key, Date.now());
+    }).catch(() => { M.svcFail.set(key, Date.now()); }).finally(() => M.svcPending.delete(key));
+  }
+
+  function routeDir(route, nb) {
+    const dirs = Object.values(route);
+    let hit = nb.destCode ? dirs.find(d => d.last === String(nb.destCode)) : null;
+    if (!hit && nb.nextStop) hit = dirs.find(d => d.pts.some(p => p.code === nb.nextStop));
+    return hit || null;
+  }
+
+  function distToLine(lat, lng, pts) {
+    const kx = 111320 * Math.cos(toRad(lat)), ky = 110540;
+    let best = Infinity;
+    for (let i = 1; i < pts.length; i++) {
+      const ax = (pts[i - 1].lng - lng) * kx, ay = (pts[i - 1].lat - lat) * ky;
+      const bx = (pts[i].lng - lng) * kx, by = (pts[i].lat - lat) * ky;
+      const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+      const t = l2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / l2)) : 0;
+      const d = Math.hypot(ax + dx * t, ay + dy * t);
+      if (d < best) best = d;
+    }
+    return best;
+  }
+
+  function snapForBus(nb) {
+    const plain = () => roadSnap(nb.lat, nb.lng, SNAP_M);
+    if (nb.campus) return plain();
+    const route = M.svcRoutes.get(svcKey(nb.svc));
+    if (!route) { loadSvcRoute(nb.svc); return plain(); }
+    const dir = routeDir(route, nb);
+    if (!dir) return plain();
+    const near = roadSnap(nb.lat, nb.lng, SNAP_M, undefined, (la, ln) => distToLine(la, ln, dir.pts) <= CORRIDOR_M);
+    return near || plain();
   }
 
   function heapPush(h, item) {
@@ -536,7 +604,7 @@
     }
     incoming.forEach((nb, i) => {
       let b = matched.get(i);
-      const snap = roadSnap(nb.lat, nb.lng, SNAP_M);
+      const snap = snapForBus(nb);
       const tgt = snap ? { lat: snap.lat, lng: snap.lng } : { lat: nb.lat, lng: nb.lng };
       if (!b) {
         let heading = nb.heading;
@@ -688,7 +756,7 @@
   const LIVERY = { green: '#8FD42A', pod: '#7CC21F', glass: '#1E2A32', silver: '#DADFE3', black: '#15191C', wheel: '#1A1A1E', joint: '#3B3F44', led: '#FF9A1F', head: '#FFF4B8', tail: '#E5332A' };
 
   const CAMPUS_LIVERY = {
-    'op-ntu': { body: '#1F56D8', roof: '#1A3FB0', pod: '#15338C', stripe: '#3FC1F0', bumper: '#E0263C', led: '#8CFFC0' },
+    'op-ntu': { body: '#1F56D8', roof: '#1A3FB0', pod: '#15338C', stripe: '#3FC1F0', bumper: '#E0263C', led: '#FFC247', rear: '#2E8FF0', mid: '#2566E4', cap: '#2F5BEA' },
     'op-nus': { body: '#F28A1C', roof: '#2458C9', pod: '#1B449C', stripe: '#F28A1C', bumper: '#F28A1C', led: '#FF5A4D' },
   };
 
@@ -719,7 +787,10 @@
         add(f, capsule(x0 + cap, x1, W, 0, rf), base, top, LIVERY.glass);
       } else add(f, full, base, top, LIVERY.glass);
     };
-    for (const wx of wheels) for (const sy of [1, -1]) add(f, box(wx, sy * (W / 2 - 0.2), 1.6, 0.9), 0, 1.45, LIVERY.wheel);
+    for (const wx of wheels) for (const sy of [1, -1]) {
+      add(f, box(wx, sy * (W / 2 - 0.2), 1.6, 0.9), 0, 1.45, LIVERY.wheel);
+      if (o.detail) add(f, box(wx, sy * (W / 2 + 0.3), 0.75, 0.14), 0.35, 1.1, LIVERY.silver);
+    }
     let top;
     if (dd) {
       const nose = front ? 1.3 : 0;
@@ -738,28 +809,40 @@
       top = 6.25;
       if (front) add(f, box(x1 + 0.04, 0, 0.14, W * 0.6), 3.7, 4.25, LIVERY.led);
     } else {
-      const c = o.campus, len = x1 - x0;
+      const c = o.campus, len = x1 - x0, d = !!(o.detail && c);
       if (c && front) {
-        const nose = 1.1;
-        add(f, capsule(x0, x1 - nose, W, rb, 0), 0.6, 2.2, body);
-        add(f, capsule(x1 - nose, x1, W, 0, rf), 0.6, 1.25, c.bumper);
-        add(f, capsule(x1 - nose, x1, W, 0, rf), 1.25, 2.2, LIVERY.black);
+        const nose = 1.1, bumperTop = d ? 1.6 : 1.25;
+        if (d && c.rear) {
+          const s1 = x0 + len * 0.36, s2 = x0 + len * 0.5;
+          add(f, capsule(x0, s1, W, rb, 0), 0.6, 2.2, c.rear);
+          add(f, capsule(s1, s2, W, 0, 0), 0.6, 2.2, c.mid || body);
+          add(f, capsule(s2, x1 - nose, W, 0, 0), 0.6, 2.2, body);
+        } else add(f, capsule(x0, x1 - nose, W, rb, 0), 0.6, 2.2, body);
+        add(f, capsule(x1 - nose, x1, W, 0, rf), 0.6, bumperTop, c.bumper);
+        add(f, capsule(x1 - nose, x1, W, 0, rf), bumperTop, 2.2, LIVERY.black);
       } else add(f, full, 0.6, 2.2, body);
       add(f, full, 2.2, 2.38, c ? c.stripe : LIVERY.silver);
       glassBand(2.38, 4.15);
-      add(f, full, 4.15, 4.5, c ? c.roof : body);
+      if (d) for (const t of [0.2, 0.34, 0.48, 0.62]) add(f, box(x0 + len * t, 0, 0.16, W + 0.08), 2.38, 4.15, body);
+      if (d && c.cap) {
+        const cut = x1 - len * 0.2;
+        add(f, capsule(x0, cut, W, rb, 0), 4.15, 4.5, c.roof);
+        add(f, capsule(cut, x1, W, 0, rf), 4.15, 4.5, c.cap);
+      } else add(f, full, 4.15, 4.5, c ? c.roof : body);
       top = 4.5;
       if (c) {
-        add(f, capsule(x0 + len * 0.08, x0 + len * 0.46, W * 0.7, 0.3, 0.3), top, top + 0.45, c.pod);
-        add(f, capsule(x0 + len * 0.52, x0 + len * 0.9, W * 0.7, 0.3, 0.3), top, top + 0.45, c.pod);
+        const rearH = d ? 0.3 : 0.45, frontH = d ? 0.6 : 0.45;
+        add(f, capsule(x0 + len * 0.08, x0 + len * 0.46, W * 0.7, 0.3, 0.3), top, top + rearH, c.pod);
+        add(f, capsule(x0 + len * 0.52, x0 + len * 0.9, W * 0.7, 0.3, 0.3), top, top + frontH, c.pod);
       } else add(f, capsule(x0 + len * 0.3, x0 + len * 0.72, W * 0.62, 0.3, 0.3), top, top + 0.4, o.pod);
+      if (d && front) for (const sy of [1, -1]) add(f, box(x1 - 0.9, sy * (W / 2 + 0.25), 0.3, 0.55), 2.5, 3.5, LIVERY.black);
       if (front) add(f, box(x1 + 0.04, 0, 0.14, W * 0.58), 3.55, 4.05, c ? c.led : LIVERY.led);
     }
     if (front) for (const sy of [1, -1]) add(f, box(x1 - 0.1, sy * W * 0.3, 0.4, 0.8), 0.95, 1.45, LIVERY.head);
     if (rear) for (const sy of [1, -1]) add(f, box(x0 + 0.1, sy * W * 0.32, 0.4, 0.6), 1.3, 1.8, LIVERY.tail);
   }
 
-  function busParts(b, k, out) {
+  function busParts(b, k, out, detail) {
     const publicBus = !b.campus && b.opCls !== 'op-private';
     const campus = CAMPUS_LIVERY[b.opCls] || null;
     const body = campus ? campus.body : publicBus ? LIVERY.green : b.color;
@@ -771,17 +854,17 @@
     });
     const main = busFrame(b.cur.lat, b.cur.lng, b.heading);
     if (b.type === 'DD') {
-      busSection(add, main, { x0: -5.8, x1: 5.8, W, body, pod, dd: true, front: true, rear: true, wheels: [3.7, -2.3, -4.1] });
+      busSection(add, main, { detail, x0: -5.8, x1: 5.8, W, body, pod, dd: true, front: true, rear: true, wheels: [3.7, -2.3, -4.1] });
     } else if (b.type === 'BD') {
       const trail = b.trail ?? b.heading;
-      busSection(add, main, { x0: -1.4, x1: 8.4, W, body, pod, dd: false, front: true, rear: false, wheels: [6.0, 0.4] });
+      busSection(add, main, { detail, x0: -1.4, x1: 8.4, W, body, pod, dd: false, front: true, rear: false, wheels: [6.0, 0.4] });
       const pivot = framePoint(main, -2.1, k);
       const mid = busFrame(pivot.lat, pivot.lng, lerpAngle(trail, b.heading, 0.5));
       add(mid, capsule(-0.9, 0.9, W * 0.9, 0.3, 0.3), 0.7, 4.4, LIVERY.joint);
       const back = busFrame(pivot.lat, pivot.lng, trail);
-      busSection(add, back, { x0: -7.2, x1: -0.7, W, body, pod, dd: false, front: false, rear: true, wheels: [-4.6] });
+      busSection(add, back, { detail, x0: -7.2, x1: -0.7, W, body, pod, dd: false, front: false, rear: true, wheels: [-4.6] });
     } else {
-      busSection(add, main, { x0: -5.5, x1: 5.5, W, body, pod, campus, dd: false, front: true, rear: true, wheels: [3.4, -3.2] });
+      busSection(add, main, { detail, x0: -5.5, x1: 5.5, W, body, pod, campus, dd: false, front: true, rear: true, wheels: [3.4, -3.2] });
     }
   }
 
@@ -793,11 +876,12 @@
     if (zoom >= BUS_MIN_ZOOM - 1) {
       const res = 78271.517 * Math.cos(toRad(map.getCenter().lat)) / Math.pow(2, zoom);
       const k = Math.min(40, Math.max(1.2, BUS_PX * res / 11));
+      const detail = zoom >= 16;
       const vb = map.getBounds(), pad = 0.004;
       const w = vb.getWest() - pad, e = vb.getEast() + pad, so = vb.getSouth() - pad, n = vb.getNorth() + pad;
       for (const b of M.buses.values()) {
         if (b.cur.lng < w || b.cur.lng > e || b.cur.lat < so || b.cur.lat > n) continue;
-        busParts(b, k, parts);
+        busParts(b, k, parts, detail);
         pts.push({ type: 'Feature', properties: { id: b.id, img: `sbl|${b.label}|${b.color}|${b.fg}`, sort: -b.cur.lat }, geometry: { type: 'Point', coordinates: [b.cur.lng, b.cur.lat] } });
       }
     }
